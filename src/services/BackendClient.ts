@@ -1,11 +1,11 @@
 import { AbstractBackendClient } from "./AbstractBackendClient";
 
-export abstract class BackendClient<T> extends AbstractBackendClient<T> {
+export abstract class BackendClient<TG, TP> extends AbstractBackendClient<TG, TP> {
   constructor(baseUrl: string) {
     super(baseUrl);
   }
 
-  async getAll(): Promise<T[]> {
+  async getAll(): Promise<TG[]> {
     const response = await fetch(`${this.baseUrl}`,
       {
         method: "GET",
@@ -16,19 +16,19 @@ export abstract class BackendClient<T> extends AbstractBackendClient<T> {
       }
     );
     const data = await response.json();
-    return data as T[];
+    return data as TG[];
   }
 
-  async getById(id: number): Promise<T | null> {
+  async getById(id: number): Promise<TG | null> {
     const response = await fetch(`${this.baseUrl}/${id}`);
     if (!response.ok) {
       return null;
     }
     const data = await response.json();
-    return data as T;
+    return data as TG;
   }
 
-  async post(data: T): Promise<T> {
+  async post(data: TP): Promise<TP> {
     const response = await fetch(`${this.baseUrl}`, {
       method: "POST",
       headers: {
@@ -37,10 +37,10 @@ export abstract class BackendClient<T> extends AbstractBackendClient<T> {
       body: JSON.stringify(data),
     });
     const newData = await response.json();
-    return newData as T;
+    return newData as TP;
   }
 
-  async put(id: number, data: T): Promise<T> {
+  async put(id: number, data: TP): Promise<TP> {
     console.log(this.baseUrl)
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "PUT",
@@ -51,7 +51,7 @@ export abstract class BackendClient<T> extends AbstractBackendClient<T> {
       body: JSON.stringify(data),
     });
     const newData = await response.json();
-    return newData as T;
+    return newData as TP;
   }
 
   // Método para eliminar un elemento por su ID
@@ -64,12 +64,12 @@ export abstract class BackendClient<T> extends AbstractBackendClient<T> {
     }
   }
 
-  // Método para dada de baja lógica de un elemento por su ID
-  async logicDelete(id: number): Promise<void> {
-    const element = await this.getById(id);
-    if (element) {
-      (element as any).active = !element;
-      await this.put(id, element);
-    }
-  }
+  // // Método para dada de baja lógica de un elemento por su ID
+  // async logicDelete(id: number): Promise<TP> {
+  //   const element = await this.getById(id);
+  //   if (element) {
+  //     (element as any).eliminado = !element;
+  //     await this.put(id, element);
+  //   }
+  // }
 }

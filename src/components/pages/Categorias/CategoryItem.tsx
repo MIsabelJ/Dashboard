@@ -1,5 +1,5 @@
 import React from "react";
-import { ICategoria } from "../../../types/ICategoria";
+import { ICategoria } from "../../../types/Categoria/ICategoria";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";

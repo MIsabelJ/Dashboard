@@ -2,7 +2,7 @@
 
 import * as Yup from "yup";
 import { GenericModal } from "../GenericModal";
-import { IEmpresa } from "../../../../types/IEmpresa";
+import { IEmpresa } from "../../../../types/Empresa/IEmpresa";
 import { useAppSelector } from "../../../../hooks/redux";
 
 interface IModalEmpresa {

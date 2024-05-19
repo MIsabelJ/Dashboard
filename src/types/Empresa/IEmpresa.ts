@@ -1,4 +1,4 @@
-import { IBaseEntity } from "./IBaseEntity";
+import { IBaseEntity } from "../IBaseEntity";
 
 export interface IEmpresa extends IBaseEntity {
     nombre: string;

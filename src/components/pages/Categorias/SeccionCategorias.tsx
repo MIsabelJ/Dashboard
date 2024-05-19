@@ -1,13 +1,12 @@
 import * as React from "react";
 import { CategoryItem } from "./CategoryItem";
 import { useEffect, useState } from "react";
-import { ICategoria } from "../../../types/ICategoria";
+import { ICategoria } from "../../../types/Categoria/ICategoria";
 import List from "@mui/material/List";
 import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
-import { ModalCategorias } from "../../ui/modals/ModalCategorias/ModalCategorias";
  
 const API_URL = import.meta.env.VITE_API_URL;
 

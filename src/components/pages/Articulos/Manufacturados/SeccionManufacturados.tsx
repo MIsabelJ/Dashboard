@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { IArticuloManufacturado } from "../../../../types/IArticuloManufacturado";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 import { ModalManufacturados2 } from "../../../ui/modals/ModalManufacturados/ModalManufacturados2";
 
 import "./manufacturados.css";
+import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -60,7 +60,7 @@ export const SeccionManufacturados = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await manufacturadoService.logicDelete(id).then(() => {
+        await manufacturadoService.delete(id).then(() => {
           getManufacturado();
         });
       }

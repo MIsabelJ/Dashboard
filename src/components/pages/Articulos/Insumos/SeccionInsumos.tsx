@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { InsumoService } from "../../../../services/InsumoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { IArticuloInsumo } from "../../../../types/IArticuloInsumo";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 
 import "./insumos.css";
 import { ModalInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
+import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,7 +63,7 @@ export const SeccionInsumos = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await insumoService.logicDelete(id).then(() => {
+        await insumoService.delete(id).then(() => {
           getInsumo();
         });
       }

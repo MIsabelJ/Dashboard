@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { EmpresaService } from "../../../services/EmpresaService";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
-import { IEmpresa } from "../../../types/IEmpresa";
+import { IEmpresa } from "../../../types/Empresa/IEmpresa";
 import Swal from "sweetalert2";
 import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";

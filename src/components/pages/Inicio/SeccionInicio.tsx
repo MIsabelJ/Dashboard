@@ -1,6 +1,5 @@
 import * as React from "react";
-import { useAppDispatch } from "../../../hooks/redux";
-import { setCurrentSection } from "../../../redux/slices/SectionReducer";
+import { useNavigate } from "react-router-dom";
 
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -25,23 +24,19 @@ import {
 import { Pie, Line } from "react-chartjs-2";
 import "./inicio.css";
 
-interface ISeccionInicio {
-  setSection: (state: string) => void;
-}
+export const SeccionInicio = () => {
 
-export const SeccionInicio = ({ setSection }: ISeccionInicio) => {
   ChartJS.register(
     ArcElement,
     Tooltip,
     Legend,
-    CategoryScale,
     LinearScale,
+    CategoryScale,
     PointElement,
     LineElement,
     Title,
-    Tooltip,
-    Legend
   );
+  const navigate = useNavigate();
 
   const pieData = {
     labels: [
@@ -159,12 +154,6 @@ export const SeccionInicio = ({ setSection }: ISeccionInicio) => {
     },
   };
 
-  // const currentSection: string = useAppSelector((state) => state.sectionReducer.sectionActual);
-  const dispatch = useAppDispatch();
-  const handleSectionChange = (newSection: string) => {
-    setSection(newSection);
-    dispatch(setCurrentSection(newSection));
-  };
 
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(true);
@@ -219,7 +208,7 @@ export const SeccionInicio = ({ setSection }: ISeccionInicio) => {
               <ListItem key={index}
                 secondaryAction={
                   <IconButton
-                    onClick={() => handleSectionChange("Productos")}
+                    onClick={() => navigate("/inicio")} //cambiar al modal correspondiente
                     edge="end"
                     aria-label="edit"
                   >
@@ -233,8 +222,8 @@ export const SeccionInicio = ({ setSection }: ISeccionInicio) => {
                   </Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  primary={nombre} // Use the correct variable name 'nombre'
-                  secondary={secondary ? descripcion : null} // Provide an initializer for the shorthand property 'descripcion'
+                  primary={nombre}
+                  secondary={secondary ? descripcion : null}
                 />
               </ListItem>
             );
