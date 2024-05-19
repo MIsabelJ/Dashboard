@@ -11,15 +11,49 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route index path="/login" element={<Login />} />
-        <Route path="/empresa" element={<SeccionEmpresa/>} />
-        <Route path="/empresa/:id/sucursal" element={<SeccionSucursal/>} />
-        <Route
-          path="/app"
-          element={
-            <Box sx={{ display: 'flex' }}>
-              <PersistentDrawerLeft />
-            </Box>
-          }
+        <Route path="/empresa" element={<SeccionEmpresa />} />
+        <Route path="/empresa/:id/sucursal" element={<SeccionSucursal />} />
+        <Route path="/inicio" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Inicio" />
+          </Box>
+        }
+        />
+        <Route path="/articulo-manufacturado" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Artículos manufacturados" />
+          </Box>
+        }
+        />
+        <Route path="/articulo-insumo" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Insumos" />
+          </Box>
+        }
+        />
+        <Route path="/categoria" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Categorías" />
+          </Box>
+        }
+        />
+        <Route path="/promocion" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Promociones" />
+          </Box>
+        }
+        />
+        <Route path="/sucursal" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Sucursales" />
+          </Box>
+        }
+        />
+        <Route path="/usuario" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Usuarios" />
+          </Box>
+        }
         />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
