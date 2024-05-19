@@ -7,7 +7,6 @@ import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
-import { ModalCategorias } from "../../ui/modals/ModalCategorias/ModalCategorias";
  
 const API_URL = import.meta.env.VITE_API_URL;
 
