@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
 import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
-import { ISucursal } from "../../../types/ISucursal";
+import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { useNavigate, useParams } from "react-router-dom";
 import { FactoryService } from "../../../services/FactoryService";
 import { EmpresaService } from "../../../services/EmpresaService";

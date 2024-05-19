@@ -1,5 +1,5 @@
-import { IBaseEntity } from "./IBaseEntity"
-import { ILocalidad } from "./Ilocalidad"
+import { IBaseEntity } from "../IBaseEntity"
+import { ILocalidad } from "../Localidad/ILocalidad"
 
 export interface IDomicilio extends IBaseEntity{
     calle: string

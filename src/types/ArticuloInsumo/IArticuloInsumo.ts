@@ -1,6 +1,7 @@
-import { IBaseEntity } from "./IBaseEntity"
-import { IImagenArticulo } from "./IImagenArticulo"
-import { IUnidadMedida } from "./IUnidadMedida"
+import { ICategoria } from "../Categoria/ICategoria"
+import { IBaseEntity } from "../IBaseEntity"
+import { IImagenArticulo } from "../ImagenArticulo/IImagenArticulo"
+import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
 
 export interface IArticuloInsumo extends IBaseEntity {
     denominacion: string
@@ -11,4 +12,5 @@ export interface IArticuloInsumo extends IBaseEntity {
     stockMaximo: number
     esParaElaborar: boolean
     unidadMedida: IUnidadMedida
+    categoria: ICategoria
 }

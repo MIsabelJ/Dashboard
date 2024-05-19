@@ -1,4 +1,4 @@
-import { ICategoria } from "../types/ICategoria";
+import { ICategoria } from "../types/Categoria/ICategoria";
 import { BackendClient } from "./BackendClient";
 
 

@@ -1,4 +1,4 @@
-import { IEmpresa } from "../types/IEmpresa";
+import { IEmpresa } from "../types/Empresa/IEmpresa";
 import { BackendClient } from "./BackendClient";
 
 
