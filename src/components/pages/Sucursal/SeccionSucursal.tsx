@@ -10,10 +10,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FactoryService } from "../../../services/FactoryService";
 import { EmpresaService } from "../../../services/EmpresaService";
 import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
-// Recibo el ID del endpoint proveniente de la empresa
+  // Recibo el ID del endpoint proveniente de la empresa
   const id = useParams().id;
   const navigate = useNavigate();
 
@@ -24,11 +25,12 @@ const SeccionSucursal = () => {
   const empresaService = new EmpresaService(API_URL + "/empresa");
   const sucursalSevice = FactoryService.createService("sucursal");
 
-  const empresaData = empresaService.getById(Number(id))
+  const empresaData = empresaService.getById(Number(id));
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter = dataCard.filter((item: ISucursal) => item.empresa && item.empresa.id === Number(id))
-
+  const dataFilter = dataCard.filter(
+    (item: ISucursal) => item.empresa && item.empresa.id === Number(id)
+  );
 
   const dispatch = useAppDispatch();
   const sucursalActive = useAppSelector(
@@ -36,8 +38,8 @@ const SeccionSucursal = () => {
   );
 
   const handleClick = () => {
-    navigate('/app')
-  }
+    navigate("/app");
+  };
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
@@ -79,31 +81,33 @@ const SeccionSucursal = () => {
   return (
     <>
       <div>
-        <div
-          style={{
-            padding: ".4rem",
-            display: "flex",
-            justifyContent: "flex-end",
-            width: "90%",
-          }}
-        ></div>
+        <AppBar style={{ zIndex: 10 }} position="fixed">
+          {/* Navbar */}
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Sucursales de Empresa
+            </Typography>
+          </Toolbar>
+        </AppBar>
         {/* Mostrar indicador de carga mientras se cargan los datos */}
-        {loading ? (
-          <Loader />
-        ) : (
-          // Mostrar la tabla de personas una vez que los datos se han cargado
-          <GenericCards<ISucursal>
-            items={dataFilter}
-            handleClick={handleClick}
-            handleDelete={handleDelete}
-            setOpenModal={setOpenModal}
-          />
-        )}
+        <div style={{ marginTop: "100px" }}>
+          {loading ? (
+            <Loader />
+          ) : (
+            // Mostrar la tabla de personas una vez que los datos se han cargado
+            <GenericCards<ISucursal>
+              items={dataFilter}
+              handleClick={handleClick}
+              handleDelete={handleDelete}
+              setOpenModal={setOpenModal}
+            />
+          )}
+        </div>
       </div>
       <ModalSucursal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleSubmit={ handleSubmit }
+        handleSubmit={handleSubmit}
       />
     </>
   );

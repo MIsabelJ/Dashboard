@@ -239,6 +239,7 @@ export default function PersistentDrawerLeft() {
         {/* Navbar */}
         <Toolbar>
           <IconButton
+            style={{alignSelf: 'center'}}
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
@@ -268,7 +269,7 @@ export default function PersistentDrawerLeft() {
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose} style={{alignSelf: 'center'}}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
             ) : (

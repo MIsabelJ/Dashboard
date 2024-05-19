@@ -116,7 +116,7 @@ export const GenericTable = <T extends { id: number }>({
       style={{
         width: "100%",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         alignItems: "center",
         height: "100%",
         flexDirection: "column",
