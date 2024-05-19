@@ -1,6 +1,7 @@
 import { IBaseEntity } from "./IBaseEntity";
+import { ISucursal } from "./ISucursal";
 
 export interface ICategoria extends IBaseEntity {
-  subCategoria?: ICategoria[];
-  active: boolean;
+  denominacion: string
+  sucursales: ISucursal[]
 }

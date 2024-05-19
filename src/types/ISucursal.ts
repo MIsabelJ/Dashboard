@@ -1,41 +1,14 @@
 import { IBaseEntity } from "./IBaseEntity";
+import { IDomicilio } from "./IDomicilio";
+import { IEmpresa } from "./IEmpresa";
 
 export interface ISucursal extends IBaseEntity {
-    nombre: string,
-    horarioApertura: string,
-    horarioCierre: string,
-    esCasaMatriz: boolean,
-    domicilio: {
-      id: number,
-      eliminado: boolean,
-      calle: string,
-      numero: number,
-      cp: number,
-      piso: number,
-      nroDpto: number,
-      localidad: {
-        id: number,
-        eliminado: boolean,
-        nombre: string,
-        provincia: {
-          id: number,
-          eliminado: boolean,
-          nombre: string,
-          pais: {
-            id: number,
-            eliminado: boolean,
-            nombre: string
-          }
-        }
-      }
-    },
-    empresa: {
-      id: number,
-      eliminado: boolean,
-      nombre: string,
-      razonSocial: string,
-      cuil: number
-    }
+    nombre: string
+    horarioApertura: string
+    horarioCierre: string
+    esCasaMatriz: boolean
+    domicilio: IDomicilio
+    empresa: IEmpresa
 }
 
 // FORMATO DE JSON TRAIDO DESDE EL GET AL BACK EN JAVA

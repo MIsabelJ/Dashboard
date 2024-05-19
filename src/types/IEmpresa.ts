@@ -4,7 +4,6 @@ export interface IEmpresa extends IBaseEntity {
     nombre: string;
     razonSocial: string;
     cuil: number;
-    actions: string;
 }
 // ASI LO RETORNA EL JSON DESDE JAVA
 //         "id": 1,
