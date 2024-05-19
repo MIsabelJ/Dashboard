@@ -6,7 +6,7 @@ import { IArticuloManufacturado } from "../../../../types/IArticuloManufacturado
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
-import { ModalManufacturado } from "../../../ui/modals/ModalArticulos/ModalManufacturados";
+import { ModalManufacturados2 } from "../../../ui/modals/ModalManufacturados/ModalManufacturados2";
 
 import "./manufacturados.css";
 
@@ -96,7 +96,7 @@ export const SeccionManufacturados = () => {
         </div>
       )}
 
-      <ModalManufacturado
+      <ModalManufacturados2
         getManufacturados={getManufacturado}
         openModal={openModal}
         setOpenModal={setOpenModal}
