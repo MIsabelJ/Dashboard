@@ -16,7 +16,7 @@ export function SeccionCategorias() {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
 
-  const categoriaService = new CategoriaService(API_URL + "/Categoria");
+  const categoriaService = new CategoriaService(API_URL + "/categoria");
 
   const getCategoria = async () => {
     try {

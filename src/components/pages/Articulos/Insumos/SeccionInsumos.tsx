@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { InsumoService } from "../../../../services/InsumoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { IInsumo } from "../../../../types/IInsumo";
+import { IArticuloInsumo } from "../../../../types/IArticuloInsumo";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
@@ -16,7 +16,7 @@ export const SeccionInsumos = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
-  const insumoService = new InsumoService(API_URL + "/supplies");
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const dispatch = useAppDispatch();
 
   // Necesario para establecer las columnas de la tabla genérica
@@ -24,7 +24,7 @@ export const SeccionInsumos = () => {
     {
       label: "id",
       key: "id",
-      render: (insumo: IInsumo) => (insumo?.id ? insumo.id : 0),
+      render: (insumo: IArticuloInsumo) => (insumo?.id ? insumo.id : 0),
     },
     { label: "Nombre", key: "name" },
     { label: "Precio", key: "price" },
@@ -33,15 +33,15 @@ export const SeccionInsumos = () => {
     {
       label: "Es ingrediente",
       key: "isIngredient",
-      render: (insumo: IInsumo) => (insumo.isIngredient ? "Sí" : "No"),
+      render: (insumo: IArticuloInsumo) => (insumo.esParaElaborar ? "Sí" : "No"),
     },
     {
       label: "Imagen",
       key: "image",
-      render: (insumo: IInsumo) => (
+      render: (insumo: IArticuloInsumo) => (
         <img
-          src={insumo.image}
-          alt={insumo.name}
+          src={insumo.imagenes[0].url}
+          alt={insumo.denominacion}
           style={{ maxWidth: "100px", maxHeight: "100px" }}
         />
       ),
@@ -89,23 +89,14 @@ export const SeccionInsumos = () => {
       {loading ? (
         <Loader />
       ) : (
-        // Mostrar la tabla de personas una vez que los datos se han cargado
         <div style={{ height: "85vh" }}>
-          <GenericTable<IInsumo>
+          <GenericTable<IArticuloInsumo>
             handleDelete={handleDelete}
             columns={ColumnsInsumo}
             setOpenModal={setOpenModal}
           />
         </div>
       )}
-      {/* <GenericModal
-        modalTitle={"Insumo"}
-        formDetails={formDetails}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        route="supplies"
-        getItems={getInsumo} /> */}
-
       <ModalInsumo
         getInsumos={getInsumo}
         openModal={openModal}

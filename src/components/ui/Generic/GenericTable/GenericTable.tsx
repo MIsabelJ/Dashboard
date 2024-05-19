@@ -175,37 +175,47 @@ export const GenericTable = <T extends { id: number }>({
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index: number) => {
-                  return (
-                    <TableRow key={index}>
-                      {columns.map((column, i: number) => {
-                        return (
-                          <TableCell key={i} align={"center"}>
-                            {column.render ? (
-                              column.render(row)
-                            ) : column.label === "Acciones" ? (
-                              <ButtonsTable
-                                el={row}
-                                handleDelete={handleDelete}
-                                setOpenModal={setOpenModal}
-                              />
-                            ) : column.label === "Estado" ? (
-                              <SwitchButton
-                                id={row.id}
-                                currentState={row.active}
-                                route="category"
-                              />
-                            ) : (
-                              row[column.key]
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+              {rows.length === 0 ? (
+                <TableRow>
+                  {columns.map((column, i) => (
+                    <TableCell key={i} align="center">
+                      {/* Renderiza celdas vacías */}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ) : (
+                rows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    return (
+                      <TableRow key={index}>
+                        {columns.map((column, i) => {
+                          return (
+                            <TableCell key={i} align="center">
+                              {column.render ? (
+                                column.render(row)
+                              ) : column.label === "Acciones" ? (
+                                <ButtonsTable
+                                  el={row}
+                                  handleDelete={handleDelete}
+                                  setOpenModal={setOpenModal}
+                                />
+                              ) : column.label === "Estado" ? (
+                                <SwitchButton
+                                  id={row.id}
+                                  currentState={row.active}
+                                  route="category"
+                                />
+                              ) : (
+                                row[column.key]
+                              )}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    );
+                  })
+              )}
             </TableBody>
           </Table>
         </TableContainer>
