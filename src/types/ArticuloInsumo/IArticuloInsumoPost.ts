@@ -1,6 +1,3 @@
-import { IImagenArticulo } from "../ImagenArticulo/IImagenArticulo"
-import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
-
 export interface IArticuloInsumoPost{
     denominacion: string
     precioVenta: number

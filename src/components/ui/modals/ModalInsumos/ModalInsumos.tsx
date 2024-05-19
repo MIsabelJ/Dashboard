@@ -1,7 +1,6 @@
 import React from 'react';
-import { IInsumo } from '../../../../types/IInsumo';
+import { IArticuloInsumo } from '../../../../types/IArticuloInsumo';
 import * as Yup from 'yup';
-import { GenericModal } from '../GenericModal';
 import { useAppSelector } from '../../../../hooks/redux';
 
 interface IModalInsumo {
@@ -72,12 +71,12 @@ export const ModalInsumo = ({
     },
   }
   return (
-    <GenericModal<IInsumo>
-      modalTitle="Insumo"
-      getItems={getInsumos}
-      openModal={openModal}
-      setOpenModal={setOpenModal}
-      route="supplies"
-      formDetails={formDetails} />
+    // <GenericModal<IInsumo>
+    //   modalTitle="Insumo"
+    //   getItems={getInsumos}
+    //   openModal={openModal}
+    //   setOpenModal={setOpenModal}
+    //   route="supplies"
+    //   formDetails={formDetails} />
   )
 }

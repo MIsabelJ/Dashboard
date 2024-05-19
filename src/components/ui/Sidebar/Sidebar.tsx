@@ -4,7 +4,7 @@ import { SeccionInicio } from "../../pages/Inicio/SeccionInicio";
 import { SeccionInsumos } from "../../pages/Articulos/Insumos/SeccionInsumos";
 import { SeccionManufacturados } from "../../pages/Articulos/Manufacturados/SeccionManufacturados";
 import { SeccionCategorias } from "../../pages/Categorias/SeccionCategorias";
-import { SeccionPromocion } from "../../pages/Promociones/SeccionPromociones";
+// import { SeccionPromocion } from "../../pages/Promociones/SeccionPromociones";
 import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
 import SeccionSucursal from "../../pages/Sucursal/SeccionSucursal";
 
@@ -187,7 +187,8 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
       case "Categorías":
         return <SeccionCategorias />;
       case "Promociones":
-        return <SeccionPromocion />;
+        // return <SeccionPromocion />;
+        return <h1>Promociones</h1>
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":

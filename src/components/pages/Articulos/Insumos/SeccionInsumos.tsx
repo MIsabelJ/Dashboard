@@ -97,11 +97,11 @@ export const SeccionInsumos = () => {
           />
         </div>
       )}
-      <ModalInsumo
+      {/* <ModalInsumo
         getInsumos={getInsumo}
         openModal={openModal}
         setOpenModal={setOpenModal}
-      />
+      /> */}
     </>
   );
 };
