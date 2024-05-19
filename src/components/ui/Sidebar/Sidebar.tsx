@@ -1,13 +1,10 @@
 import * as React from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { setCurrentSection } from "../../../redux/slices/SectionReducer";
+import { useNavigate } from "react-router-dom";
 import { SeccionInicio } from "../../pages/Inicio/SeccionInicio";
-// import { SeccionArticulos } from "../../pages/Articulos/SeccionArticulos";
 import { SeccionInsumos } from "../../pages/Articulos/Insumos/SeccionInsumos";
 import { SeccionManufacturados } from "../../pages/Articulos/Manufacturados/SeccionManufacturados";
 import { SeccionCategorias } from "../../pages/Categorias/SeccionCategorias";
 import { SeccionPromocion } from "../../pages/Promociones/SeccionPromociones";
-// import { SeccionEmpresa } from "../../pages/Empresa/SeccionEmpresa";
 import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
 import SeccionSucursal from "../../pages/Sucursal/SeccionSucursal";
 
@@ -44,6 +41,7 @@ import {
   Select,
   SelectChangeEvent,
 } from "@mui/material";
+import { useAppSelector } from "../../../hooks/redux";
 
 const drawerWidth = 240;
 
@@ -102,6 +100,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 interface IDashboardItem {
   text: string;
   icon: JSX.Element;
+  route?: string;
   subItems?: IDashboardItem[];
 }
 
@@ -115,6 +114,7 @@ const dashboardItems: IDashboard = {
     {
       text: "Inicio",
       icon: <DashboardIcon />,
+      route: "inicio"
     },
     {
       text: "Artículos",
@@ -123,32 +123,34 @@ const dashboardItems: IDashboard = {
         {
           text: "Manufacturados",
           icon: <ShoppingBagIcon />,
+          route: "articulo-manufacturado"
         },
         {
           text: "Insumos",
           icon: <ShoppingBagIcon />,
+          route: "articulo-insumo"
         },
       ],
     },
     {
       text: "Categorías",
       icon: <CategoryIcon />,
+      route: "categoria"
     },
     {
       text: "Promocion",
       icon: <LocalOfferIcon />,
+      route: "promocion"
     },
-    // {
-    //   text: "Empresa",
-    //   icon: <DomainIcon />,
-    // },
     {
       text: "Sucursales",
-      icon: <StoreIcon />
+      icon: <StoreIcon />,
+      route: "sucursal"
     },
     {
       text: "Usuarios",
       icon: <GroupIcon />,
+      route: "usuario"
     },
   ],
 };
@@ -156,7 +158,7 @@ const dashboardItems: IDashboard = {
 //-------------------------------------------------------------------------------------------------------------
 
 // COMPONENTE PRINCIPAL
-export default function PersistentDrawerLeft() {
+export default function PersistentDrawerLeft({ sectionName }: { sectionName: string }) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const [openSubMenu, setOpenSubMenu] = React.useState<{
@@ -170,42 +172,22 @@ export default function PersistentDrawerLeft() {
     }));
   };
 
-  // --------------------------------- CARGAR ESTADO 'SECTION' -------------------------------
-  // Manejo del estado de la sección actual
-  const currentSection: string = useAppSelector(
-    (state) => state.sectionReducer.sectionActual
-  );
-  const dispatch = useAppDispatch();
-
-  const [section, setSection] = React.useState<string>("Inicio");
-
-  //Actualiza el estado de redux de 'currentSection' al cambiar de sección
-  React.useEffect(() => {
-    setSection(currentSection);
-  }, [currentSection]);
-
-  const handleSectionChange = (newSection: string) => {
-    setSection(newSection);
-    dispatch(setCurrentSection(newSection));
-  }
+  const navigate = useNavigate();
 
   // Función para renderizar la sección correspondiente en función del estado actual
   const dashboardSection = (seccionActual: string) => {
+    console.log(seccionActual)
     switch (seccionActual) {
       case "Inicio":
-        return <SeccionInicio setSection={setSection} />;
-      case "Artículos":
-        return <h2>Artículos</h2>;
-      case "Manufacturados":
+        return <SeccionInicio />;
+      case "Artículos manufacturados":
         return <SeccionManufacturados />;
       case "Insumos":
         return <SeccionInsumos />;
       case "Categorías":
         return <SeccionCategorias />;
-      case "Promocion":
+      case "Promociones":
         return <SeccionPromocion />;
-      // case "Empresa":
-      //   return <SeccionEmpresa />;
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":
@@ -239,6 +221,7 @@ export default function PersistentDrawerLeft() {
         {/* Navbar */}
         <Toolbar>
           <IconButton
+            style={{alignSelf: 'center'}}
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
@@ -248,7 +231,7 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Dashboard
+            {sectionName}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -268,7 +251,7 @@ export default function PersistentDrawerLeft() {
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose}>
+          <IconButton onClick={handleDrawerClose} style={{alignSelf: 'center'}}>
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
             ) : (
@@ -290,7 +273,7 @@ export default function PersistentDrawerLeft() {
             aria-label="user"
             color="primary"
             onClick={() => {
-              handleSectionChange("Usuarios");
+              handleChange
             }}
           >
             <AccountCircle fontSize="large" />
@@ -302,9 +285,8 @@ export default function PersistentDrawerLeft() {
               id="demo-select-small"
               value={branch}
               label="Branch"
-              onChange={handleChange}
             >
-              <MenuItem value={"sucursal1"}>Sucursal 1</MenuItem> {/* TODO: Renderizar sucursales disponibles según la empresa */}
+              <MenuItem value={"sucursal1"}>Sucursal 1</MenuItem> {/*TODO: Renderizar sucursales disponibles según la empresa*/}
               <MenuItem value={"sucursal2"}>Sucursal 2</MenuItem>
             </Select>
           </FormControl>
@@ -312,13 +294,14 @@ export default function PersistentDrawerLeft() {
         <Divider />
         <List>
           {/* recorre y renderiza la lista de secciones */}
-          {dashboardItems.list.map(({ text, icon, subItems }, index) => (
+          {dashboardItems.list.map(({ text, icon, subItems, route }, index) => (
             <div key={index}>
               <ListItem
                 onClick={() => {
-                  handleSectionChange(text);
                   if (subItems) {
                     handleSubMenuClick(text);
+                  } else {
+                    navigate(`/${route}`);
                   }
                 }}
                 disablePadding
@@ -336,7 +319,7 @@ export default function PersistentDrawerLeft() {
                     {subItems.map((subItem, subIndex) => (
                       <ListItem
                         key={`${index}-${subIndex}`}
-                        onClick={() => handleSectionChange(subItem.text)}
+                        onClick={() => navigate(`/${subItem.route}`)}
                         disablePadding
                         sx={{ pl: 4 }}
                       >
@@ -354,7 +337,9 @@ export default function PersistentDrawerLeft() {
         </List>
       </Drawer>
       <Main style={{ marginTop: "36px" }} open={open}>
-        {dashboardSection(section)}
+        {
+          dashboardSection(sectionName)
+        }
       </Main>
     </Box>
   );

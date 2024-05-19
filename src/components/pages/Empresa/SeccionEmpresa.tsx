@@ -8,7 +8,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 import { useNavigate } from "react-router-dom";
 import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
-
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,9 +23,9 @@ export const SeccionEmpresa = () => {
   const dispatch = useAppDispatch();
 
   const handleClick = (id: number) => {
-    console.log("Aca esta el id ",id)
+    console.log("Aca esta el id ", id);
     navigate(`/empresa/${id}/sucursal`);
-  }
+  };
 
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -58,34 +58,31 @@ export const SeccionEmpresa = () => {
     getEmpresa();
   }, []);
 
-  
-
   return (
-    
     <>
       <div>
-        <div
-          style={{
-            padding: ".4rem",
-            display: "flex",
-            justifyContent: "flex-end",
-            width: "90%",
-          }}
-        >
-
-        </div>
+        <AppBar style={{ zIndex: 1000 }} position="fixed" open={open}>
+          {/* Navbar */}
+          <Toolbar>
+            <Typography variant="h6" noWrap component="div">
+              Empresas
+            </Typography>
+          </Toolbar>
+        </AppBar>
         {/* Mostrar indicador de carga mientras se cargan los datos */}
-        {loading ? (
-          <Loader />
-        ) : (
-          // Mostrar la tabla de personas una vez que los datos se han cargado
-          <GenericCards<IEmpresa>
-            items={dataCard}
-            handleClick={handleClick}
-            handleDelete={handleDelete}
-            setOpenModal={setOpenModal}
-          />
-        )}
+        <div style={{ marginTop: "100px" }}>
+          {loading ? (
+            <Loader />
+          ) : (
+            // Mostrar la tabla de personas una vez que los datos se han cargado
+            <GenericCards<IEmpresa>
+              items={dataCard}
+              handleClick={handleClick}
+              handleDelete={handleDelete}
+              setOpenModal={setOpenModal}
+            />
+          )}
+        </div>
       </div>
       <ModalEmpresa
         getEmpresa={getEmpresa}
@@ -94,4 +91,4 @@ export const SeccionEmpresa = () => {
       />
     </>
   );
-}
+};
