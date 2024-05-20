@@ -1,18 +1,18 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface IInitialState {
-    sucursalActual: string;
+    sucursalActual: number;
 }
 
 const initialState: IInitialState = {
-    sucursalActual: "sucursal1",
+    sucursalActual: 0,
 }
 
 export const SucursalReducer = createSlice({
     name: "SucursalReducer",
     initialState,
     reducers: {
-        setCurrentSucursal(state, action: PayloadAction<string>) {
+        setCurrentSucursal(state, action: PayloadAction<number>) {
             state.sucursalActual = action.payload
         }
     }

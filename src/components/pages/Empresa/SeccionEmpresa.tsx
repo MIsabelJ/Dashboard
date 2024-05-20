@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
 import { IEmpresaPost } from "../../../types/Empresa/IEmpresaPost";
+import { setCurrentEmpresa } from "../../../redux/slices/EmpresaReducer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,12 +22,24 @@ export const SeccionEmpresa = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
+  const [redirectId, setRedirectId] = useState<number | null>(null);
 
   const empresaService = new EmpresaService(API_URL + "/empresa");
   const dispatch = useAppDispatch();
 
+  const empresaActive = useAppSelector((state) => state.empresaReducer.empresaActual);
+
+  useEffect(() => {
+    if (redirectId !== null && empresaActive === redirectId) {
+      console.log("Redireccionando a la subruta de la empresa " + empresaActive);
+      navigate(`/sucursal`);
+      setRedirectId(null); // Reset redirect ID after navigation
+    }
+  }, [empresaActive, redirectId, navigate]);
+  
   const handleClick = (id: number) => {
-    navigate(`/empresa/${id}/sucursal`);
+    dispatch(setCurrentEmpresa(id));
+    setRedirectId(id);
   };
 
   const handleEdit = async (id: number) => {
