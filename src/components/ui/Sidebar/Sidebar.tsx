@@ -5,7 +5,7 @@ import { SeccionInsumos } from "../../pages/Articulos/Insumos/SeccionInsumos";
 import { SeccionManufacturados } from "../../pages/Articulos/Manufacturados/SeccionManufacturados";
 import { SeccionCategorias } from "../../pages/Categorias/SeccionCategorias";
 // import { SeccionPromocion } from "../../pages/Promociones/SeccionPromociones";
-import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
+// import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
 import SeccionSucursal from "../../pages/Sucursal/SeccionSucursal";
 
 import { styled, useTheme } from "@mui/material/styles";
@@ -192,7 +192,8 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":
-        return <SeccionUsuarios />;
+        // return <SeccionUsuarios />;
+        return <h1>Usuarios</h1>;
     }
   };
 
