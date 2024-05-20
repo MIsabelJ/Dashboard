@@ -1,8 +1,8 @@
 import { useAppDispatch } from "../../../hooks/redux";
 import { setElementActive } from "../../../redux/slices/TablaReducer";
 
-import { Button, IconButton } from "@mui/material";
-import { Edit, EditAttributes, EditAttributesRounded, EditNotifications, EditRounded } from "@mui/icons-material";
+import { Button, Icon, IconButton } from "@mui/material";
+import { DeleteRounded, Edit, EditAttributes, EditAttributesRounded, EditNotifications, EditRounded } from "@mui/icons-material";
 
 // Define una interfaz genérica para los props del componente
 interface IButtonsTable<T> {
@@ -43,6 +43,10 @@ export const ButtonsTable = <T extends { id: number }>({
       {/* Botón para editar el elemento */}
       <IconButton onClick={handleModalSelected} color="primary">
         <EditRounded />
+        
+      </IconButton>
+      <IconButton onClick={() => handleDelete(el.id)} color="error">
+        <DeleteRounded />
       </IconButton>
     </div>
   );

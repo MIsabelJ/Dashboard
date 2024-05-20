@@ -21,15 +21,14 @@ const SeccionSucursal = () => {
   const [openModal, setOpenModal] = useState(false);
   const [sucursal, setSucursal] = useState("sucursal1");
 
-  const empresaService = new EmpresaService(API_URL + "/empresa");
-  const sucursalSevice = new SucursalService("sucursal");
+  const sucursalSevice = new SucursalService(API_URL +"/sucursal");
 
-  const empresaData = empresaService.getById(Number(id));
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter = dataCard.filter(
+  const dataFilter: ISucursal[] = dataCard.filter(
     (item: ISucursal) => item.empresa && item.empresa.id === Number(id)
   );
+  console.log(dataFilter);
 
   const dispatch = useAppDispatch();
   const sucursalActive = useAppSelector(
@@ -106,7 +105,7 @@ const SeccionSucursal = () => {
       <ModalSucursal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleSubmit={handleSubmit}
+        idEmpresa={Number(id)}
       />
     </>
   );
