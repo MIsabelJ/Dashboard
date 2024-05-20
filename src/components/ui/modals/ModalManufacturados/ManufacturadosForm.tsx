@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { Button, TextField, Box } from "@mui/material";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setElementActive } from "../../../../redux/slices/TablaReducer";
-import { IArticuloManufacturado } from "../../../../types/IArticuloManufacturado";
+import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 import AddIcon from "@mui/icons-material/Add";
 
 const steps = ["Información General", "Detalles", "Ingredientes"];
@@ -281,11 +281,17 @@ export const ManufacturadosForm = ({
             </>
           )}
           {activeStep === 2 && (
-            <>
-              <Button variant="outlined" startIcon={<AddIcon />} /*onClick={<ModalManufacturadoDetalle/>}*/>
+            <div>
+              <Button
+                variant="outlined"
+                startIcon={
+                  <AddIcon />
+                } /*onClick={<ModalManufacturadoDetalle/>}*/
+              >
                 Agregar un ingrediente
               </Button>
-            </>
+              
+            </div>
           )}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button

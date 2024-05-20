@@ -7,12 +7,8 @@ import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 
 import "./insumos.css";
-<<<<<<< HEAD
-import { ModalInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
-=======
-import { ModalInsumo } from "../../../ui/modals/ModalArticulos/ModalInsumos";
+import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
->>>>>>> development
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -101,7 +97,7 @@ export const SeccionInsumos = () => {
           />
         </div>
       )}
-      <ModalInsumo
+      <ModalArticuloInsumo
         getInsumos={getInsumo}
         openModal={openModal}
         setOpenModal={setOpenModal}

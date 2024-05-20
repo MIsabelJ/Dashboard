@@ -5,7 +5,7 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
-import { ModalManufacturados2 } from "../../../ui/modals/ModalManufacturados/ModalManufacturados2";
+import { ModalManufacturados } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
 
 import "./manufacturados.css";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
@@ -96,7 +96,7 @@ export const SeccionManufacturados = () => {
         </div>
       )}
 
-      <ModalManufacturados2
+      <ModalManufacturados
         getManufacturados={getManufacturado}
         openModal={openModal}
         setOpenModal={setOpenModal}

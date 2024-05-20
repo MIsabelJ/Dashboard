@@ -84,11 +84,11 @@ export const SeccionEmpresa = () => {
           )}
         </div>
       </div>
-      <ModalEmpresa
+      {/* <ModalEmpresa
         getEmpresa={getEmpresa}
         openModal={openModal}
         setOpenModal={setOpenModal}
-      />
+      /> */}
     </>
   );
 };

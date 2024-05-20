@@ -1,80 +1,85 @@
-import React from 'react';
-import { IManufacturado } from '../../../../types/IManufacturado';
-import * as Yup from 'yup';
-import { GenericModal } from '../GenericModal';
-import { useAppSelector } from '../../../../hooks/redux';
+import * as React from 'react';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import Modal from '@mui/material/Modal';
+import Fade from '@mui/material/Fade';
+import Typography from '@mui/material/Typography';
+import Stepper from '@mui/material/Stepper';
+import Step from '@mui/material/Step';
+import StepLabel from '@mui/material/StepLabel';
+import { useAppDispatch, useAppSelector } from '../../../../hooks/redux';
+import { removeElementActive } from '../../../../redux/slices/TablaReducer';
+import { ManufacturadosForm } from './ManufacturadosForm';
 
-interface IModalManufacturado {
-  getManufacturados: () => void; // Función para obtener los manufacturados
-  openModal: boolean;
-  setOpenModal: (state: boolean) => void;
-}
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
-export const ModalManufacturado = ({
-  getManufacturados,
-  openModal,
-  setOpenModal,
-}: IModalManufacturado) => {
+const steps = ['Información General', 'Detalles', 'Agregar Insumos'];
 
-  const elementActive = useAppSelector(
-    (state) => state.tableReducer.elementActive
-  );
-
-
-  // Necesario para el modal genérico con manufacturados
-  const initialValues: IManufacturado = elementActive?.element || {
-    id: 0,
-    name: '',
-    price: 0,
-    description: '',
-    category: '',
-    image: '',
-    stock: 0,
-    actions: '',
-    active: true,
+export const ModalManufacturados = ({ getManufacturados, openModal, setOpenModal }) => {
+  const [activeStep, setActiveStep] = React.useState(0);
+  const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  //validación del formulario específico para manufacturados
-  const validationSchema = Yup.object({
-    name: Yup.string().required('Campo requerido'),
-    price: Yup.number().required('Campo requerido'),
-    description: Yup.string().required('Campo requerido'),
-    category: Yup.string().required('Campo requerido'),
-    image: Yup.string().required('Campo requerido'),
-    stock: Yup.number().required('Campo requerido'),
-  }) as Yup.ObjectSchema<object>;
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
 
-  // Traducción de los placeholders del formulario de manufacturados
-  const translatedPlaceholder = {
-    name: 'Nombre',
-    price: 'Precio',
-    description: 'Descripción',
-    category: 'Categoría',
-    image: 'Imagen',
-    stock: 'Stock',
-  }
+  const elementActive = useAppSelector((state) => state.tableReducer.elementActive);
+  const dispatch = useAppDispatch();
 
-  // Englobamos todas las props referidas al formulario que vamos a pasarle al Modal genérico
-  const formDetails = {
-    validationSchema: validationSchema,
-    initialValues: initialValues,
-    translatedPlaceholder: translatedPlaceholder,
-    formInputType: {
-      name: 'text',
-      price: 'number',
-      description: 'text',
-      category: 'text',
-      image: 'text',
-      stock: 'number'
-    },
-  }
+  const handleClose = () => {
+    setOpenModal(false);
+    dispatch(removeElementActive());
+  };
+
   return (
-    <GenericModal<IManufacturado>
-      modalTitle="Producto Manufacturado"
-      getItems={getManufacturados}
-      openModal={openModal}
-      setOpenModal={setOpenModal}
-      route="manufactured"
-      formDetails={formDetails} />
-  )
-}
+    <Modal
+      aria-labelledby="transition-modal-title"
+      aria-describedby="transition-modal-description"
+      open={openModal}
+      onClose={handleClose}
+      closeAfterTransition
+      slots={{ backdrop: Backdrop }}
+      slotProps={{
+        backdrop: {
+          timeout: 500,
+        },
+      }}
+    >
+      <Fade in={openModal}>
+        <Box sx={style}>
+          <Typography id="transition-modal-title" variant="h6" component="h2">
+            Producto Manufacturado
+          </Typography>
+          <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
+            {steps.map((label) => (
+              <Step key={label}>
+                <StepLabel>{label}</StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <ManufacturadosForm
+            activeStep={activeStep}
+            handleNext={handleNext}
+            handleBack={handleBack}
+            elementActive={elementActive}
+            itemService={itemService}
+            getManufacturados={getManufacturados}
+            handleClose={handleClose}
+          />
+        </Box>
+      </Fade>
+    </Modal>
+  );
+};
