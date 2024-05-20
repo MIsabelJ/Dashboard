@@ -80,7 +80,7 @@ export const SeccionEmpresa = () => {
   return (
     <>
       <div>
-        <AppBar style={{ zIndex: 1000 }} position="fixed" open={open}>
+        <AppBar style={{ zIndex: 1000 }} position="fixed">
           {/* Navbar */}
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
