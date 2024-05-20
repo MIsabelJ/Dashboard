@@ -22,7 +22,7 @@ export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, hand
         }
     }
     const onSave = () => {
-        var unidadMedida: IUnidadMedidaPost = {
+        const unidadMedida: IUnidadMedidaPost = {
             denominacion: denominacion
         }
         handleSave( unidadMedida );

@@ -8,7 +8,7 @@ interface ImagenArticuloModalProps {
     handleSave: (imagenArticulo: IImagenArticuloPost) => void;
 }
 
-const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ show, handleClose, handleSave }) => {
+export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ show, handleClose, handleSave }) => {
     const [url, setUrl] = useState<string>('');
 
     const onSave = () => {

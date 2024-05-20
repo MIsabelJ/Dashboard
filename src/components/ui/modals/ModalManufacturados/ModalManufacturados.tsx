@@ -56,6 +56,7 @@ export const ModalManufacturados = ({ getManufacturados, openModal, setOpenModal
           timeout: 500,
         },
       }}
+      sx={{ zIndex: 1000 }}
     >
       <Fade in={openModal}>
         <Box sx={style}>
