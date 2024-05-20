@@ -10,6 +10,7 @@ import StepLabel from '@mui/material/StepLabel';
 import { useAppDispatch, useAppSelector } from '../../../../hooks/redux';
 import { removeElementActive } from '../../../../redux/slices/TablaReducer';
 import { ManufacturadosForm } from './ManufacturadosForm';
+import { ManufacturadoService } from '../../../../services/ManufacturadoService';
 
 const style = {
   position: 'absolute',
@@ -18,7 +19,6 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 400,
   bgcolor: 'background.paper',
-  border: '2px solid #000',
   boxShadow: 24,
   p: 4,
 };
@@ -74,7 +74,7 @@ export const ModalManufacturados = ({ getManufacturados, openModal, setOpenModal
             handleNext={handleNext}
             handleBack={handleBack}
             elementActive={elementActive}
-            itemService={itemService}
+            itemService={ManufacturadoService}
             getManufacturados={getManufacturados}
             handleClose={handleClose}
           />
