@@ -21,7 +21,11 @@ import {
 } from "@mui/material";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setElementActive } from "../../../../redux/slices/TablaReducer";
+<<<<<<< HEAD
+import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
+=======
 import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
+>>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CategoriaModal } from "../ModalCategorias/ModalCategorias";
