@@ -12,9 +12,10 @@ interface SucursalModalProps {
     show: boolean;
     handleClose: () => void;
     idEmpresa: number; // Recibe el idEmpresa como prop
+    handleSave: (sucursal: ISucursalPost) => void;
 }
 
-export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose, idEmpresa }) => {
+export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose, idEmpresa, handleSave }) => {
     const [nombre, setNombre] = useState<string>('');
     const [horarioApertura, setHorarioApertura] = useState<string>('');
     const [horarioCierre, setHorarioCierre] = useState<string>('');
@@ -24,15 +25,6 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose,
 
     const sucursalService = new SucursalService(API_URL + "/sucursal");
     const domicilioService = new DomicilioService(API_URL + "/domicilio");
-
-    const handleSave = async (sucursal: ISucursalPost) => {
-        try {
-            const response = await sucursalService.post(sucursal);
-            console.log(response);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     const onSave = () => {
         const sucursal: ISucursalPost = {

@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
+import { IEmpresaPost } from "../../../types/Empresa/IEmpresaPost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,6 +20,7 @@ export const SeccionEmpresa = () => {
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
 
   const empresaService = new EmpresaService(API_URL + "/empresa");
   const dispatch = useAppDispatch();
@@ -26,6 +28,12 @@ export const SeccionEmpresa = () => {
   const handleClick = (id: number) => {
     console.log("Aca esta el id ", id);
     navigate(`/empresa/${id}/sucursal`);
+  };
+
+  const handleEdit = async (id: number) => {
+    const selectedEntity = await empresaService.getById(id);
+    setSelectedEntity(selectedEntity); // Actualiza el estado con los datos de la entidad seleccionada
+    setOpenModal(true);
   };
 
   const handleDelete = async (id: number) => {
@@ -53,7 +61,16 @@ export const SeccionEmpresa = () => {
       setLoading(false);
     });
   };
-  
+
+  const handleSave = async (empresa: IEmpresaPost) => {
+    try {
+      const response = await empresaService.post(empresa);
+      getEmpresa();
+      console.log(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -89,6 +106,7 @@ export const SeccionEmpresa = () => {
       <ModalEmpresa
         show={openModal}
         handleClose={() => setOpenModal(false)}
+        handleSave={handleSave}
       />
     </>
   );

@@ -9,30 +9,22 @@ const API_URL = import.meta.env.VITE_API_URL;
 interface EmpresaModalProps {
     show: boolean;
     handleClose: () => void;
+    handleSave: (empresa: IEmpresaPost) => void;
 }
 
-export const ModalEmpresa: React.FC<EmpresaModalProps> = ({ show, handleClose }) => {
+export const ModalEmpresa: React.FC<EmpresaModalProps> = ({ show, handleClose, handleSave }) => {
     const [nombre, setNombre] = useState<string>('');
     const [razonSocial, setRazonSocial] = useState<string>('');
     const [cuil, setCuil] = useState<number>(0);
 
-    const empresaService = new EmpresaService(API_URL + "/empresa");
 
-    const handleSave = async (empresa: IEmpresaPost) => {
-        try {
-            const response = await empresaService.post(empresa);
-            console.log(response);
-        } catch (error) {
-            console.error(error);
-        }
-    }
     const onSave = () => {
         var empresa: IEmpresaPost = {
             nombre: nombre,
             razonSocial: razonSocial,
             cuil: cuil
         }
-        handleSave(empresa);
+        handleSave(empresa)
         handleClose();
         setNombre('');
         setRazonSocial('');

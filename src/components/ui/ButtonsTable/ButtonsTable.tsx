@@ -22,7 +22,6 @@ export const ButtonsTable = <T extends { id: number }>({
   const handleModalSelected = () => {
     // Establecer el elemento activo en el estado
     dispatch(setElementActive({ element: el }));
-    
     // Mostrar el modal para editar el elemento
     setOpenModal(true);
   };
@@ -43,7 +42,6 @@ export const ButtonsTable = <T extends { id: number }>({
       {/* Botón para editar el elemento */}
       <IconButton onClick={handleModalSelected} color="primary">
         <EditRounded />
-        
       </IconButton>
       <IconButton onClick={() => handleDelete(el.id)} color="error">
         <DeleteRounded />

@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { EmpresaService } from "../../../services/EmpresaService";
 import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
@@ -19,9 +20,8 @@ const SeccionSucursal = () => {
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [sucursal, setSucursal] = useState("sucursal1");
 
-  const sucursalSevice = new SucursalService(API_URL +"/sucursal");
+  const sucursalService = new SucursalService(API_URL +"/sucursal");
 
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
@@ -36,7 +36,7 @@ const SeccionSucursal = () => {
   );
 
   const handleClick = () => {
-    navigate("/app");
+    navigate("/inicio");
   };
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -50,7 +50,7 @@ const SeccionSucursal = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await sucursalSevice.delete(id).then(() => {
+        await sucursalService.delete(id).then(() => {
           getSucursal();
         });
       }
@@ -58,22 +58,31 @@ const SeccionSucursal = () => {
   };
 
   const handleSubmit = async (sucursal: any) => {
-    await sucursalSevice.put(sucursal.id, sucursal).then(() => {
+    await sucursalService.put(sucursal.id, sucursal).then(() => {
       getSucursal();
     });
   };
 
   const getSucursal = async () => {
-    await sucursalSevice.getAll().then((sucursalData) => {
+    await sucursalService.getAll().then((sucursalData) => {
+      console.log(sucursalData);
       dispatch(setDataTable(sucursalData));
       setLoading(false);
     });
+  };
+  const handleSave = async (sucursal: ISucursalPost) => {
+    try {
+      const response = await sucursalService.post(sucursal);
+      console.log(response);
+      getSucursal();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
     setLoading(true);
     getSucursal();
-    setSucursal(sucursalActive);
   }, [sucursalActive]);
 
   return (
@@ -106,6 +115,7 @@ const SeccionSucursal = () => {
         show={openModal}
         handleClose={() => setOpenModal(false)}
         idEmpresa={Number(id)}
+        handleSave={handleSave}
       />
     </>
   );
