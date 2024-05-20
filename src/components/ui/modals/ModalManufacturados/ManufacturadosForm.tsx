@@ -21,17 +21,13 @@ import {
 } from "@mui/material";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setElementActive } from "../../../../redux/slices/TablaReducer";
-<<<<<<< HEAD
-import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
-=======
 import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
->>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CategoriaModal } from "../ModalCategorias/ModalCategorias";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
-import zIndex from "@mui/material/styles/zIndex";
+import { ArticuloManufacturadoDetalleModal } from "../ModalArticuloManufacturadoDetalle/ArticuloManufacturadoDetalleModal";
 
 const steps = ["Información General", "Detalles", "Ingredientes"];
 
@@ -111,6 +107,7 @@ export const ManufacturadosForm = ({
   const [categorias, setCategorias] = useState([]);
   const [unidadesMedida, setUnidadesMedida] = useState([]);
   const [imagenes, setImagenes] = useState([]);
+  const [detalles, setDetalles] = useState([]);
 
   const handleSubmit = async (values: IArticuloManufacturadoPost) => {
     handleClose();
@@ -141,15 +138,19 @@ export const ManufacturadosForm = ({
     setUnidadesMedida([...unidadesMedida, unidad]);
   };
 
-  function createData(insumo: string, cantidad: number, unidadMedida: string) {
-    return { insumo, cantidad, unidadMedida };
-  }
+  const handleDetalleSave = (detalle) => {
+    setDetalles([...detalles, detalle]);
+  };
 
-  const rows = [
-    createData("Agua", 2, "litros"),
-    createData("Harina", 500, "gramos"),
-    createData("Salsa", 300, "mililitros"),
-  ];
+  const handleDetalleDelete = (index) => {
+    const updatedDetalles = [...detalles];
+    updatedDetalles.splice(index, 1);
+    setDetalles(updatedDetalles);
+  };
+
+  function createData(insumo, cantidad, unidadMedida, index) {
+    return { insumo, cantidad, unidadMedida, index };
+  }
 
   return (
     <>
@@ -169,6 +170,13 @@ export const ManufacturadosForm = ({
         show={showUnidadMedidaModal}
         handleClose={() => setShowUnidadMedidaModal(false)}
         handleSave={handleUnidadMedidaSave}
+        sx={{ zIndex: 1302 }}
+      />
+      <ArticuloManufacturadoDetalleModal
+        show={showDetalleModal}
+        handleClose={() => setShowDetalleModal(false)}
+        handleSave={handleDetalleSave}
+        listaArticulosInsumo={listaArticulosInsumo}
         sx={{ zIndex: 1302 }}
       />
 
@@ -415,9 +423,8 @@ export const ManufacturadosForm = ({
                   <div>
                     <Button
                       variant="outlined"
-                      startIcon={
-                        <AddIcon />
-                      } /*onClick={<ModalManufacturadoDetalle/>}*/
+                      startIcon={<AddIcon />}
+                      onClick={() => setShowDetalleModal(true)}
                     >
                       Agregar un ingrediente
                     </Button>
@@ -439,7 +446,7 @@ export const ManufacturadosForm = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {rows.map((row) => (
+                        {rows.map((row, index) => (
                           <TableRow
                             key={row.insumo}
                             sx={{
@@ -454,7 +461,30 @@ export const ManufacturadosForm = ({
                               {row.unidadMedida}
                             </TableCell>
                             <TableCell align="center">
-                              <IconButton aria-label="delete">
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => handleDetalleDelete(index)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {/* Aquí deberías mapear los detalles y renderizar un TableRow para cada uno */}
+                        {detalles.map((detalle, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{detalle.insumo}</TableCell>
+                            <TableCell align="center">
+                              {detalle.cantidad}
+                            </TableCell>
+                            <TableCell align="center">
+                              {detalle.unidadMedida}
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton
+                                aria-label="delete"
+                                onClick={() => handleDetalleDelete(index)}
+                              >
                                 <DeleteIcon />
                               </IconButton>
                             </TableCell>
