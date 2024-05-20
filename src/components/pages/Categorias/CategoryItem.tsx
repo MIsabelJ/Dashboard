@@ -30,14 +30,14 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         <ListItemIcon>
           <GridViewOutlinedIcon />
         </ListItemIcon>
-        <ListItemText primary={category.name} />
+        <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
           <IconButton color="primary">
             <EditRounded />
           </IconButton>
-          <SwitchButton id={category.id} currentState={category.active} route="category" />
+          <SwitchButton id={category.id} currentState={category.eliminado}/>
         </div>
-        {category.subCategoria && category.subCategoria.length > 0 ? (
+        {category.subcategorias && category.subcategorias.length > 0 ? (
           open ? (
             <ExpandLess onClick={handleClick} />
           ) : (
@@ -45,11 +45,11 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
           )
         ) : null}
       </ListItemButton>
-      {category.subCategoria && category.subCategoria.length > 0 && (
+      {category.subcategorias && category.subcategorias.length > 0 && (
         <>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {category.subCategoria.map((subcategory) => (
+              {category.subcategorias.map((subcategory) => (
                 <CategoryItem
                   key={subcategory.id}
                   category={subcategory}
