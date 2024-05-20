@@ -20,7 +20,7 @@ interface ArticuloManufacturadoDetalleModalProps {
   listaArticulosInsumo: any[];
 }
 
-const ArticuloManufacturadoDetalleModal = ({
+export const ArticuloManufacturadoDetalleModal = ({
   show,
   handleClose,
   handleSave,

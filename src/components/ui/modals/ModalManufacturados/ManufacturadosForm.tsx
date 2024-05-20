@@ -27,7 +27,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { CategoriaModal } from "../ModalCategorias/ModalCategorias";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
-import { ArticuloManufacturadoDetalleModal } from "../ModalArticuloManufacturadoDetalle/ArticuloManufacturadoDetalleModal";
+import { ArticuloManufacturadoDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
 
 const steps = ["Información General", "Detalles", "Ingredientes"];
 

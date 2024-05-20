@@ -5,35 +5,6 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { IEmpresaPost } from '../../../../types/Empresa/IEmpresaPost';
 import { EmpresaService } from '../../../../services/EmpresaService';
 
-<<<<<<< HEAD
-// import * as Yup from "yup";
-// import { GenericModal } from "../GenericModal";
-// import { IEmpresa } from "../../../../types/Empresa/IEmpresa";
-// import { useAppSelector } from "../../../../hooks/redux";
-
-// interface IModalEmpresa {
-//     getEmpresa: () => void; // Función para obtener las empresas
-//     openModal: boolean;
-//     setOpenModal: (state: boolean) => void;
-// }
-
-// export const ModalEmpresa = ({ getEmpresa, openModal, setOpenModal }: IModalEmpresa) => {
-
-//     const elementActive = useAppSelector(
-//         (state) => state.tableReducer.elementActive
-//     );
-
-//     // Necesario para el modal genérico con insumos
-//     const initialValues: IEmpresa = elementActive?.element || {
-//         id: 0,
-//         nombre: '',
-//         razonSocial: '',
-//         cuil: 0,
-//         actions: '',
-//         eliminado: true,
-//     };
-
-=======
 const API_URL = import.meta.env.VITE_API_URL;
 interface EmpresaModalProps {
     show: boolean;
@@ -131,7 +102,6 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({ show, handleClose, h
 //         eliminado: true,
 //     };
 
->>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
 //     //validación del formulario 
 //     const validationSchema = Yup.object({
 //         nombre: Yup.string().required('Campo requerido'),
