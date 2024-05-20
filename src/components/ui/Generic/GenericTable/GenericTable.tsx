@@ -203,8 +203,7 @@ export const GenericTable = <T extends { id: number }>({
                               ) : column.label === "Estado" ? (
                                 <SwitchButton
                                   id={row.id}
-                                  currentState={row.active}
-                                  route="category"
+                                  currentState={row.eliminado}
                                 />
                               ) : (
                                 row[column.key]
