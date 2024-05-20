@@ -26,7 +26,6 @@ export const SeccionEmpresa = () => {
   const dispatch = useAppDispatch();
 
   const handleClick = (id: number) => {
-    console.log("Aca esta el id ", id);
     navigate(`/empresa/${id}/sucursal`);
   };
 

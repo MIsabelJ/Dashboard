@@ -15,7 +15,7 @@ import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
 const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
   // Recibo el ID del endpoint proveniente de la empresa
-  const id = useParams().id;
+  const idEmpresa = useParams().idEmpresa;
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -26,17 +26,16 @@ const SeccionSucursal = () => {
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === Number(id)
+    (item: ISucursal) => item.empresa && item.empresa.id === Number(idEmpresa)
   );
-  console.log(dataFilter);
 
   const dispatch = useAppDispatch();
   const sucursalActive = useAppSelector(
     (state) => state.sucursalReducer.sucursalActual
   );
 
-  const handleClick = () => {
-    navigate("/inicio");
+  const handleClick = (id: number) => {
+    navigate(`/empresa/${idEmpresa}/sucursal/${id}/inicio`);
   };
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -114,7 +113,7 @@ const SeccionSucursal = () => {
       <ModalSucursal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        idEmpresa={Number(id)}
+        idEmpresa={Number(idEmpresa)}
         handleSave={handleSave}
       />
     </>

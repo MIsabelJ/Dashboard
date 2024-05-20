@@ -7,6 +7,8 @@ import { IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
+import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
+import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
  
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -25,6 +27,15 @@ export function SeccionCategorias() {
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
       setLoading(false);
+    }
+  };
+  const handleSave = async (categoria: ICategoriaPost) => {
+    try {
+      const response = await categoriaService.post(categoria);
+      console.log(response);
+      getCategoria();
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -64,6 +75,12 @@ export function SeccionCategorias() {
       ) : (
         <Loader />
       )}
+      <CategoriaModal
+      show={openModal}
+      handleClose={() => setOpenModal(false)}
+      handleSave={handleSave}
+      />
+      
     </div>
   );
 }

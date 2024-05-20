@@ -6,6 +6,7 @@ import { CategoriaService } from "../../../../services/CategoriaService";
 interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
+  handleSave: (categoria: ICategoriaPost) => void;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -13,21 +14,13 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
+  handleSave,
 }) => {
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
 
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-
-  const handleSave = async (categoria: ICategoriaPost) => {
-    try {
-      const response = await categoriaService.post(categoria);
-      console.log(response);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const onSave = () => {
     const categoria: ICategoriaPost = {
