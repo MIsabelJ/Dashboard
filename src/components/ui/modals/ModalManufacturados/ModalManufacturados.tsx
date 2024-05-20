@@ -19,6 +19,10 @@ const style = {
   transform: 'translate(-50%, -50%)',
   width: 400,
   bgcolor: 'background.paper',
+<<<<<<< HEAD
+  border: '2px solid #000',
+=======
+>>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
   boxShadow: 24,
   p: 4,
 };
@@ -56,6 +60,7 @@ export const ModalManufacturados = ({ getManufacturados, openModal, setOpenModal
           timeout: 500,
         },
       }}
+      sx={{ zIndex: 1000 }}
     >
       <Fade in={openModal}>
         <Box sx={style}>
@@ -74,7 +79,11 @@ export const ModalManufacturados = ({ getManufacturados, openModal, setOpenModal
             handleNext={handleNext}
             handleBack={handleBack}
             elementActive={elementActive}
+<<<<<<< HEAD
+            itemService={itemService}
+=======
             itemService={ManufacturadoService}
+>>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
             getManufacturados={getManufacturados}
             handleClose={handleClose}
           />
