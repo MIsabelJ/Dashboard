@@ -2,9 +2,7 @@ import React from "react";
 
 import Switch from "@mui/material/Switch";
 import { CircularProgress } from "@mui/material";
-import { FactoryService } from "../../../services/FactoryService";
 
-// const insumoService = new InsumoService(API_URL + "/sucursal");
 
 interface ISwitchButton {
   id: number;
@@ -18,8 +16,6 @@ export const SwitchButton = ({ id, currentState }: ISwitchButton) => {
     currentState ? "Activo" : "Inactivo"
   );
   const [loader, setLoader] = React.useState<boolean>(false);
-
-  // const genericService = FactoryService.createService(route);
 
   const handleClick = async () => {
     setLoader(true); // Activar el loader antes de las operaciones asincrónicas
