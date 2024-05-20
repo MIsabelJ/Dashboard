@@ -101,7 +101,7 @@ export const SeccionInsumos = () => {
         getInsumos={getInsumo}
         openModal={openModal}
         setOpenModal={setOpenModal}
-      /> 
+      />
     </>
   );
 };
