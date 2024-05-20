@@ -7,8 +7,9 @@ import Swal from "sweetalert2";
 import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 import { useNavigate } from "react-router-dom";
-import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
+
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -52,6 +53,7 @@ export const SeccionEmpresa = () => {
       setLoading(false);
     });
   };
+  
 
   useEffect(() => {
     setLoading(true);
@@ -84,11 +86,18 @@ export const SeccionEmpresa = () => {
           )}
         </div>
       </div>
+<<<<<<< HEAD
       {/* <ModalEmpresa
         getEmpresa={getEmpresa}
         openModal={openModal}
         setOpenModal={setOpenModal}
       /> */}
+=======
+      <ModalEmpresa
+        show={openModal}
+        handleClose={() => setOpenModal(false)}
+      />
+>>>>>>> 00be6ab0c47a47f261280afa5981ea5d215a94df
     </>
   );
 };
