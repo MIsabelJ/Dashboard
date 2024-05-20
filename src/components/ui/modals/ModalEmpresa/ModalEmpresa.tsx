@@ -19,7 +19,7 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({ show, handleClose, h
 
 
     const onSave = () => {
-        var empresa: IEmpresaPost = {
+        const empresa: IEmpresaPost = {
             nombre: nombre,
             razonSocial: razonSocial,
             cuil: cuil

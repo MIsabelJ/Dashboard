@@ -7,7 +7,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { useNavigate, useParams } from "react-router-dom";
-import { EmpresaService } from "../../../services/EmpresaService";
+// import { EmpresaService } from "../../../services/EmpresaService";
 import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
