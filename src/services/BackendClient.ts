@@ -40,7 +40,7 @@ export abstract class BackendClient<TG, TP> extends AbstractBackendClient<TG, TP
     return newData as TP;
   }
 
-  async put(id: number, data: TP): Promise<TP> {
+  async put(id: number, data: TG): Promise<TG> {
     console.log(this.baseUrl)
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "PUT",
@@ -51,7 +51,7 @@ export abstract class BackendClient<TG, TP> extends AbstractBackendClient<TG, TP
       body: JSON.stringify(data),
     });
     const newData = await response.json();
-    return newData as TP;
+    return newData as TG;
   }
 
   // Método para eliminar un elemento por su ID
