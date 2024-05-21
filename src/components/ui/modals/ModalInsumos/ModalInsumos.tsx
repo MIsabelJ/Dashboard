@@ -9,12 +9,11 @@ import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import { IArticuloInsumoPost } from '../../../../types/ArticuloInsumo/IArticuloInsumoPost';
 import { Autocomplete, Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
-import FolderIcon from '@mui/icons-material/Folder';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { UnidadMedidaModal } from '../ModalUnidadMedida/ModalUnidadMedida';
 import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
 import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
-import Swal from 'sweetalert2';
+import { ImagenArticuloModal } from '../ModalImagenArticulo/ModalImagenArticulo';
+// import Swal from 'sweetalert2';
 
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -50,15 +49,17 @@ const steps = ['Información del Artículo', 'Información Adicional', 'Imágene
 
 export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<{ url: string; name: string; }[]>([]);
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<{ label: string, id: number }[]>([]);
-  // Estado para almacenar archivos seleccionados para subir
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+
+
+  // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
+  // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
 
   const formik = useFormik({
@@ -90,97 +91,6 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  // const handleAddImage = (image: string) => {
-
-  //   if (image.length === 0) return;
-  //   setImages([...images, image]);
-  //   formik.setFieldValue("idImagenes", "");
-  // };
-
-  // Función para obtener las imágenes desde la API
-  const getImages = () => {
-    fetch(`${API_URL}/images/getImages`)
-      .then((res) => res.json())
-      .then((data) => setImages(data));
-  };
-
-  // Función para mostrar alertas utilizando SweetAlert
-  const swalAlert = (
-    title: string,
-    content: string,
-    icon: "error" | "success"
-  ) => {
-    Swal.fire(title, content, icon);
-  };
-
-  // Manejador de cambio de archivos seleccionados
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFiles(event.target.files);
-  };
-
-  const uploadFiles = async () => {
-    if (!selectedFiles) {
-      // Mostrar mensaje de advertencia si no se seleccionaron archivos
-      return Swal.fire(
-        "No hay imágenes seleccionadas",
-        "Selecciona al menos una imagen",
-        "warning"
-      );
-    }
-
-    // Crear un objeto FormData y agregar los archivos seleccionados
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append("uploads", file);
-    });
-
-    // Mostrar un mensaje de carga mientras se suben los archivos
-    Swal.fire({
-      title: "Subiendo imágenes...",
-      text: "Espere mientras se suben los archivos.",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      // Realizar la petición POST para subir los archivos
-      const response = await fetch(`${API_URL}/images/uploads`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        // Mostrar mensaje de éxito si la subida fue exitosa
-        swalAlert("Éxito", "Imágenes subidas correctamente", "success");
-        getImages(); // Actualizar la lista de imágenes después de subirlas
-      } else {
-        // Mostrar mensaje de error si la subida falló
-        swalAlert(
-          "Error",
-          "Algo falló al subir las imágenes, inténtalo de nuevo.",
-          "error"
-        );
-      }
-    } catch (error) {
-      // Mostrar mensaje de error si ocurre una excepción
-      swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
-      console.error("Error:", error);
-    }
-    setSelectedFiles(null); // Limpiar el estado de archivos seleccionados después de la subida
-  };
-
-
-  //captura el evento
-  const handleRemoveImage = (element: React.MouseEvent<HTMLButtonElement>) => {
-    const index = Number(element.currentTarget.id);
-    const newImages = images.filter((image, indexImage) => {
-      indexImage !== index
-    })
-    setImages(newImages);
-  }
-
   const unidadMedidaService = new UnidadMedidaService(API_URL + "/unidad-medida");
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
@@ -189,8 +99,8 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     setShowUnidadMedidaModal(false);
   };
 
+  //Trae las unidades de medida ya creadas
   useEffect(() => {
-    //Trae las unidades de medida ya creadas
     const getUnidadesMedida = async () => {
       const response = await unidadMedidaService.getAll();
       setUnidadesMedida(response);
@@ -198,8 +108,8 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     getUnidadesMedida();
   }, [])
 
+  //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {
-    //Da formato a las unidades de medida para el dropdown de MUI
     const opciones = unidadesMedida.map((unidadMedida) => ({
       label: unidadMedida.denominacion,
       id: unidadMedida.id,
@@ -345,70 +255,9 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
                   {activeStep === 2 && (
                     <>
                       <Form.Group controlId="idImagenes">
-                        <Form.Label>Imágenes</Form.Label>
-                        <div style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "2vh",
-                          padding: ".4rem",
-                        }}>
-                          <TextField
-                            id="outlined-basic"
-                            variant="outlined"
-                            type="file"
-                            onChange={handleFileChange}
-                            inputProps={{
-                              multiple: true,
-                            }}
-                          />
-                          {/* Botón para subir imágenes */}
-                          <Button onClick={uploadFiles} color="inherit" style={{ alignSelf: "center", marginRight: 0 }} >
-                            Subir
-                          </Button>
-                          {/* <Form.Control
-                            type="text"
-                            placeholder="Ingrese la URL de la imagen"
-                            name="idImagenes"
-                            onChange={formik.handleChange}
-                            isInvalid={formik.touched.idImagenes && !!formik.errors.idImagenes}
-                            value={formik.values.idImagenes.toString()}
-                          />
-                          <IconButton
-                            color="primary"
-                            aria-label="add"
-                            onClick={() => {
-                              handleAddImage(formik.values.idImagenes.toString());
-                            }}
-                          >
-                            <AddIcon />
-                          </IconButton>
-                          <Form.Control.Feedback type="invalid">{formik.errors.idImagenes}</Form.Control.Feedback> */}
-                        </div>
-                        <List dense={true}>
-                          {images.map((image, index) => {
-                            return (
-                              <ListItem
-                                key={index}
-                                secondaryAction={
-                                  <IconButton edge="end" aria-label="delete" onClick={handleRemoveImage} >
-                                    <DeleteIcon />
-                                  </IconButton>
-                                }
-                              >
-                                <ListItemAvatar>
-                                  <Avatar>
-                                    <FolderIcon />
-                                  </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText
-                                  primary={image}
-                                />
-                              </ListItem>
-                            )
-                          })}
-                        </List>
                       </Form.Group>
+                      <Form.Label>Imágenes</Form.Label>
+                      <ImagenArticuloModal images={images} setImages={setImages} />
                     </>
 
                   )}
