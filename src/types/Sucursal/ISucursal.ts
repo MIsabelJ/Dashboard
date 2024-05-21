@@ -1,6 +1,7 @@
 import { IBaseEntity } from "../IBaseEntity";
 import { IDomicilio } from "../Domicilio/IDomicilio";
 import { IEmpresa } from "../Empresa/IEmpresa";
+import { ICategoria } from "../Categoria/ICategoria";
 
 export interface ISucursal extends IBaseEntity {
     nombre: string
@@ -9,4 +10,5 @@ export interface ISucursal extends IBaseEntity {
     esCasaMatriz: boolean
     domicilio: IDomicilio
     empresa: IEmpresa
+    categorias: ICategoria[]
 }

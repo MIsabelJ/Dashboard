@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Formik, Field, Form } from "formik";
-import * as Yup from "yup";
 import {
   Button,
   TextField,
@@ -28,57 +27,22 @@ import { CategoriaModal } from "../ModalCategorias/ModalCategorias";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ArticuloManufacturadoDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
+import {
+  validationSchema,
+  initialValues,
+  translatedPlaceholder,
+  formInputType,
+} from "./ManufacturadosFormConfig";
+import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
+import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
+import { IUnidadMedidaPost } from "../../../../types/UnidadMedida/IUnidadMedidaPost";
+import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 
-const steps = ["Información General", "Detalles", "Ingredientes"];
-
-const validationSchema = Yup.object({
-  denominacion: Yup.string().required("Campo requerido"),
-  precioVenta: Yup.number().required("Campo requerido"),
-  descripcion: Yup.string().required("Campo requerido"),
-  tiempoEstimadoMinutos: Yup.number().required("Campo requerido"),
-  preparacion: Yup.string().required("Campo requerido"),
-  articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
-  imagenes: Yup.array().required("Campo requerido"),
-  idUnidadMedida: Yup.number().required("Campo requerido"),
-  idCategoria: Yup.number().required("Campo requerido"),
-});
-
-const initialValues = {
-  id: 0,
-  denominacion: "",
-  precioVenta: 0,
-  descripcion: "",
-  tiempoEstimadoMinutos: 0,
-  preparacion: "",
-  idArticuloManufacturadoDetalles: [],
-  idImagenes: [],
-  idUnidadMedida: 0,
-  idCategoria: 0,
-};
-
-const translatedPlaceholder = {
-  denominacion: "Denominación",
-  precioVenta: "Precio de Venta",
-  descripcion: "Descripción",
-  tiempoEstimadoMinutos: "Tiempo Estimado en Minutos",
-  preparacion: "Preparación",
-  idArticuloManufacturadoDetalles: "Detalles",
-  idImagenes: "Imagenes",
-  idUnidadMedida: "Unidad de Medida",
-  idCategoria: "Categoria",
-};
-
-const formInputType = {
-  denominacion: "text",
-  precioVenta: "number",
-  descripcion: "text",
-  tiempoEstimadoMinutos: "number",
-  preparacion: "text",
-  idArticuloManufacturadoDetalles: "number",
-  idImagenes: "number",
-  idUnidadMedida: "number",
-  idCategoria: "number",
-};
+const steps = ["Información General", "Detalles", "Ingredientes"]; // Define los pasos del formulario.
 
 interface ManufacturadosFormProps {
   activeStep: number;
@@ -90,6 +54,7 @@ interface ManufacturadosFormProps {
   handleClose: () => void;
 }
 
+// Componente principal del formulario
 export const ManufacturadosForm = ({
   activeStep,
   handleNext,
@@ -99,24 +64,32 @@ export const ManufacturadosForm = ({
   getManufacturados,
   handleClose,
 }: ManufacturadosFormProps) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch(); // Usa dispatch de Redux.
 
+  // Estados locales para manejar la visibilidad de los modales y los datos.
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [showImagenArticuloModal, setShowImagenArticuloModal] = useState(false);
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState(false);
-  const [categorias, setCategorias] = useState([]);
-  const [unidadesMedida, setUnidadesMedida] = useState([]);
-  const [imagenes, setImagenes] = useState([]);
-  const [detalles, setDetalles] = useState([]);
+  const [showArticuloManufacturadoModal, setShowArticuloManufacturadoModal] = useState(false);
 
+  const [categoriasPost, setCategoriasPost] = useState<ICategoriaPost[]>([]);
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [unidadesMedidaPost, setUnidadesMedidaPost] = useState<IUnidadMedidaPost[]>([]);
+  const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
+  const [imagenesPost, setImagenesPost] = useState<IImagenArticuloPost[]>([]);
+  const [imagenes, setImagenes] = useState<IImagenArticulo[]>([]);
+  const [detallesPost, setDetallesPost] = useState<IArticuloManufacturadoDetallePost[]>([]);
+  const [detalles, setDetalles] = useState<IArticuloManufacturado[]>([]);
+
+  // Función para manejar el envío del formulario.
   const handleSubmit = async (values: IArticuloManufacturadoPost) => {
     handleClose();
     if (elementActive?.element) {
-      await itemService.put(elementActive.element.id, values);
+      await itemService.put(elementActive.element.id, values); // Actualiza el elemento existente.
     } else {
-      await itemService.post(values);
+      await itemService.post(values); // Crea un nuevo elemento.
     }
-    getManufacturados();
+    getManufacturados(); // Refresca la lista de manufacturados.
   };
 
   const formDetails = {
@@ -126,34 +99,37 @@ export const ManufacturadosForm = ({
     formInputType,
   };
 
+  // Funciones para manejar el guardado de datos en los modales.
   const handleCategoriaSave = (categoria) => {
-    setCategorias([...categorias, categoria]);
+    setCategoriasPost([...categoriasPost, categoria]);
   };
 
   const handleImagenArticuloSave = (imagen) => {
-    setImagenes([...imagenes, imagen]);
+    setImagenesPost([...imagenesPost, imagen]);
   };
 
   const handleUnidadMedidaSave = (unidad) => {
-    setUnidadesMedida([...unidadesMedida, unidad]);
+    setUnidadesMedidaPost([...unidadesMedidaPost, unidad]);
   };
 
   const handleDetalleSave = (detalle) => {
-    setDetalles([...detalles, detalle]);
+    setDetallesPost([...detallesPost, detalle]);
   };
 
   const handleDetalleDelete = (index) => {
-    const updatedDetalles = [...detalles];
+    const updatedDetalles = [...detallesPost];
     updatedDetalles.splice(index, 1);
-    setDetalles(updatedDetalles);
+    setDetallesPost(updatedDetalles);
   };
 
+  // Crea los datos para la tabla de detalles.
   function createData(insumo, cantidad, unidadMedida, index) {
     return { insumo, cantidad, unidadMedida, index };
   }
 
   return (
     <>
+      {/* Modales para categorías, imágenes, unidades de medida y detalles */}
       <CategoriaModal
         show={showCategoriaModal}
         handleClose={() => setShowCategoriaModal(false)}
@@ -173,13 +149,14 @@ export const ManufacturadosForm = ({
         sx={{ zIndex: 1302 }}
       />
       <ArticuloManufacturadoDetalleModal
-        show={showDetalleModal}
-        handleClose={() => setShowDetalleModal(false)}
+        show={showArticuloManufacturadoModal}
+        handleClose={() => setShowArticuloManufacturadoModal(false)}
         handleSave={handleDetalleSave}
-        listaArticulosInsumo={listaArticulosInsumo}
+        listaArticulosInsumo={listaArticulosInsumo} //FIXME: Revisar modal de Insumo
         sx={{ zIndex: 1302 }}
       />
 
+      {/* Formulario principal usando Formik */}
       <Formik
         validationSchema={formDetails.validationSchema}
         initialValues={formDetails.initialValues as IArticuloManufacturadoPost}
@@ -191,6 +168,7 @@ export const ManufacturadosForm = ({
         {({ setFieldValue }) => (
           <Form>
             <Grid container spacing={2}>
+              {/* Paso 1: Información General */}
               {activeStep === 0 && (
                 <>
                   <Grid item xs={12} md={6}>
@@ -238,7 +216,8 @@ export const ManufacturadosForm = ({
                             Añadir Nueva Categoría
                           </MenuItem>
                           {categorias.map((categoria) => (
-                            <MenuItem key={categoria.id} value={categoria.id}>
+                            <MenuItem key={categoria.id} value={categoria.id}> 
+                            {/*FIXME: añadir interfaz de categoria sola?*/}
                               {categoria.denominacion}
                             </MenuItem>
                           ))}
@@ -332,6 +311,7 @@ export const ManufacturadosForm = ({
                   </Grid>
                 </>
               )}
+              {/* Paso 2: Detalles */}
               {activeStep === 1 && (
                 <>
                   <Grid item xs={12}>
@@ -418,13 +398,14 @@ export const ManufacturadosForm = ({
                   </Grid>
                 </>
               )}
+              {/* Paso 3: Ingredientes */}
               {activeStep === 2 && (
                 <div>
                   <div>
                     <Button
                       variant="outlined"
                       startIcon={<AddIcon />}
-                      onClick={() => setShowDetalleModal(true)}
+                      onClick={() => setShowArticuloManufacturadoModal(true)}
                     >
                       Agregar un ingrediente
                     </Button>
@@ -446,39 +427,16 @@ export const ManufacturadosForm = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {rows.map((row, index) => (
-                          <TableRow
-                            key={row.insumo}
-                            sx={{
-                              "&:last-child td, &:last-child th": { border: 0 },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {row.insumo}
-                            </TableCell>
-                            <TableCell align="center">{row.cantidad}</TableCell>
-                            <TableCell align="center">
-                              {row.unidadMedida}
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                aria-label="delete"
-                                onClick={() => handleDetalleDelete(index)}
-                              >
-                                <DeleteIcon />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                        {/* Aquí deberías mapear los detalles y renderizar un TableRow para cada uno */}
-                        {detalles.map((detalle, index) => (
+                        {/* Mapea los detalles y renderiza un TableRow para cada uno */}
+                        {detallesPost.map((detalle, index) => (
                           <TableRow key={index}>
+                            {/* FIXME: al mapear los detalles, usar la interfaz no post */}
                             <TableCell>{detalle.insumo}</TableCell>
                             <TableCell align="center">
                               {detalle.cantidad}
                             </TableCell>
                             <TableCell align="center">
-                              {detalle.unidadMedida}
+                              {detalle.insumo}
                             </TableCell>
                             <TableCell align="center">
                               <IconButton
