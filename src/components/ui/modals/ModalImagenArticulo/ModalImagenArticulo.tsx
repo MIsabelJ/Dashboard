@@ -6,6 +6,7 @@ interface ImagenArticuloModalProps {
     show: boolean;
     handleClose: () => void;
     handleSave: (imagenArticulo: IImagenArticuloPost) => void;
+    sx?: React.CSSProperties;
 }
 
 export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ show, handleClose, handleSave }) => {

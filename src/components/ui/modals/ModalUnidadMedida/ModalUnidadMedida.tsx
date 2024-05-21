@@ -7,6 +7,8 @@ import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 interface UnidadMedidaModalProps {
     show: boolean;
     handleClose: () => void;
+    handleSave: (unidadMedida: IUnidadMedidaPost) => void;
+    sx?: React.CSSProperties;
 }
 const API_URL = import.meta.env.VITE_API_URL;
 export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, handleClose }) => {

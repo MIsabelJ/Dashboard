@@ -34,9 +34,13 @@ import {
   formInputType,
 } from "./ManufacturadosFormConfig";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
+import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
 import { IUnidadMedidaPost } from "../../../../types/UnidadMedida/IUnidadMedidaPost";
+import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 
 const steps = ["Información General", "Detalles", "Ingredientes"]; // Define los pasos del formulario.
 
@@ -66,10 +70,16 @@ export const ManufacturadosForm = ({
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [showImagenArticuloModal, setShowImagenArticuloModal] = useState(false);
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState(false);
-  const [categorias, setCategorias] = useState<ICategoriaPost[]>([]);
-  const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedidaPost[]>([]);
-  const [imagenes, setImagenes] = useState<IImagenArticuloPost[]>([]);
-  const [detalles, setDetalles] = useState<IArticuloManufacturadoDetallePost[]>([]);
+  const [showArticuloManufacturadoModal, setShowArticuloManufacturadoModal] = useState(false);
+
+  const [categoriasPost, setCategoriasPost] = useState<ICategoriaPost[]>([]);
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [unidadesMedidaPost, setUnidadesMedidaPost] = useState<IUnidadMedidaPost[]>([]);
+  const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
+  const [imagenesPost, setImagenesPost] = useState<IImagenArticuloPost[]>([]);
+  const [imagenes, setImagenes] = useState<IImagenArticulo[]>([]);
+  const [detallesPost, setDetallesPost] = useState<IArticuloManufacturadoDetallePost[]>([]);
+  const [detalles, setDetalles] = useState<IArticuloManufacturado[]>([]);
 
   // Función para manejar el envío del formulario.
   const handleSubmit = async (values: IArticuloManufacturadoPost) => {
@@ -91,25 +101,25 @@ export const ManufacturadosForm = ({
 
   // Funciones para manejar el guardado de datos en los modales.
   const handleCategoriaSave = (categoria) => {
-    setCategorias([...categorias, categoria]);
+    setCategoriasPost([...categoriasPost, categoria]);
   };
 
   const handleImagenArticuloSave = (imagen) => {
-    setImagenes([...imagenes, imagen]);
+    setImagenesPost([...imagenesPost, imagen]);
   };
 
   const handleUnidadMedidaSave = (unidad) => {
-    setUnidadesMedida([...unidadesMedida, unidad]);
+    setUnidadesMedidaPost([...unidadesMedidaPost, unidad]);
   };
 
   const handleDetalleSave = (detalle) => {
-    setDetalles([...detalles, detalle]);
+    setDetallesPost([...detallesPost, detalle]);
   };
 
   const handleDetalleDelete = (index) => {
-    const updatedDetalles = [...detalles];
+    const updatedDetalles = [...detallesPost];
     updatedDetalles.splice(index, 1);
-    setDetalles(updatedDetalles);
+    setDetallesPost(updatedDetalles);
   };
 
   // Crea los datos para la tabla de detalles.
@@ -139,10 +149,10 @@ export const ManufacturadosForm = ({
         sx={{ zIndex: 1302 }}
       />
       <ArticuloManufacturadoDetalleModal
-        show={showDetalleModal}
-        handleClose={() => setShowDetalleModal(false)}
+        show={showArticuloManufacturadoModal}
+        handleClose={() => setShowArticuloManufacturadoModal(false)}
         handleSave={handleDetalleSave}
-        listaArticulosInsumo={listaArticulosInsumo}
+        listaArticulosInsumo={listaArticulosInsumo} //FIXME: Revisar modal de Insumo
         sx={{ zIndex: 1302 }}
       />
 
@@ -206,7 +216,8 @@ export const ManufacturadosForm = ({
                             Añadir Nueva Categoría
                           </MenuItem>
                           {categorias.map((categoria) => (
-                            <MenuItem key={categoria.id} value={categoria.id}>
+                            <MenuItem key={categoria.id} value={categoria.id}> 
+                            {/*FIXME: añadir interfaz de categoria sola?*/}
                               {categoria.denominacion}
                             </MenuItem>
                           ))}
@@ -394,7 +405,7 @@ export const ManufacturadosForm = ({
                     <Button
                       variant="outlined"
                       startIcon={<AddIcon />}
-                      onClick={() => setShowDetalleModal(true)}
+                      onClick={() => setShowArticuloManufacturadoModal(true)}
                     >
                       Agregar un ingrediente
                     </Button>
@@ -417,14 +428,15 @@ export const ManufacturadosForm = ({
                       </TableHead>
                       <TableBody>
                         {/* Mapea los detalles y renderiza un TableRow para cada uno */}
-                        {detalles.map((detalle, index) => (
+                        {detallesPost.map((detalle, index) => (
                           <TableRow key={index}>
+                            {/* FIXME: al mapear los detalles, usar la interfaz no post */}
                             <TableCell>{detalle.insumo}</TableCell>
                             <TableCell align="center">
                               {detalle.cantidad}
                             </TableCell>
                             <TableCell align="center">
-                              {detalle.unidadMedida}
+                              {detalle.insumo}
                             </TableCell>
                             <TableCell align="center">
                               <IconButton
