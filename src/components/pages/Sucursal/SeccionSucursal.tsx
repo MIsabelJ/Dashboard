@@ -11,32 +11,40 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
+import { setCurrentSucursal } from "../../../redux/slices/SucursalReducer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
   // Recibo el ID del endpoint proveniente de la empresa
-  const id = useParams().id;
   const navigate = useNavigate();
+  const empresaActual = useAppSelector((state) => state.empresaReducer.empresaActual);
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
+  const [redirectId, setRedirectId] = useState<number | null>(null);
 
   const sucursalService = new SucursalService(API_URL +"/sucursal");
 
-
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === Number(id)
+    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
   );
-  console.log(dataFilter);
+
 
   const dispatch = useAppDispatch();
-  const sucursalActive = useAppSelector(
-    (state) => state.sucursalReducer.sucursalActual
-  );
+  const sucursalActive = useAppSelector((state) => state.sucursalReducer.sucursalActual);
 
-  const handleClick = () => {
-    navigate("/inicio");
+  useEffect(() => {
+    if (redirectId !== null && sucursalActive === redirectId) {
+      console.log("Redireccionando a la subruta de la sucursal "+sucursalActive)
+      navigate(`/inicio`);
+      setRedirectId(null); // Reset redirect ID after navigation
+    }
+  }, [sucursalActive, redirectId, navigate]);
+
+  const handleClick = (id : number) => {
+    dispatch(setCurrentSucursal(id));
+    setRedirectId(id);
   };
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -83,7 +91,7 @@ const SeccionSucursal = () => {
   useEffect(() => {
     setLoading(true);
     getSucursal();
-  }, [sucursalActive]);
+  }, []);
 
   return (
     <>
@@ -114,7 +122,7 @@ const SeccionSucursal = () => {
       <ModalSucursal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        idEmpresa={Number(id)}
+        idEmpresa={Number(empresaActual)}
         handleSave={handleSave}
       />
     </>

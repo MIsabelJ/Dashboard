@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
@@ -8,12 +8,16 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import { IArticuloInsumoPost } from '../../../../types/ArticuloInsumo/IArticuloInsumoPost';
-import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText } from '@mui/material';
+import { Autocomplete, Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from "@mui/icons-material/Add";
 import { UnidadMedidaModal } from '../ModalUnidadMedida/ModalUnidadMedida';
+import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
+import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
+import Swal from 'sweetalert2';
 
+
+const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
   getInsumos: () => void;
   openModal: boolean;
@@ -47,8 +51,15 @@ const steps = ['Información del Artículo', 'Información Adicional', 'Imágene
 export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
   const [images, setImages] = useState<string[]>([]);
+  //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState<boolean>(false);
-  const [idUnidadMedida, setIdUnidadMedida] = useState<number>(0);
+  //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
+  const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
+  //Utilizado para dar formato a los elementos del dropdown de unidades de medida
+  const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<{ label: string, id: number }[]>([]);
+  // Estado para almacenar archivos seleccionados para subir
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -66,10 +77,6 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
-  const handleSaveUnidadMedida = (unidadMedida: any) => {
-    setIdUnidadMedida(unidadMedida.id);
-    setShowUnidadMedidaModal(false);
-  };
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -83,22 +90,122 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleAddImage = (image: string) => {
-    if (image.length === 0) return;
-    setImages([...images, image]);
-    formik.setFieldValue("idImagenes", "");
+  // const handleAddImage = (image: string) => {
+
+  //   if (image.length === 0) return;
+  //   setImages([...images, image]);
+  //   formik.setFieldValue("idImagenes", "");
+  // };
+
+  // Función para obtener las imágenes desde la API
+  const getImages = () => {
+    fetch(`${API_URL}/images/getImages`)
+      .then((res) => res.json())
+      .then((data) => setImages(data));
   };
+
+  // Función para mostrar alertas utilizando SweetAlert
+  const swalAlert = (
+    title: string,
+    content: string,
+    icon: "error" | "success"
+  ) => {
+    Swal.fire(title, content, icon);
+  };
+
+  // Manejador de cambio de archivos seleccionados
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFiles(event.target.files);
+  };
+
+  const uploadFiles = async () => {
+    if (!selectedFiles) {
+      // Mostrar mensaje de advertencia si no se seleccionaron archivos
+      return Swal.fire(
+        "No hay imágenes seleccionadas",
+        "Selecciona al menos una imagen",
+        "warning"
+      );
+    }
+
+    // Crear un objeto FormData y agregar los archivos seleccionados
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append("uploads", file);
+    });
+
+    // Mostrar un mensaje de carga mientras se suben los archivos
+    Swal.fire({
+      title: "Subiendo imágenes...",
+      text: "Espere mientras se suben los archivos.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      // Realizar la petición POST para subir los archivos
+      const response = await fetch(`${API_URL}/images/uploads`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        // Mostrar mensaje de éxito si la subida fue exitosa
+        swalAlert("Éxito", "Imágenes subidas correctamente", "success");
+        getImages(); // Actualizar la lista de imágenes después de subirlas
+      } else {
+        // Mostrar mensaje de error si la subida falló
+        swalAlert(
+          "Error",
+          "Algo falló al subir las imágenes, inténtalo de nuevo.",
+          "error"
+        );
+      }
+    } catch (error) {
+      // Mostrar mensaje de error si ocurre una excepción
+      swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
+      console.error("Error:", error);
+    }
+    setSelectedFiles(null); // Limpiar el estado de archivos seleccionados después de la subida
+  };
+
 
   //captura el evento
   const handleRemoveImage = (element: React.MouseEvent<HTMLButtonElement>) => {
     const index = Number(element.currentTarget.id);
     const newImages = images.filter((image, indexImage) => {
-      console.log(image)
       indexImage !== index
     })
     setImages(newImages);
   }
 
+  const unidadMedidaService = new UnidadMedidaService(API_URL + "/unidad-medida");
+
+  //Funcion para agregar una nueva Unidad de Medida desde el modal
+  const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
+    setUnidadesMedida([...unidadesMedida, unidadMedida]);
+    setShowUnidadMedidaModal(false);
+  };
+
+  useEffect(() => {
+    //Trae las unidades de medida ya creadas
+    const getUnidadesMedida = async () => {
+      const response = await unidadMedidaService.getAll();
+      setUnidadesMedida(response);
+    }
+    getUnidadesMedida();
+  }, [])
+
+  useEffect(() => {
+    //Da formato a las unidades de medida para el dropdown de MUI
+    const opciones = unidadesMedida.map((unidadMedida) => ({
+      label: unidadMedida.denominacion,
+      id: unidadMedida.id,
+    }));
+    setOpcionesUnidadMedida(opciones);
+  }, [unidadesMedida])
 
   return (
     <>
@@ -206,13 +313,18 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
                       </Form.Group>
                       <Form.Group controlId="idUnidadMedida">
                         <Form.Label>Unidad de Medida</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={idUnidadMedida ? `ID: ${idUnidadMedida}` : 'Ninguna unidad de medida seleccionada'}
-                          readOnly
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={opcionesUnidadMedida}
+                          sx={{ width: 300 }}
+                          value={opcionesUnidadMedida.find(option => option.id === formik.values.idUnidadMedida) || null}
+                          onChange={(event, value) => formik.setFieldValue("idUnidadMedida", value?.id || "")}
+                          isOptionEqualToValue={(option, value) => option.id === value.id}
+                          renderInput={(params) => <TextField {...params} label="Unidad de medida" />}
                         />
                         <Button onClick={() => { setShowUnidadMedidaModal(true) }} variant="outline-primary">
-                          Seleccionar Unidad de Medida
+                          Crear Unidad de Medida
                         </Button>
                         <Form.Control.Feedback type="invalid">{formik.errors.idUnidadMedida}</Form.Control.Feedback>
                       </Form.Group>
@@ -234,8 +346,27 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
                     <>
                       <Form.Group controlId="idImagenes">
                         <Form.Label>Imágenes</Form.Label>
-                        <div style={{ display: "flex" }}>
-                          <Form.Control
+                        <div style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "2vh",
+                          padding: ".4rem",
+                        }}>
+                          <TextField
+                            id="outlined-basic"
+                            variant="outlined"
+                            type="file"
+                            onChange={handleFileChange}
+                            inputProps={{
+                              multiple: true,
+                            }}
+                          />
+                          {/* Botón para subir imágenes */}
+                          <Button onClick={uploadFiles} color="inherit" style={{ alignSelf: "center", marginRight: 0 }} >
+                            Subir
+                          </Button>
+                          {/* <Form.Control
                             type="text"
                             placeholder="Ingrese la URL de la imagen"
                             name="idImagenes"
@@ -252,7 +383,7 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
                           >
                             <AddIcon />
                           </IconButton>
-                          <Form.Control.Feedback type="invalid">{formik.errors.idImagenes}</Form.Control.Feedback>
+                          <Form.Control.Feedback type="invalid">{formik.errors.idImagenes}</Form.Control.Feedback> */}
                         </div>
                         <List dense={true}>
                           {images.map((image, index) => {
@@ -302,8 +433,10 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
       </Modal >
       <UnidadMedidaModal
         show={showUnidadMedidaModal}
+        addUnidadMedida={addUnidadMedida}
         handleClose={() => { setShowUnidadMedidaModal(false) }}
       />
+      {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
     </>
   );
 };

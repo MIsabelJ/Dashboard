@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route index path="/login" element={<Login />} />
         <Route path="/empresa" element={<SeccionEmpresa />} />
-        <Route path="/empresa/:id/sucursal" element={<SeccionSucursal />} />
+        <Route path="/sucursal" element={<SeccionSucursal />} />
         <Route path="/inicio" element={
           <Box sx={{ display: 'flex' }}>
             <PersistentDrawerLeft sectionName="Inicio" />

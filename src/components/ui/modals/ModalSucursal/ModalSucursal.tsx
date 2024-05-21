@@ -1,4 +1,3 @@
-// SucursalModal.tsx
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { ISucursalPost } from '../../../../types/Sucursal/ISucursalPost';
@@ -17,8 +16,8 @@ interface SucursalModalProps {
 
 export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose, idEmpresa, handleSave }) => {
     const [nombre, setNombre] = useState<string>('');
-    const [horarioApertura, setHorarioApertura] = useState<string>('');
-    const [horarioCierre, setHorarioCierre] = useState<string>('');
+    const [horarioApertura, setHorarioApertura] = useState<string>('00:00');
+    const [horarioCierre, setHorarioCierre] = useState<string>('00:00');
     const [esCasaMatriz, setEsCasaMatriz] = useState<boolean>(false);
     const [idDomicilio, setIdDomicilio] = useState<number>(0);
     const [showDomicilioModal, setShowDomicilioModal] = useState<boolean>(false);
@@ -27,10 +26,14 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose,
     const domicilioService = new DomicilioService(API_URL + "/domicilio");
 
     const onSave = () => {
+        // Convertir el horario a formato HH:mm:ss antes de guardar
+        const horarioAperturaFormatted = `${horarioApertura}:00`;
+        const horarioCierreFormatted = `${horarioCierre}:00`;
+
         const sucursal: ISucursalPost = {
             nombre,
-            horarioApertura,
-            horarioCierre,
+            horarioApertura: horarioAperturaFormatted,
+            horarioCierre: horarioCierreFormatted,
             esCasaMatriz,
             idDomicilio,
             idEmpresa
@@ -39,8 +42,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose,
         handleClose();
         // Resetear los valores del formulario
         setNombre('');
-        setHorarioApertura('');
-        setHorarioCierre('');
+        setHorarioApertura('00:00');
+        setHorarioCierre('00:00');
         setEsCasaMatriz(false);
         setIdDomicilio(0);
     };
@@ -69,7 +72,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose,
                         <Form.Group controlId="formHorarioApertura">
                             <Form.Label>Horario de Apertura</Form.Label>
                             <Form.Control
-                                type="text"
+                                type="time"
                                 value={horarioApertura}
                                 onChange={e => setHorarioApertura(e.target.value)}
                             />
@@ -77,7 +80,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({ show, handleClose,
                         <Form.Group controlId="formHorarioCierre">
                             <Form.Label>Horario de Cierre</Form.Label>
                             <Form.Control
-                                type="text"
+                                type="time"
                                 value={horarioCierre}
                                 onChange={e => setHorarioCierre(e.target.value)}
                             />

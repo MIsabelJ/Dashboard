@@ -280,7 +280,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
           >
             <AccountCircle fontSize="large" />
           </IconButton>
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          {/* <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
             <InputLabel id="demo-select-small-label">Sucursal</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -288,10 +288,10 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
               value={branch}
               label="Branch"
             >
-              <MenuItem value={"sucursal1"}>Sucursal 1</MenuItem> {/*TODO: Renderizar sucursales disponibles según la empresa*/}
+              <MenuItem value={"sucursal1"}>Sucursal 1</MenuItem> 
               <MenuItem value={"sucursal2"}>Sucursal 2</MenuItem>
             </Select>
-          </FormControl>
+          </FormControl> */}
         </div>
         <Divider />
         <List>

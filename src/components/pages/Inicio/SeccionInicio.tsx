@@ -23,6 +23,7 @@ import {
 } from "chart.js";
 import { Pie, Line } from "react-chartjs-2";
 import "./inicio.css";
+import { useAppSelector } from "../../../hooks/redux";
 
 export const SeccionInicio = () => {
 
@@ -153,7 +154,6 @@ export const SeccionInicio = () => {
       },
     },
   };
-
 
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(true);
