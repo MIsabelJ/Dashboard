@@ -4,46 +4,52 @@ import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { CategoriaService } from "../../../../services/CategoriaService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { useAppSelector } from "../../../../hooks/redux";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
 
 interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
   handleSave: (categoria: ICategoriaPost) => void;
+  categorias ?: ICategoria[];
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 
 
-const existingSubcategorias = [
-  { id: 1, name: "Subcategoría 1" },
-  { id: 2, name: "Subcategoría 2" },
-];
+// const existingSubcategorias = [
+//   { id: 1, name: "Subcategoría 1" },
+//   { id: 2, name: "Subcategoría 2" },
+// ];
 
 export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
   handleSave,
+  categorias,
 }) => {
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
   const empresaActual = useAppSelector((state) => state.empresaReducer.empresaActual);
+  const [openSubModal, setOpenSubModal] = useState(false);
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const dataFilter: ISucursal[] = dataCard.filter(
     (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
   );
   const existingSucursales: ISucursal[] = dataFilter;
-
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const existingSubcategorias: ICategoria[] | undefined = categorias;
 
   const onSave = () => {
     const categoria: ICategoriaPost = {
       denominacion: denominacion,
       idSucursales: idSucursales,
       idSubcategorias: idSubcategorias,
+      // idSubcategorias: idSubcategorias,
     };
+    console.log("ACA ESTA LA CATEGORIA");
+    console.log(categoria);
     handleSave(categoria);
     handleClose();
     setDenominacion(""); // Reset form
@@ -52,7 +58,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   };
 
   const handleAddNew = (type: "sucursal" | "subcategoria") => {
-    alert(`Agregar nueva ${type}`);
+    setOpenSubModal(true);
   };
 
   const handleAddSucursal = (id: number) => {
@@ -76,6 +82,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   };
 
   return (
+    <>
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>Crear Categoría</Modal.Title>
@@ -139,40 +146,50 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
             <div className="d-flex flex-wrap mb-2 justify-content-between">
               <div style={{ flex: "1 1 45%", minWidth: "200px" }} className="mr-3">
                 <ListGroup>
-                  {existingSubcategorias.map((subcategoria) => (
-                    <ListGroup.Item
-                      key={subcategoria.id}
-                      className="d-flex justify-content-between align-items-center"
-                    >
-                      <span>{subcategoria.name}</span>
-                      <Button
-                        variant={idSubcategorias.includes(subcategoria.id) ? "danger" : "success"}
-                        size="sm"
-                        onClick={() => {
-                          if (idSubcategorias.includes(subcategoria.id)) {
-                            handleRemoveSubcategoria(subcategoria.id);
-                          } else {
-                            handleAddSubcategoria(subcategoria.id);
-                          }
-                        }}
-                        className="ml-2"
+                  {existingSubcategorias && existingSubcategorias.length > 0 ? (
+                    existingSubcategorias.map((subcategoria) => (
+                      <ListGroup.Item
+                        key={subcategoria.id}
+                        className="d-flex justify-content-between align-items-center"
                       >
-                        {idSubcategorias.includes(subcategoria.id) ? "Eliminar" : "Agregar"}
-                      </Button>
-                    </ListGroup.Item>
-                  ))}
+                        <span>{subcategoria.denominacion}</span>
+                        <Button
+                          variant={idSubcategorias.includes(subcategoria.id) ? "danger" : "success"}
+                          size="sm"
+                          onClick={() => {
+                            if (idSubcategorias.includes(subcategoria.id)) {
+                              handleRemoveSubcategoria(subcategoria.id);
+                            } else {
+                              handleAddSubcategoria(subcategoria.id);
+                            }
+                          }}
+                          className="ml-2"
+                        >
+                          {idSubcategorias.includes(subcategoria.id) ? "Eliminar" : "Agregar"}
+                        </Button>
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <></>
+                  )}
                 </ListGroup>
               </div>
               <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
                 <ListGroup>
-                  {idSubcategorias.map((id) => (
-                    <ListGroup.Item
-                      key={id}
-                      className="d-flex justify-content-between align-items-center"
-                    >
-                      <span>{existingSubcategorias.find((subcategoria) => subcategoria.id === id)?.name}</span>
-                    </ListGroup.Item>
-                  ))}
+                  {existingSubcategorias && existingSubcategorias.length > 0 ? (
+                    idSubcategorias.map((id) => (
+                      <ListGroup.Item
+                        key={id}
+                        className="d-flex justify-content-between align-items-center"
+                      >
+                        <span>
+                          {existingSubcategorias.find((subcategoria) => subcategoria.id === id)?.denominacion}
+                        </span>
+                      </ListGroup.Item>
+                    ))
+                  ) : (
+                    <></>
+                  )}
                 </ListGroup>
               </div>
             </div>
@@ -193,5 +210,10 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
         </Button>
       </Modal.Footer>
     </Modal>
+    {/* <ModalSubCategorias
+    show = {openSubModal}
+    handleClose = {() => setOpenSubModal(false)}
+    handleSave = {handleSave}/> */}
+    </>
   );
 };

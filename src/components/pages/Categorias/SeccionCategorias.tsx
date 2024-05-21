@@ -79,6 +79,7 @@ export function SeccionCategorias() {
       show={openModal}
       handleClose={() => setOpenModal(false)}
       handleSave={handleSave}
+      categorias={Categoria}
       />
       
     </div>
