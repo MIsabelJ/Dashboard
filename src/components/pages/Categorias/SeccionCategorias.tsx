@@ -9,7 +9,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
 import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
 import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
- 
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export function SeccionCategorias() {
@@ -22,9 +22,9 @@ export function SeccionCategorias() {
     try {
       const categoriaData = await categoriaService.getAll();
       setCategoria(categoriaData);
-      setLoading(false);
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -85,23 +85,26 @@ export function SeccionCategorias() {
           <AddIcon  />
         </IconButton>
       </div>
-      {!loading && Array.isArray(Categoria) && Categoria.length > 0 ? (
+      {!loading && (
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
           component="nav"
           aria-labelledby="nested-list-subheader"
         >
-          {Categoria.map((category) => (
-            <CategoryItem key={category.id} category={category} padding={2} handleUpdate={handleUpdate} handleSave={handleSave} addSubCategoria={addSubCategoria}/>
-          ))}
+          {Categoria.length > 0 ? (
+            Categoria.map((category) => (
+              <CategoryItem key={category.id} category={category} padding={2} handleUpdate={handleUpdate} handleSave={handleSave} addSubCategoria={addSubCategoria}/>
+            ))
+          ) : (
+            <div>No hay categorías creadas.</div>
+          )}
         </List>
-      ) : (
-        <Loader />
       )}
+      {loading && <Loader />}
       <CategoriaModal
-      show={openModal}
-      handleClose={() => setOpenModal(false)}
-      handleSave={handleSave}
+        show={openModal}
+        handleClose={() => setOpenModal(false)}
+        handleSave={handleSave}
       />
     </div>
   );

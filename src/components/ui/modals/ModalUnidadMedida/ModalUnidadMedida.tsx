@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
+import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaPost';
 import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 
 
@@ -8,23 +9,25 @@ interface UnidadMedidaModalProps {
     show: boolean;
     addUnidadMedida: (unidadMedida: IUnidadMedida) => void;
     handleClose: () => void;
+    handleSave: (unidadMedida: IUnidadMedidaPost) => void;
+    sx?: React.CSSProperties;
 }
 const API_URL = import.meta.env.VITE_API_URL;
 export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, handleClose, addUnidadMedida }) => {
     const [denominacion, setDenominacion] = useState<string>('');
 
     const unidadMedidaService = new UnidadMedidaService(API_URL + "/unidad-medida");
-    const handleSave = async (unidadMedida: IUnidadMedida) => {
+    const handleSave = async (unidadMedida: IUnidadMedidaPost) => {
         try {
-            addUnidadMedida(unidadMedida)
             const response = await unidadMedidaService.post(unidadMedida);
+            addUnidadMedida(response)
             console.log(response);
         } catch (error) {
             console.error(error);
         }
     }
     const onSave = () => {
-        const unidadMedida: IUnidadMedida = {
+        const unidadMedida: IUnidadMedidaPost = {
             denominacion: denominacion
         }
         handleSave(unidadMedida);

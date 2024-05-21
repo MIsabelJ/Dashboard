@@ -18,6 +18,7 @@ interface ArticuloManufacturadoDetalleModalProps {
   handleClose: () => void;
   handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
   listaArticulosInsumo: any[];
+  sx?: React.CSSProperties;
 }
 
 export const ArticuloManufacturadoDetalleModal = ({

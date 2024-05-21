@@ -9,7 +9,7 @@ export abstract class AbstractBackendClient<TG, TP> {
   
     abstract getById(id: number): Promise<TG | null>;
   
-    abstract post(data: TP): Promise<TP>;
+    abstract post(data: TP): Promise<TG>;
     abstract put(id: number, data: TG): Promise<TG>;
   
     // Método abstracto para eliminar un elemento por su ID
