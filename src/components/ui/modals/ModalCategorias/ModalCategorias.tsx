@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Modal, Button, Form, ListGroup } from "react-bootstrap";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { CategoriaService } from "../../../../services/CategoriaService";
+import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { useAppSelector } from "../../../../hooks/redux";
 
 interface CategoriaModalProps {
   show: boolean;
@@ -11,10 +13,7 @@ interface CategoriaModalProps {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const existingSucursales = [
-  { id: 1, name: "Sucursal 1" },
-  { id: 2, name: "Sucursal 2" },
-];
+
 
 const existingSubcategorias = [
   { id: 1, name: "Subcategoría 1" },
@@ -29,6 +28,13 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
+  const empresaActual = useAppSelector((state) => state.empresaReducer.empresaActual);
+
+  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
+  const dataFilter: ISucursal[] = dataCard.filter(
+    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
+  );
+  const existingSucursales: ISucursal[] = dataFilter;
 
   const categoriaService = new CategoriaService(API_URL + "/categoria");
 
@@ -85,82 +91,96 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
             />
           </Form.Group>
           <Form.Group controlId="formIdSucursales">
-            <Form.Label>Sucursales</Form.Label>
-            <div className="d-flex mb-2">
-              {/* <Button variant="primary" onClick={() => handleAddNew("sucursal")} className="ml-2">
-                Agregar nuevo
-              </Button> */}
+            <Form.Label className="mr-2">Sucursales</Form.Label>
+            <div className="d-flex flex-wrap mb-2 justify-content-between">
+              <div style={{ flex: "1 1 45%", minWidth: "200px" }} className="mr-3">
+                <ListGroup>
+                  {existingSucursales.map((sucursal) => (
+                    <ListGroup.Item
+                      key={sucursal.id}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <span>{sucursal.nombre}</span>
+                      <Button
+                        variant={idSucursales.includes(sucursal.id) ? "danger" : "success"}
+                        size="sm"
+                        onClick={() => {
+                          if (idSucursales.includes(sucursal.id)) {
+                            handleRemoveSucursal(sucursal.id);
+                          } else {
+                            handleAddSucursal(sucursal.id);
+                          }
+                        }}
+                        className="ml-2"
+                      >
+                        {idSucursales.includes(sucursal.id) ? "Eliminar" : "Agregar"}
+                      </Button>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+              <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
+                <ListGroup>
+                  {idSucursales.map((id) => (
+                    <ListGroup.Item
+                      key={id}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <span>{existingSucursales.find((sucursal) => sucursal.id === id)?.nombre}</span>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
             </div>
-            <ListGroup>
-              {existingSucursales.map(sucursal => (
-                <ListGroup.Item key={sucursal.id}>
-                  {sucursal.name}
-                  <Button
-                    variant="success"
-                    size="sm"
-                    onClick={() => handleAddSucursal(sucursal.id)}
-                    disabled={idSucursales.includes(sucursal.id)}
-                    className="ml-2"
-                  >
-                    Agregar
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-            <ListGroup className="mt-3">
-              {idSucursales.map(id => (
-                <ListGroup.Item key={id}>
-                  {existingSucursales.find(sucursal => sucursal.id === id)?.name}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleRemoveSucursal(id)}
-                    className="ml-2"
-                  >
-                    Eliminar
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
           </Form.Group>
+
           <Form.Group controlId="formIdSubcategorias">
-            <Form.Label>Subcategorías</Form.Label>
+            <Form.Label className="mr-2">Subcategorías</Form.Label>
+            <div className="d-flex flex-wrap mb-2 justify-content-between">
+              <div style={{ flex: "1 1 45%", minWidth: "200px" }} className="mr-3">
+                <ListGroup>
+                  {existingSubcategorias.map((subcategoria) => (
+                    <ListGroup.Item
+                      key={subcategoria.id}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <span>{subcategoria.name}</span>
+                      <Button
+                        variant={idSubcategorias.includes(subcategoria.id) ? "danger" : "success"}
+                        size="sm"
+                        onClick={() => {
+                          if (idSubcategorias.includes(subcategoria.id)) {
+                            handleRemoveSubcategoria(subcategoria.id);
+                          } else {
+                            handleAddSubcategoria(subcategoria.id);
+                          }
+                        }}
+                        className="ml-2"
+                      >
+                        {idSubcategorias.includes(subcategoria.id) ? "Eliminar" : "Agregar"}
+                      </Button>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+              <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
+                <ListGroup>
+                  {idSubcategorias.map((id) => (
+                    <ListGroup.Item
+                      key={id}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      <span>{existingSubcategorias.find((subcategoria) => subcategoria.id === id)?.name}</span>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </div>
+            </div>
             <div className="d-flex mb-2">
               <Button variant="primary" onClick={() => handleAddNew("subcategoria")} className="ml-2">
                 Agregar nuevo
               </Button>
             </div>
-            <ListGroup>
-              {existingSubcategorias.map(subcategoria => (
-                <ListGroup.Item key={subcategoria.id}>
-                  {subcategoria.name}
-                  <Button
-                    variant="success"
-                    size="sm"
-                    onClick={() => handleAddSubcategoria(subcategoria.id)}
-                    disabled={idSubcategorias.includes(subcategoria.id)}
-                    className="ml-2"
-                  >
-                    Agregar
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
-            <ListGroup className="mt-3">
-              {idSubcategorias.map(id => (
-                <ListGroup.Item key={id}>
-                  {existingSubcategorias.find(subcategoria => subcategoria.id === id)?.name}
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleRemoveSubcategoria(id)}
-                    className="ml-2"
-                  >
-                    Eliminar
-                  </Button>
-                </ListGroup.Item>
-              ))}
-            </ListGroup>
           </Form.Group>
         </Form>
       </Modal.Body>
