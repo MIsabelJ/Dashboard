@@ -17,6 +17,7 @@ import {
   Select,
   MenuItem,
   Grid,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setElementActive } from "../../../../redux/slices/TablaReducer";
@@ -92,6 +93,11 @@ export const ManufacturadosForm = ({
     getManufacturados(); // Refresca la lista de manufacturados.
   };
 
+  const handleChange = (event: SelectChangeEvent) => {
+    const { name, value } = event.target;
+    dispatch(setElementActive({ name, value }));
+  };
+
   const formDetails = {
     validationSchema,
     initialValues: elementActive?.element || initialValues,
@@ -142,19 +148,19 @@ export const ManufacturadosForm = ({
         handleSave={handleImagenArticuloSave}
         sx={{ zIndex: 1302 }}
       />
-      <UnidadMedidaModal
+      {/* <UnidadMedidaModal
         show={showUnidadMedidaModal}
         handleClose={() => setShowUnidadMedidaModal(false)}
         handleSave={handleUnidadMedidaSave}
         sx={{ zIndex: 1302 }}
-      />
-      <ArticuloManufacturadoDetalleModal
+      /> */}
+      {/* <ArticuloManufacturadoDetalleModal
         show={showArticuloManufacturadoModal}
         handleClose={() => setShowArticuloManufacturadoModal(false)}
         handleSave={handleDetalleSave}
         listaArticulosInsumo={listaArticulosInsumo} //FIXME: Revisar modal de Insumo
         sx={{ zIndex: 1302 }}
-      />
+      /> */}
 
       {/* Formulario principal usando Formik */}
       <Formik
@@ -217,7 +223,6 @@ export const ManufacturadosForm = ({
                           </MenuItem>
                           {categorias.map((categoria) => (
                             <MenuItem key={categoria.id} value={categoria.id}> 
-                            {/*FIXME: añadir interfaz de categoria sola?*/}
                               {categoria.denominacion}
                             </MenuItem>
                           ))}
@@ -262,13 +267,13 @@ export const ManufacturadosForm = ({
                         <Select
                           name="idUnidadMedida"
                           value={formDetails.initialValues.idUnidadMedida}
-                          onChange={(e) => {
-                            if (e.target.value === "new") {
-                              setShowUnidadMedidaModal(true);
-                            } else {
-                              handleChange(e);
-                            }
-                          }}
+                          // onChange={(e) => {
+                          //   if (e.target.value === "new") {
+                          //     setShowUnidadMedidaModal(true);
+                          //   } else {
+                          //     handleChange(e);
+                          //   }
+                          // }}
                         >
                           <MenuItem value="new">
                             Añadir Nueva Unidad de Medida
@@ -401,7 +406,7 @@ export const ManufacturadosForm = ({
               {/* Paso 3: Ingredientes */}
               {activeStep === 2 && (
                 <div>
-                  <div>
+                  {/* <div>
                     <Button
                       variant="outlined"
                       startIcon={<AddIcon />}
@@ -409,8 +414,8 @@ export const ManufacturadosForm = ({
                     >
                       Agregar un ingrediente
                     </Button>
-                  </div>
-                  <TableContainer component={Paper}>
+                  </div> */}
+                  {/* <TableContainer component={Paper}>
                     <Table
                       sx={{
                         display: "flex-column",
@@ -418,20 +423,20 @@ export const ManufacturadosForm = ({
                         width: "100%",
                       }}
                       aria-label="simple table"
-                    >
-                      <TableHead>
+                    > */}
+                      {/* <TableHead>
                         <TableRow>
                           <TableCell>Insumo</TableCell>
                           <TableCell align="center">Cantidad</TableCell>
                           <TableCell align="center">Unidad de Medida</TableCell>
                         </TableRow>
-                      </TableHead>
-                      <TableBody>
+                      </TableHead> */}
+                      {/* <TableBody> */}
                         {/* Mapea los detalles y renderiza un TableRow para cada uno */}
-                        {detallesPost.map((detalle, index) => (
-                          <TableRow key={index}>
+                        {/* {detallesPost.map((detalle, index) => ( */}
+                          {/* <TableRow key={index}> */}
                             {/* FIXME: al mapear los detalles, usar la interfaz no post */}
-                            <TableCell>{detalle.insumo}</TableCell>
+                            {/* <TableCell>{detalle.insumo}</TableCell>
                             <TableCell align="center">
                               {detalle.cantidad}
                             </TableCell>
@@ -446,11 +451,11 @@ export const ManufacturadosForm = ({
                                 <DeleteIcon />
                               </IconButton>
                             </TableCell>
-                          </TableRow>
-                        ))}
+                          </TableRow> */}
+                        {/* ))}
                       </TableBody>
                     </Table>
-                  </TableContainer>
+                  </TableContainer> */}
                 </div>
               )}
             </Grid>

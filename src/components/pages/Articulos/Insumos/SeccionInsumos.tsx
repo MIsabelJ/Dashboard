@@ -26,29 +26,31 @@ export const SeccionInsumos = () => {
       key: "id",
       render: (insumo: IArticuloInsumo) => (insumo?.id ? insumo.id : 0),
     },
-    { label: "Nombre", key: "name" },
-    { label: "Precio", key: "price" },
-    { label: "Descripción", key: "description" },
-    { label: "Categoría", key: "category" },
+    { label: "Denominación", key: "denominacion" },
+    { label: "Precio de Venta", key: "precioVenta" },
+    { label: "Precio de Compra", key: "precioCompra" },
     {
-      label: "Es ingrediente",
-      key: "isIngredient",
-      render: (insumo: IArticuloInsumo) => (insumo.esParaElaborar ? "Sí" : "No"),
-    },
-    {
-      label: "Imagen",
-      key: "image",
+      label: "Imágenes",
+      key: "imagenes",
       render: (insumo: IArticuloInsumo) => (
         <img
           src={insumo.imagenes[0].url}
           alt={insumo.denominacion}
           style={{ maxWidth: "100px", maxHeight: "100px" }}
         />
-      ),
+      ), // TODO: Modificar para mostrar slider de imágenes o algo similar.
     },
-    { label: "Stock", key: "stock" },
-    { label: "Acciones", key: "actions" },
-    { label: "Estado", key: "active" },
+    { label: "Stock Actual", key: "stockActual" },
+    { label: "Stock Máximo", key: "stockMaximo" },
+    {
+      label: "Es ingrediente",
+      key: "esParaElaborar",
+      render: (insumo: IArticuloInsumo) => (insumo.esParaElaborar ? "Sí" : "No"),
+    },
+    { label: "Unidad de Medida", key: "unidadMedida" },
+    { label: "Categoría", key: "categoria" },
+    // { label: "Acciones", key: "actions" },
+    { label: "Estado", key: "eliminado" },
   ];
 
   const handleDelete = async (id: number) => {
@@ -63,7 +65,7 @@ export const SeccionInsumos = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await insumoService.delete(id).then(() => {
+        await insumoService.delete(id).then(() => { // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getInsumo();
         });
       }

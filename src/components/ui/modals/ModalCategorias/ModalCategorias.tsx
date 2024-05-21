@@ -11,6 +11,7 @@ interface CategoriaModalProps {
   handleClose: () => void;
   handleSave: (categoria: ICategoriaPost) => void;
   categorias ?: ICategoria[];
+  sx?: React.CSSProperties;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
