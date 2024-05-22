@@ -479,9 +479,6 @@ export const ModalArticuloInsumo = ({
         handleClose={() => {
           setShowUnidadMedidaModal(false);
         }}
-        handleSave={function (unidadMedida: IUnidadMedidaPost): void {
-          throw new Error("Function not implemented.");
-        }}
       />
       {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
     </>

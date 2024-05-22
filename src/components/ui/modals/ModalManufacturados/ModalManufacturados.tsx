@@ -19,6 +19,9 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { IUnidadMedidaPost } from "../../../../types/UnidadMedida/IUnidadMedidaPost";
+import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
+import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
+import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,6 +66,13 @@ export const ModalArticuloManufacturado = ({
   const [activeStep, setActiveStep] = useState(0);
 
   const [images, setImages] = useState<{ url: string; name: string }[]>([]);
+
+  const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
+  const [detalles, setDetalles] = useState<IArticuloManufacturadoDetalle[]>([]);
+  const [opcionesDetalles, setOpcionesDetalles] = useState<
+    { label: string; id: number }[]
+  >([]);
+
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
     useState<boolean>(false);
@@ -72,7 +82,6 @@ export const ModalArticuloManufacturado = ({
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
     { label: string; id: number }[]
   >([]);
-  /* TODO: AGREGAR PARA CATEGORÍAS Y MANUF. DETALLE */
 
   // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
   // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
@@ -112,19 +121,34 @@ export const ModalArticuloManufacturado = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const detallesService = new ManufacturadoDetalleService(
+    API_URL + "/articulo-manufacturado-detalle"
+  );
 
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
     setUnidadesMedida([...unidadesMedida, unidadMedida]);
     setShowUnidadMedidaModal(false);
   };
 
+  const addDetalles = (detalle: IArticuloManufacturadoDetalle) => {
+    setDetalles([...detalles, detalle]);
+    setShowDetallesModal(false);
+  };
+
+  const getUnidadesMedida = async () => {
+    const response = await unidadMedidaService.getAll();
+    setUnidadesMedida(response);
+  };
+
+  const getDetalles = async () => {
+    const response = await detallesService.getAll();
+    setDetalles(response);
+  }
+
   //Trae las unidades de medida ya creadas
   useEffect(() => {
-    const getUnidadesMedida = async () => {
-      const response = await unidadMedidaService.getAll();
-      setUnidadesMedida(response);
-    };
     getUnidadesMedida();
+    getDetalles();
   }, []);
 
   //Da formato a las unidades de medida para el dropdown de MUI
@@ -135,6 +159,14 @@ export const ModalArticuloManufacturado = ({
     }));
     setOpcionesUnidadMedida(opciones);
   }, [unidadesMedida]);
+
+  useEffect(() => {
+    const opciones = detalles.map((detalles) => ({
+      label: detalles.articuloInsumo.denominacion,
+      id: detalles.id,
+    }));
+    setOpcionesUnidadMedida(opciones);
+  }, [detalles]);
 
   return (
     <>
@@ -349,10 +381,10 @@ export const ModalArticuloManufacturado = ({
                       </Form.Group>
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
-                        <ImagenArticuloModal
+                        {/* <ImagenArticuloModal
                           images={images}
                           setImages={setImages}
-                        />
+                        /> */}
                       </Form.Group>
                     </>
                   )}
@@ -396,11 +428,13 @@ export const ModalArticuloManufacturado = ({
         show={showUnidadMedidaModal}
         handleClose={() => setShowUnidadMedidaModal(false)}
         addUnidadMedida={addUnidadMedida}
-        handleSave={function (unidadMedida: IUnidadMedidaPost): void {
-          throw new Error("Function not implemented.");
-        }}
       />
       {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
+      <ManufacturadosDetalleModal
+        getDetalles={getDetalles}
+        openModal={showDetallesModal}
+        setOpenModal={setShowDetallesModal}
+      />
     </>
   );
 };
