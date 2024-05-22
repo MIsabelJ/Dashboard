@@ -59,7 +59,6 @@ const flattenCategories = (categories: any[], parent: string | null = null): any
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
-  showModal: boolean;
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
