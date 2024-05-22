@@ -8,7 +8,7 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import { IArticuloInsumoPost } from '../../../../types/ArticuloInsumo/IArticuloInsumoPost';
-import { Autocomplete, Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
+import { Autocomplete, TextField } from '@mui/material';
 import { UnidadMedidaModal } from '../ModalUnidadMedida/ModalUnidadMedida';
 import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
 import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
@@ -26,7 +26,7 @@ interface IArticuloInsumoModalProps {
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  idImagenes: [],
+  imagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -34,6 +34,13 @@ const initialValues: IArticuloInsumoPost = {
   idUnidadMedida: 0,
   idCategoria: 0,
 };
+
+//TODO: Agregar mensaje de error que traiga el error de 
+//steps anteriores al último step del stepper
+
+//TODO: Agregar dropdown de categorias, que posiblemente
+// funcione igual al de modales. Pensar que categoría traería.
+// usar el autocomplete grouped para este dropdown
 
 const validationSchema = Yup.object({
   denominacion: Yup.string().required("Campo requerido"),
@@ -49,18 +56,13 @@ const steps = ['Información del Artículo', 'Información Adicional', 'Imágene
 
 export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [images, setImages] = useState<{ url: string; name: string; }[]>([]);
+  const [images, setImages] = useState<{ file: File; url: string; name: string; }[]>([]);
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<{ label: string, id: number }[]>([]);
-
-
-  // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
-  // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -75,13 +77,19 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
+    setImages([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
-      formik.handleSubmit();
+      try {
+
+        formik.handleSubmit();
+      } catch (err) {
+        console.log(err)
+      }
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -116,6 +124,11 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
     }));
     setOpcionesUnidadMedida(opciones);
   }, [unidadesMedida])
+
+  useEffect(() => {
+    formik.setFieldValue('idImagenes', images.map(image => image.file));
+    console.log('Imagenes dentro del useEffect:', images);
+  }, [images]);
 
   return (
     <>
@@ -255,9 +268,9 @@ export const ModalArticuloInsumo = ({ getInsumos, openModal, setOpenModal }: IAr
                   {activeStep === 2 && (
                     <>
                       <Form.Group controlId="idImagenes">
+                        <Form.Label>Imágenes</Form.Label>
+                        <ImagenArticuloModal images={images} setImages={setImages} />
                       </Form.Group>
-                      <Form.Label>Imágenes</Form.Label>
-                      <ImagenArticuloModal images={images} setImages={setImages} />
                     </>
 
                   )}

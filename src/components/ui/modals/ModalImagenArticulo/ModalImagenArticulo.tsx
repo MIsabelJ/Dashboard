@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Avatar, IconButton, List, ListItem, ListItemAvatar, ListItemText, TextField } from '@mui/material';
 
 interface IImageList {
+    file: File;
     url: string;
     name: string;
 }
@@ -15,8 +16,8 @@ interface ImagenArticuloModalProps {
 
 export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ images, setImages }) => {
 
-
-
+    // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
+    // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
     // const handleAddImage = (image: string) => {
 
@@ -25,20 +26,24 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ images
     //   formik.setFieldValue("idImagenes", "");
     // };
 
-    const handleRemoveImage = (indexToRemove: number) => {
-        const newImages = images.filter((_, index) => index !== indexToRemove);
-        setImages(newImages);
-    };
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
+        console.log(files)
         if (files) {
             const newImages = Array.from(files).map(file => ({
+                file: file,
                 url: URL.createObjectURL(file),
                 name: file.name
             }));
             setImages([...images, ...newImages]);
         }
+    };
+
+    const handleRemoveImage = (indexToRemove: number) => {
+        setImages(images.filter((_, index) => index !== indexToRemove));
+        // console.log(`images después del borrado de ${indexToRemove}`, images)
     };
 
     // Función para obtener las imágenes desde la API - CLOUDINARY
@@ -72,7 +77,7 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ images
     //     );
     //   }
 
-    //   // Crear un objeto FormData y agregar los archivos seleccionados
+    //   // Crear un objeto FormData y agregar los archivos seleccionados 
     //   const formData = new FormData();
     //   Array.from(selectedFiles).forEach((file) => {
     //     formData.append("uploads", file);
@@ -126,6 +131,7 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ images
             }}>
                 <TextField
                     id="outlined-basic"
+                    name="idImagenes"
                     variant="outlined"
                     type="file"
                     onChange={handleFileChange}

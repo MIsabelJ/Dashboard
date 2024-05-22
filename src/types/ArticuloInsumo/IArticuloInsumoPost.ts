@@ -1,7 +1,7 @@
-export interface IArticuloInsumoPost{
+export interface IArticuloInsumoPost {
     denominacion: string
     precioVenta: number
-    idImagenes:number[]
+    imagenes: File[]
     precioCompra: number
     stockActual: number
     stockMaximo: number
