@@ -37,7 +37,7 @@ interface IArticuloInsumoModalProps {
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  idImagenes: [],
+  imagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -45,6 +45,13 @@ const initialValues: IArticuloInsumoPost = {
   idUnidadMedida: 0,
   idCategoria: 0,
 };
+
+//TODO: Agregar mensaje de error que traiga el error de 
+//steps anteriores al último step del stepper
+
+//TODO: Agregar dropdown de categorias, que posiblemente
+// funcione igual al de modales. Pensar que categoría traería.
+// usar el autocomplete grouped para este dropdown
 
 const validationSchema = Yup.object({
   denominacion: Yup.string().required("Campo requerido"),
@@ -64,7 +71,7 @@ export const ModalArticuloInsumo = ({
   setOpenModal,
 }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [images, setImages] = useState<{ url: string; name: string }[]>([]);
+  const [images, setImages] = useState<{ file: File; url: string; name: string; }[]>([]);
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
     useState<boolean>(false);
@@ -91,12 +98,18 @@ export const ModalArticuloInsumo = ({
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
+    setImages([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
-      formik.handleSubmit();
+      try {
+
+        formik.handleSubmit();
+      } catch (err) {
+        console.log(err)
+      }
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -132,7 +145,12 @@ export const ModalArticuloInsumo = ({
       id: unidadMedida.id,
     }));
     setOpcionesUnidadMedida(opciones);
-  }, [unidadesMedida]);
+  }, [unidadesMedida])
+
+  useEffect(() => {
+    formik.setFieldValue('idImagenes', images.map(image => image.file));
+    console.log('Imagenes dentro del useEffect:', images);
+  }, [images]);
 
   return (
     <>

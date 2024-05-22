@@ -9,8 +9,6 @@ interface UnidadMedidaModalProps {
     show: boolean;
     addUnidadMedida: (unidadMedida: IUnidadMedida) => void;
     handleClose: () => void;
-    handleSave: (unidadMedida: IUnidadMedidaPost) => void;
-    sx?: React.CSSProperties;
 }
 const API_URL = import.meta.env.VITE_API_URL;
 export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, handleClose, addUnidadMedida }) => {
