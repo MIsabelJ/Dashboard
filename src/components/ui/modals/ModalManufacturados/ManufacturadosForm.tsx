@@ -18,6 +18,7 @@ import {
   MenuItem,
   Grid,
   SelectChangeEvent,
+  Autocomplete,
 } from "@mui/material";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setElementActive } from "../../../../redux/slices/TablaReducer";
@@ -71,16 +72,23 @@ export const ManufacturadosForm = ({
   const [showCategoriaModal, setShowCategoriaModal] = useState(false);
   const [showImagenArticuloModal, setShowImagenArticuloModal] = useState(false);
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] = useState(false);
-  const [showArticuloManufacturadoModal, setShowArticuloManufacturadoModal] = useState(false);
+  const [showArticuloManufacturadoModal, setShowArticuloManufacturadoModal] =
+    useState(false);
 
   const [categoriasPost, setCategoriasPost] = useState<ICategoriaPost[]>([]);
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
-  const [unidadesMedidaPost, setUnidadesMedidaPost] = useState<IUnidadMedidaPost[]>([]);
+  // const [unidadesMedidaPost, setUnidadesMedidaPost] = useState<IUnidadMedidaPost[]>([]);
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   const [imagenesPost, setImagenesPost] = useState<IImagenArticuloPost[]>([]);
   const [imagenes, setImagenes] = useState<IImagenArticulo[]>([]);
-  const [detallesPost, setDetallesPost] = useState<IArticuloManufacturadoDetallePost[]>([]);
+  const [detallesPost, setDetallesPost] = useState<
+    IArticuloManufacturadoDetallePost[]
+  >([]);
   const [detalles, setDetalles] = useState<IArticuloManufacturado[]>([]);
+
+  const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
+    { label: string; id: number }[]
+  >([]);
 
   // Función para manejar el envío del formulario.
   const handleSubmit = async (values: IArticuloManufacturadoPost) => {
@@ -115,7 +123,8 @@ export const ManufacturadosForm = ({
   };
 
   const handleUnidadMedidaSave = (unidad) => {
-    setUnidadesMedidaPost([...unidadesMedidaPost, unidad]);
+    setUnidadesMedida([...unidadesMedida, unidad]);
+    setShowUnidadMedidaModal(false);
   };
 
   const handleDetalleSave = (detalle) => {
@@ -127,6 +136,23 @@ export const ManufacturadosForm = ({
     updatedDetalles.splice(index, 1);
     setDetallesPost(updatedDetalles);
   };
+
+  useEffect(() => {
+    const getUnidadesMedida = async () => {
+      const response = await unidadMedidaService.getAll();
+      setUnidadesMedida(response);
+    };
+    getUnidadesMedida();
+  }, []);
+
+  //Da formato a las unidades de medida para el dropdown de MUI
+  useEffect(() => {
+    const opciones = unidadesMedida.map((unidadMedida) => ({
+      label: unidadMedida.denominacion,
+      id: unidadMedida.id,
+    }));
+    setOpcionesUnidadMedida(opciones);
+  }, [unidadesMedida]);
 
   // Crea los datos para la tabla de detalles.
   function createData(insumo, cantidad, unidadMedida, index) {
@@ -222,7 +248,7 @@ export const ManufacturadosForm = ({
                             Añadir Nueva Categoría
                           </MenuItem>
                           {categorias.map((categoria) => (
-                            <MenuItem key={categoria.id} value={categoria.id}> 
+                            <MenuItem key={categoria.id} value={categoria.id}>
                               {categoria.denominacion}
                             </MenuItem>
                           ))}
@@ -260,31 +286,44 @@ export const ManufacturadosForm = ({
                   </Grid>
                   <Grid item xs={12} md={7}>
                     <Box sx={{ minWidth: 120 }}>
-                      <FormControl fullWidth>
-                        <InputLabel>
-                          {translatedPlaceholder.idUnidadMedida}
-                        </InputLabel>
-                        <Select
-                          name="idUnidadMedida"
-                          value={formDetails.initialValues.idUnidadMedida}
-                          // onChange={(e) => {
-                          //   if (e.target.value === "new") {
-                          //     setShowUnidadMedidaModal(true);
-                          //   } else {
-                          //     handleChange(e);
-                          //   }
-                          // }}
+                      <Form.Group controlId="idUnidadMedida">
+                        <Form.Label>Unidad de Medida</Form.Label>
+                        <Autocomplete
+                          disablePortal
+                          id="combo-box-demo"
+                          options={opcionesUnidadMedida}
+                          sx={{ width: 300 }}
+                          value={
+                            opcionesUnidadMedida.find(
+                              (option) =>
+                                option.id === formik.values.idUnidadMedida
+                            ) || null
+                          }
+                          onChange={(event, value) =>
+                            formik.setFieldValue(
+                              "idUnidadMedida",
+                              value?.id || ""
+                            )
+                          }
+                          isOptionEqualToValue={(option, value) =>
+                            option.id === value.id
+                          }
+                          renderInput={(params) => (
+                            <TextField {...params} label="Unidad de medida" />
+                          )}
+                        />
+                        <Button
+                          onClick={() => {
+                            setShowUnidadMedidaModal(true);
+                          }}
+                          variant="outline-primary"
                         >
-                          <MenuItem value="new">
-                            Añadir Nueva Unidad de Medida
-                          </MenuItem>
-                          {unidadesMedida.map((unidad) => (
-                            <MenuItem key={unidad.id} value={unidad.id}>
-                              {unidad.denominacion}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
+                          Crear Unidad de Medida
+                        </Button>
+                        <Form.Control.Feedback type="invalid">
+                          {formik.errors.idUnidadMedida}
+                        </Form.Control.Feedback>
+                      </Form.Group>
                     </Box>
                   </Grid>
                   <Grid item xs={12}>
@@ -424,19 +463,19 @@ export const ManufacturadosForm = ({
                       }}
                       aria-label="simple table"
                     > */}
-                      {/* <TableHead>
+                  {/* <TableHead>
                         <TableRow>
                           <TableCell>Insumo</TableCell>
                           <TableCell align="center">Cantidad</TableCell>
                           <TableCell align="center">Unidad de Medida</TableCell>
                         </TableRow>
                       </TableHead> */}
-                      {/* <TableBody> */}
-                        {/* Mapea los detalles y renderiza un TableRow para cada uno */}
-                        {/* {detallesPost.map((detalle, index) => ( */}
-                          {/* <TableRow key={index}> */}
-                            {/* FIXME: al mapear los detalles, usar la interfaz no post */}
-                            {/* <TableCell>{detalle.insumo}</TableCell>
+                  {/* <TableBody> */}
+                  {/* Mapea los detalles y renderiza un TableRow para cada uno */}
+                  {/* {detallesPost.map((detalle, index) => ( */}
+                  {/* <TableRow key={index}> */}
+                  {/* FIXME: al mapear los detalles, usar la interfaz no post */}
+                  {/* <TableCell>{detalle.insumo}</TableCell>
                             <TableCell align="center">
                               {detalle.cantidad}
                             </TableCell>
@@ -452,7 +491,7 @@ export const ManufacturadosForm = ({
                               </IconButton>
                             </TableCell>
                           </TableRow> */}
-                        {/* ))}
+                  {/* ))}
                       </TableBody>
                     </Table>
                   </TableContainer> */}

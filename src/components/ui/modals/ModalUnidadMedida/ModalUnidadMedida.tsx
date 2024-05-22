@@ -3,7 +3,6 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
 import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaPost';
 import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
-import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaPost';
 
 
 interface UnidadMedidaModalProps {
