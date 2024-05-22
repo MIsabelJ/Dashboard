@@ -9,29 +9,52 @@ import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
 import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
 import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
- 
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export function SeccionCategorias() {
   const [Categoria, setCategoria] = useState<ICategoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
-
   const categoriaService = new CategoriaService(API_URL + "/categoria");
 
   const getCategoria = async () => {
     try {
       const categoriaData = await categoriaService.getAll();
       setCategoria(categoriaData);
-      setLoading(false);
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
+    } finally {
       setLoading(false);
     }
   };
+
   const handleSave = async (categoria: ICategoriaPost) => {
     try {
       const response = await categoriaService.post(categoria);
+      console.log("Respuesta de handleSave");
+      console.log(response);
+      getCategoria();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleUpdate = async (id: number, categoria: ICategoria) => {
+    try {
+      const response = await categoriaService.put(id, categoria);
+      console.log("Respuesta de handleUpdate");
+      console.log(response);
+      getCategoria();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const addSubCategoria = async (idCategoria: number, subCategoria: ICategoriaPost) => {
+    try {
+      const response = await categoriaService.addSubCategoria(idCategoria, subCategoria);
+      console.log("Respuesta de addSubCategoria");
       console.log(response);
       getCategoria();
     } catch (error) {
@@ -59,29 +82,31 @@ export function SeccionCategorias() {
             setOpenModal(true);
           }}
         >
-          <AddIcon />
+          <AddIcon  />
         </IconButton>
       </div>
-      {!loading && Array.isArray(Categoria) && Categoria.length > 0 ? (
+      {!loading && (
         <List
           sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
           component="nav"
           aria-labelledby="nested-list-subheader"
         >
-          {Categoria.map((category) => (
-            <CategoryItem key={category.id} category={category} padding={2} />
-          ))}
+          {Categoria.length > 0 ? (
+            Categoria.map((category) => (
+              <CategoryItem key={category.id} category={category} padding={2} handleUpdate={handleUpdate} handleSave={handleSave} addSubCategoria={addSubCategoria}/>
+            ))
+          ) : (
+            <div>No hay categorías creadas.</div>
+          )}
         </List>
-      ) : (
-        <Loader />
       )}
+      {loading && <Loader />}
       <CategoriaModal
-      show={openModal}
-      handleClose={() => setOpenModal(false)}
-      handleSave={handleSave}
-      categorias={Categoria}
+        show={openModal}
+        handleClose={() => setOpenModal(false)}
+        handleSave={handleSave}
       />
-      
     </div>
   );
+
 }

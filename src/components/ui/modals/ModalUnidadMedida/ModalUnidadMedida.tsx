@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
-import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaPost';
+import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 
 
 interface UnidadMedidaModalProps {

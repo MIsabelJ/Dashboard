@@ -5,7 +5,7 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
-import { ModalManufacturados } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
+import { ModalArticuloManufacturado } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
 
 import "./manufacturados.css";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
@@ -16,7 +16,9 @@ export const SeccionManufacturados = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
-  const manufacturadoService = new ManufacturadoService(API_URL + "/articulo-manufacturado");
+  const manufacturadoService = new ManufacturadoService(
+    API_URL + "/articulo-manufacturado"
+  );
   const dispatch = useAppDispatch();
 
   // Necesario para establecer las columnas de la tabla genérica
@@ -24,28 +26,39 @@ export const SeccionManufacturados = () => {
     {
       label: "id",
       key: "id",
-      render: (manufacturado: IArticuloManufacturado) => (manufacturado?.id ? manufacturado.id : 0),
+      render: (manufacturado: IArticuloManufacturado) =>
+        manufacturado?.id ? manufacturado.id : 0,
     },
-    { label: "Nombre", key: "name" },
-    { label: "Precio", key: "price" },
+    { label: "Denominación", key: "denominacion" },
+    { label: "Precio de Venta", key: "precioVenta" },
     { label: "Descripción", key: "description" },
-    { label: "Categoría", key: "category" },
+    { label: "Tiempo Estimado (minutos)", key: "tiempoEstimadoMinutos" },
+    { label: "Preparación", key: "preparacion" },
     {
-      label: 'Imagen',
-      key: 'image',
+      label: "Ingredientes",
+      key: "articuloManufacturadoDetalles",
+      render: (manufacturado: IArticuloManufacturado) => (
+        <>{manufacturado.articuloManufacturadoDetalles.length}</> // TODO: Modificar para mostrar lista de ingredientes con cantidades.
+      ),
+    },
+    {
+      label: "Imagen",
+      key: "image",
       render: (manufacturado: IArticuloManufacturado) => (
         <img
           src={manufacturado.imagenes[0].url}
           alt={manufacturado.denominacion}
-          style={{ maxWidth: '100px', maxHeight: '100px' }}
+          style={{ maxWidth: "100px", maxHeight: "100px" }}
         />
-      ),
+      ), // TODO: Modificar para mostrar slider de imágenes o algo similar.
     },
-    { label: "Stock", key: "stock" },
-    {
-      label: "Acciones", key: "actions",
-    },
-    { label: "Estado", key: "active" },
+    { label: "Unidad de Medida", key: "unidadMedida" },
+    { label: "Categoría", key: "categoria" },
+    // {
+    //   label: "Acciones",
+    //   key: "actions",
+    // },
+    { label: "Estado", key: "eliminado" },
   ];
 
   const handleDelete = async (id: number) => {
@@ -61,6 +74,7 @@ export const SeccionManufacturados = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await manufacturadoService.delete(id).then(() => {
+          // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getManufacturado();
         });
       }
@@ -96,7 +110,7 @@ export const SeccionManufacturados = () => {
         </div>
       )}
 
-      <ModalManufacturados
+      <ModalArticuloManufacturado
         getManufacturados={getManufacturado}
         openModal={openModal}
         setOpenModal={setOpenModal}
