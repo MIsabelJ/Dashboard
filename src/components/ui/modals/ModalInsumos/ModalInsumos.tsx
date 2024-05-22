@@ -6,18 +6,11 @@ import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Typography from "@mui/material/Typography";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import {
   Autocomplete,
-  Avatar,
   Button,
   Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -25,10 +18,12 @@ import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+import { IUnidadMedidaPost } from "../../../../types/UnidadMedida/IUnidadMedidaPost";
 // import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
+  showModal: boolean;
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
@@ -339,7 +334,13 @@ export const ModalArticuloInsumo = ({
                             </Form.Control.Feedback>
                           </Form.Group>
                         </Grid>
-                        <Grid item xs={6} display="flex" alignItems="end" justifyContent="center">
+                        <Grid
+                          item
+                          xs={6}
+                          display="flex"
+                          alignItems="end"
+                          justifyContent="center"
+                        >
                           <Form.Group
                             controlId="esParaElaborar"
                             className="mb-3"
@@ -402,6 +403,9 @@ export const ModalArticuloInsumo = ({
         addUnidadMedida={addUnidadMedida}
         handleClose={() => {
           setShowUnidadMedidaModal(false);
+        }}
+        handleSave={function (unidadMedida: IUnidadMedidaPost): void {
+          throw new Error("Function not implemented.");
         }}
       />
       {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
