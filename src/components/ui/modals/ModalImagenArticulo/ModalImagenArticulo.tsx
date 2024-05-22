@@ -20,7 +20,7 @@ interface ImagenArticuloModalProps {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdImages }) => {
+export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdImages }) => {
   const [images, setImages] = useState<IImagenArticulo[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
@@ -197,5 +197,3 @@ const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdImages }
     </>
   );
 };
-
-export default ImagenArticuloModal;

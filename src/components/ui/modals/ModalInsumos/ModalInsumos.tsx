@@ -6,18 +6,11 @@ import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Typography from "@mui/material/Typography";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import {
   Autocomplete,
-  Avatar,
   Button,
   Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -25,7 +18,44 @@ import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
-// import Swal from 'sweetalert2';
+import { darken, lighten, styled } from '@mui/material/styles';
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import { CategoriaService } from "../../../../services/CategoriaService";
+
+//Estilos del item de cabecera en el combo de categoría
+const GroupHeader = styled('div')(({ theme }) => ({
+  position: 'sticky',
+  top: '-8px',
+  padding: '4px 10px',
+  color: theme.palette.primary.main,
+  backgroundColor:
+    theme.palette.mode === 'light'
+      ? lighten(theme.palette.primary.light, 0.85)
+      : darken(theme.palette.primary.main, 0.8),
+}));
+
+//Estilos del item de subcategoría en el combo de categoría
+const GroupItems = styled('ul')({
+  padding: 0,
+});
+
+// Función para aplanar las subcategorías
+const flattenCategories = (categories: any[], parent: string | null = null): any[] => {
+  return categories.reduce((acc, category) => {
+    const { denominacion, subcategorias } = category;
+    const item = { denominacion, parent };
+
+    acc.push(item);
+
+    if (subcategorias) {
+      acc = acc.concat(flattenCategories(subcategorias, denominacion));
+    }
+
+    return acc;
+  }, []);
+};
+
+
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
@@ -48,10 +78,6 @@ const initialValues: IArticuloInsumoPost = {
 
 //TODO: Agregar mensaje de error que traiga el error de 
 //steps anteriores al último step del stepper
-
-//TODO: Agregar dropdown de categorias, que posiblemente
-// funcione igual al de modales. Pensar que categoría traería.
-// usar el autocomplete grouped para este dropdown
 
 const validationSchema = Yup.object({
   denominacion: Yup.string().required("Campo requerido"),
@@ -77,13 +103,15 @@ export const ModalArticuloInsumo = ({
     useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
+  //Guarda los valores de todas categorías
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
     { label: string; id: number }[]
   >([]);
 
-  // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
-  // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  // Aplanar las opciones
+  const flatOptions = flattenCategories(categorias);
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -122,6 +150,9 @@ export const ModalArticuloInsumo = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const categoriaService = new CategoriaService(
+    API_URL + "/categoria"
+  );
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
@@ -129,13 +160,18 @@ export const ModalArticuloInsumo = ({
     setShowUnidadMedidaModal(false);
   };
 
-  //Trae las unidades de medida ya creadas
+  //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
     const getUnidadesMedida = async () => {
       const response = await unidadMedidaService.getAll();
       setUnidadesMedida(response);
     };
     getUnidadesMedida();
+    const getCategorias = async () => {
+      const response = await categoriaService.getAll();
+      setCategorias(response);
+    };
+    getCategorias();
   }, []);
 
   //Da formato a las unidades de medida para el dropdown de MUI
@@ -147,6 +183,7 @@ export const ModalArticuloInsumo = ({
     setOpcionesUnidadMedida(opciones);
   }, [unidadesMedida])
 
+  // No funca esto 
   useEffect(() => {
     formik.setFieldValue('idImagenes', images.map(image => image.file));
     console.log('Imagenes dentro del useEffect:', images);
@@ -341,7 +378,7 @@ export const ModalArticuloInsumo = ({
                         <Grid item xs={6}>
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
-                            <Form.Control
+                            {/* <Form.Control
                               type="number"
                               placeholder="Ingrese el ID de la categoría"
                               name="idCategoria"
@@ -354,7 +391,21 @@ export const ModalArticuloInsumo = ({
                             />
                             <Form.Control.Feedback type="invalid">
                               {formik.errors.idCategoria}
-                            </Form.Control.Feedback>
+                            </Form.Control.Feedback> */}
+                            <Autocomplete
+                              id="grouped-demo"
+                              options={flatOptions.sort((a, b) => a.denominacion.localeCompare(b.denominacion))}
+                              groupBy={(option) => option.parent || option.denominacion}
+                              getOptionLabel={(option) => option.denominacion}
+                              sx={{ width: 300 }}
+                              renderInput={(params) => <TextField {...params} label="With categories" />}
+                              renderGroup={(params) => (
+                                <li key={params.key}>
+                                  <GroupHeader>{params.group}</GroupHeader>
+                                  <GroupItems>{params.children}</GroupItems>
+                                </li>
+                              )}
+                            />
                           </Form.Group>
                         </Grid>
                         <Grid item xs={6} display="flex" alignItems="end" justifyContent="center">
