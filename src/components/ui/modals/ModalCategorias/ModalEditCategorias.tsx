@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
-import { Modal, Button, Form, ListGroup } from "react-bootstrap";
+import { Modal, Form, ListGroup } from "react-bootstrap";
+import { Button } from "@mui/material";
 import { CategoriaModal } from "./ModalCategorias";
 interface ICategoriaModalProps {
   show: boolean;
@@ -54,9 +55,9 @@ export const ModalEditCategorias = ({
         <Modal.Header closeButton>
           <Modal.Title>Editar Categoría</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Form>
-            <Form.Group controlId="formDenominacion">
+            <Form.Group controlId="formDenominacion" className="mb-3">
               <Form.Label>Denominación</Form.Label>
               <Form.Control
                 type="text"
@@ -64,25 +65,25 @@ export const ModalEditCategorias = ({
                 onChange={(e) => setDenominacion(e.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="formIdSubcategorias">
-              <div className="d-flex mb-2">
+            <Form.Group controlId="formIdSubcategorias" className="mb-3">
+              <div className="d-flex mb-2 justify-content-between">
                 <Form.Label className="mr-2">Subcategorías</Form.Label>
                 <Button
-                  variant="primary"
+                  variant="contained"
                   onClick={() => setOpenModal(true)}
                   className="ml-2"
                 >
-                  Agregar nuevo
+                  Agregar nueva
                 </Button>
               </div>
             </Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer className="d-flex justify-content-between">
+          <Button variant="outlined" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={onSave}>
+          <Button variant="contained" onClick={onSave}>
             Guardar
           </Button>
         </Modal.Footer>

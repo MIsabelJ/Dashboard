@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, ListGroup } from "react-bootstrap";
+import { Modal, Form, ListGroup } from "react-bootstrap";
+import { Button } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { useAppSelector } from "../../../../hooks/redux";
@@ -69,9 +72,9 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
         <Modal.Header closeButton>
           <Modal.Title>Crear Categoría</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Form>
-            <Form.Group controlId="formDenominacion">
+            <Form.Group controlId="formDenominacion" className="mb-3">
               <Form.Label>Denominación</Form.Label>
               <Form.Control
                 type="text"
@@ -79,7 +82,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                 onChange={(e) => setDenominacion(e.target.value)}
               />
             </Form.Group>
-            <Form.Group controlId="formIdSucursales">
+            <Form.Group controlId="formIdSucursales" className="mb-3">
               <Form.Label className="mr-2">Sucursales</Form.Label>
               <div className="d-flex flex-wrap mb-2 justify-content-between">
                 <div
@@ -94,12 +97,12 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                       >
                         <span>{sucursal.nombre}</span>
                         <Button
-                          variant={
+                          variant="outlined"
+                          color={
                             idSucursales.includes(sucursal.id)
-                              ? "danger"
+                              ? "error"
                               : "success"
                           }
-                          size="sm"
                           onClick={() => {
                             if (idSucursales.includes(sucursal.id)) {
                               handleRemoveSucursal(sucursal.id);
@@ -110,8 +113,8 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                           className="ml-2"
                         >
                           {idSucursales.includes(sucursal.id)
-                            ? "Eliminar"
-                            : "Agregar"}
+                            ? <DeleteIcon fontSize="small" />
+                            : <AddIcon fontSize="small" />}
                         </Button>
                       </ListGroup.Item>
                     ))}
@@ -139,11 +142,11 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
             </Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
+        <Modal.Footer className="d-flex justify-content-between">
+          <Button variant="outlined" onClick={handleClose}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={onSave}>
+          <Button variant="contained" onClick={onSave}>
             Guardar
           </Button>
         </Modal.Footer>

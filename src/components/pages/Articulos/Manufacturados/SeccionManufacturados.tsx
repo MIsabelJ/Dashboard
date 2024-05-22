@@ -5,7 +5,7 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
-import { ModalManufacturados } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
+import { ModalArticuloManufacturado } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
 
 import "./manufacturados.css";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
@@ -46,9 +46,9 @@ export const SeccionManufacturados = () => {
       key: "image",
       render: (manufacturado: IArticuloManufacturado) => (
         <img
-        src={manufacturado.imagenes[0].url}
-        alt={manufacturado.denominacion}
-        style={{ maxWidth: "100px", maxHeight: "100px" }}
+          src={manufacturado.imagenes[0].url}
+          alt={manufacturado.denominacion}
+          style={{ maxWidth: "100px", maxHeight: "100px" }}
         />
       ), // TODO: Modificar para mostrar slider de imágenes o algo similar.
     },
@@ -73,7 +73,8 @@ export const SeccionManufacturados = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await manufacturadoService.delete(id).then(() => { // TODO: IMPLEMENTAR ELIMINAR LOGICO
+        await manufacturadoService.delete(id).then(() => {
+          // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getManufacturado();
         });
       }
@@ -109,7 +110,7 @@ export const SeccionManufacturados = () => {
         </div>
       )}
 
-      <ModalManufacturados
+      <ModalArticuloManufacturado
         getManufacturados={getManufacturado}
         openModal={openModal}
         setOpenModal={setOpenModal}
