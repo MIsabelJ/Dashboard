@@ -65,6 +65,14 @@ export const ManufacturadosDetalleModal = ({
     setShowModalArticuloInsumo(false);
   };
 
+  const getInsumo = async () => {
+    await insumoService.getAll().then((insumoData) => {
+      // console.log(insumoData)
+      dispatch(setDataTable(insumoData));
+      setLoading(false);
+    });
+  };
+
   useEffect(() => {
     const getInsumos = async () => {
       const response = await insumoService.getAll();
@@ -159,9 +167,9 @@ export const ManufacturadosDetalleModal = ({
                       name="cantidad"
                       value={formik.values.cantidad}
                       onChange={formik.handleChange}
-                      isInvalid={
-                        formik.touched.cantidad && formik.errors.cantidad
-                      }
+                    // isInvalid={
+                    //   formik.touched.cantidad && formik.errors.cantidad
+                    // }
                     />
                     <Form.Control.Feedback type="invalid">
                       {formik.errors.cantidad}
@@ -172,9 +180,9 @@ export const ManufacturadosDetalleModal = ({
                     <Form.Control disabled>
                       <InputLabel htmlFor="component-disabled">Unidad de Medida</InputLabel>
                       <Input
-                      id="component-disabled"
-                      value= {insumos.map((insumo) => insumo.unidadMedida.denominacion)}
-                      readOnly
+                        id="component-disabled"
+                        value={insumos.map((insumo) => insumo.unidadMedida.denominacion)}
+                        readOnly
                       />
                       <FormHelperText>Esta es la unidad de medida del insumo</FormHelperText>
                     </Form.Control>
@@ -186,7 +194,9 @@ export const ManufacturadosDetalleModal = ({
         </Modal.Body>
       </Modal>
       <ModalArticuloInsumo
-        /* TODO: RELLENAR */       
+        getInsumos={getInsumo}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
       />
     </>
   );

@@ -42,13 +42,20 @@ const GroupItems = styled('ul')({
 // Función para aplanar las subcategorías
 const flattenCategories = (categories: any[], parent: string | null = null): any[] => {
   return categories.reduce((acc, category) => {
-    const { denominacion, subcategorias } = category;
-    const item = { denominacion, parent };
+    acc.push({
+      id: category.id,
+      denominacion: category.denominacion,
+      parent: null
+    });
 
-    acc.push(item);
-
-    if (subcategorias) {
-      acc = acc.concat(flattenCategories(subcategorias, denominacion));
+    if (category.subcategorias) {
+      category.subcategorias.forEach((subcategoria) => {
+        acc.push({
+          id: subcategoria.id,
+          denominacion: subcategoria.denominacion,
+          parent: category.denominacion
+        });
+      });
     }
 
     return acc;
@@ -59,7 +66,6 @@ const flattenCategories = (categories: any[], parent: string | null = null): any
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
-  showModal: boolean;
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
@@ -147,6 +153,19 @@ export const ModalArticuloInsumo = ({
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
+
+  const sortedOptions = flatOptions.sort((a, b) => {
+    if (a.parent && b.parent) {
+      return a.parent.localeCompare(b.parent);
+    }
+    if (a.parent) {
+      return -1;
+    }
+    if (b.parent) {
+      return 1;
+    }
+    return a.denominacion.localeCompare(b.denominacion);
+  });
 
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
@@ -394,10 +413,16 @@ export const ModalArticuloInsumo = ({
                               {formik.errors.idCategoria}
                             </Form.Control.Feedback> */}
                             <Autocomplete
-                              id="grouped-demo"
-                              options={flatOptions.sort((a, b) => a.denominacion.localeCompare(b.denominacion))}
+                              id="idCategoria"
+                              options={sortedOptions}
                               groupBy={(option) => option.parent || option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
+
+                              onChange={(event, value) => {
+                                if (value) {
+                                  console.log('Selected ID:', value.id);
+                                }
+                              }}
                               sx={{ width: 300 }}
                               renderInput={(params) => <TextField {...params} label="With categories" />}
                               renderGroup={(params) => (
