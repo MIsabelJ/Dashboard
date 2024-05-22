@@ -59,6 +59,7 @@ const flattenCategories = (categories: any[], parent: string | null = null): any
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
+  showModal: boolean;
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
@@ -408,7 +409,13 @@ export const ModalArticuloInsumo = ({
                             />
                           </Form.Group>
                         </Grid>
-                        <Grid item xs={6} display="flex" alignItems="end" justifyContent="center">
+                        <Grid
+                          item
+                          xs={6}
+                          display="flex"
+                          alignItems="end"
+                          justifyContent="center"
+                        >
                           <Form.Group
                             controlId="esParaElaborar"
                             className="mb-3"
@@ -471,6 +478,9 @@ export const ModalArticuloInsumo = ({
         addUnidadMedida={addUnidadMedida}
         handleClose={() => {
           setShowUnidadMedidaModal(false);
+        }}
+        handleSave={function (unidadMedida: IUnidadMedidaPost): void {
+          throw new Error("Function not implemented.");
         }}
       />
       {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}

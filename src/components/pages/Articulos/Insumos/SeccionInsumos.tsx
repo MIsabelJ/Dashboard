@@ -7,6 +7,7 @@ import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 
 import "./insumos.css";
+import Carousel from "react-bootstrap/Carousel";
 import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 
@@ -33,19 +34,27 @@ export const SeccionInsumos = () => {
       label: "Imágenes",
       key: "imagenes",
       render: (insumo: IArticuloInsumo) => (
-        <img
-          src={insumo.imagenes[0].url}
-          alt={insumo.denominacion}
-          style={{ maxWidth: "100px", maxHeight: "100px" }}
-        />
-      ), // TODO: Modificar para mostrar slider de imágenes o algo similar.
+        <Carousel>
+          {insumo.imagenes.map((imagen, index) => (
+            <Carousel.Item key={index}>
+              <img
+                className="d-block w-100"
+                src={imagen.url}
+                alt={`Slide ${index}`}
+                style={{ maxWidth: "100px", maxHeight: "100px" }}
+              />
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      ),
     },
     { label: "Stock Actual", key: "stockActual" },
     { label: "Stock Máximo", key: "stockMaximo" },
     {
       label: "Es ingrediente",
       key: "esParaElaborar",
-      render: (insumo: IArticuloInsumo) => (insumo.esParaElaborar ? "Sí" : "No"),
+      render: (insumo: IArticuloInsumo) =>
+        insumo.esParaElaborar ? "Sí" : "No",
     },
     { label: "Unidad de Medida", key: "unidadMedida" },
     { label: "Categoría", key: "categoria" },
@@ -65,7 +74,8 @@ export const SeccionInsumos = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await insumoService.delete(id).then(() => { // TODO: IMPLEMENTAR ELIMINAR LOGICO
+        await insumoService.delete(id).then(() => {
+          // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getInsumo();
         });
       }
