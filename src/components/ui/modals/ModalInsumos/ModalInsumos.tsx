@@ -49,7 +49,7 @@ const flattenCategories = (categories: any[], parent: string | null = null): any
     });
 
     if (category.subcategorias) {
-      category.subcategorias.forEach((subcategoria) => {
+      category.subcategorias.forEach((subcategoria: ICategoria) => {
         acc.push({
           id: subcategoria.id,
           denominacion: subcategoria.denominacion,
@@ -398,33 +398,18 @@ export const ModalArticuloInsumo = ({
                         <Grid item xs={6}>
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
-                            {/* <Form.Control
-                              type="number"
-                              placeholder="Ingrese el ID de la categoría"
-                              name="idCategoria"
-                              value={formik.values.idCategoria}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.idCategoria &&
-                                !!formik.errors.idCategoria
-                              }
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.idCategoria}
-                            </Form.Control.Feedback> */}
                             <Autocomplete
                               id="idCategoria"
                               options={sortedOptions}
                               groupBy={(option) => option.parent || option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
-
+                              getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                if (value) {
-                                  console.log('Selected ID:', value.id);
-                                }
+                                formik.setFieldValue('idCategoria', value ? value.id : null);
                               }}
+                              isOptionEqualToValue={(option, value) => option.id === value.id}
                               sx={{ width: 300 }}
-                              renderInput={(params) => <TextField {...params} label="With categories" />}
+                              renderInput={(params) => <TextField {...params} label="Categorías" />}
                               renderGroup={(params) => (
                                 <li key={params.key}>
                                   <GroupHeader>{params.group}</GroupHeader>
@@ -432,6 +417,7 @@ export const ModalArticuloInsumo = ({
                                 </li>
                               )}
                             />
+
                           </Form.Group>
                         </Grid>
                         <Grid
