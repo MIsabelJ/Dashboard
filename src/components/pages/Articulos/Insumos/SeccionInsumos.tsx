@@ -5,11 +5,12 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import Swal from "sweetalert2";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
-
-import "./insumos.css";
 import Carousel from "react-bootstrap/Carousel";
 import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
+
+import "./insumos.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -56,10 +57,21 @@ export const SeccionInsumos = () => {
       render: (insumo: IArticuloInsumo) =>
         insumo.esParaElaborar ? "Sí" : "No",
     },
-    { label: "Unidad de Medida", key: "unidadMedida" },
-    { label: "Categoría", key: "categoria" },
-    // { label: "Acciones", key: "actions" },
-    { label: "Estado", key: "eliminado" },
+    {
+      label: "Unidad de Medida",
+      key: "unidadMedida",
+      render: (insumo: IArticuloInsumo) => insumo.unidadMedida.denominacion
+    },
+    {
+      label: "Categoría",
+      key: "categoria",
+      render: (insumo: IArticuloInsumo) => insumo.categoria.denominacion
+    },
+    {
+      label: "Estado",
+      key: "eliminado",
+      render: (insumo: IArticuloInsumo) => (insumo.eliminado ? "Eliminado" : "Activo")
+    }
   ];
 
   const handleDelete = async (id: number) => {
@@ -84,7 +96,6 @@ export const SeccionInsumos = () => {
 
   const getInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
-      // console.log(insumoData)
       dispatch(setDataTable(insumoData));
       setLoading(false);
     });
@@ -95,9 +106,19 @@ export const SeccionInsumos = () => {
     getInsumo();
   }, []);
 
+  const handleSave = async (insumo: IArticuloInsumoPost) => {
+    try {
+      const response = await insumoService.post(insumo);
+      console.log("Respuesta de handleSave");
+      console.log(response);
+      getInsumo();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
-      {/* Mostrar indicador de carga mientras se cargan los datos */}
       {loading ? (
         <Loader />
       ) : (
@@ -113,6 +134,7 @@ export const SeccionInsumos = () => {
         getInsumos={getInsumo}
         openModal={openModal}
         setOpenModal={setOpenModal}
+        handleSave={handleSave}
       />
     </>
   );

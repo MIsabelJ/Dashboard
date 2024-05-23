@@ -47,12 +47,13 @@ interface IArticuloInsumoModalProps {
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
+  handleSave: (insumo: IArticuloInsumoPost) => void;
 }
 
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  imagenes: [],
+  idImagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -80,6 +81,7 @@ export const ModalArticuloInsumo = ({
   getInsumos,
   openModal,
   setOpenModal,
+  handleSave,
 }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
   const [idImages, setIdImages] = useState<string[]>([]);
@@ -139,7 +141,12 @@ export const ModalArticuloInsumo = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      const insumo: IArticuloInsumoPost = {
+        ...values,
+        idImagenes: idImages,
+      };
+      console.log(insumo);
+      handleSave(insumo);
       getInsumos();
       handleCloseModal();
     },

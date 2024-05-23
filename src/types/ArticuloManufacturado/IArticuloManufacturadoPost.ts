@@ -5,7 +5,7 @@ export interface IArticuloManufacturadoPost{
     tiempoEstimadoMinutos: number
     preparacion: string
     idArticuloManufacturadoDetalles: number[]
-    idImagenes: number[]
+    idImagenes: string[]
     idUnidadMedida: number
     idCategoria: number
 }
