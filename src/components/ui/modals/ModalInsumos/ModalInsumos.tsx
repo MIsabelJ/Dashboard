@@ -7,7 +7,13 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
-import { Autocomplete, Button, Grid, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  AutocompleteRenderGroupParams,
+  Button,
+  Grid,
+  TextField,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
@@ -35,31 +41,6 @@ const GroupItems = styled("ul")({
   padding: 0,
 });
 
-// Función para aplanar las subcategorías
-const flattenCategories = (
-  categories: any[],
-  parent: string | null = null
-): any[] => {
-  return categories.reduce((acc, category) => {
-    acc.push({
-      id: category.id,
-      denominacion: category.denominacion,
-      parent: null,
-    });
-
-    if (category.subcategorias) {
-      category.subcategorias.forEach((subcategoria: ICategoria) => {
-        acc.push({
-          id: subcategoria.id,
-          denominacion: subcategoria.denominacion,
-          parent: category.denominacion,
-        });
-      });
-    }
-
-    return acc;
-  }, []);
-};
 
 const API_URL = import.meta.env.VITE_API_URL;
 interface IArticuloInsumoModalProps {
@@ -126,8 +107,26 @@ export const ModalArticuloInsumo = ({
       });
   };
 
-  // Aplanar las opciones
-  const flatOptions = flattenCategories(categorias);
+  interface CategoriaData {
+    id: number;
+    denominacion: string;
+    parent: number | null;
+  }
+
+  const categoriasData: CategoriaData[] = [];
+
+  // TODO: ver por qué está repitiendo a la subcategoría como si fuera una categoría principal.
+
+  // Mapear las categorías y guardar las subcategorías dentro del mapa
+  categorias.forEach((categoria) => {
+    // Agregar la categoría principal
+    categoriasData.push({ id: categoria.id, denominacion: categoria.denominacion, parent: null });
+
+    // Agregar las subcategorías dentro de su categoría principal
+    categoria.subCategorias.forEach((subCategoria) => {
+      categoriasData.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: categoria.id });
+    });
+  });
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -166,19 +165,6 @@ export const ModalArticuloInsumo = ({
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
-  const sortedOptions = flatOptions.sort((a, b) => {
-    if (a.parent && b.parent) {
-      return a.parent.localeCompare(b.parent);
-    }
-    if (a.parent) {
-      return -1;
-    }
-    if (b.parent) {
-      return 1;
-    }
-    return a.denominacion.localeCompare(b.denominacion);
-  });
 
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
@@ -413,26 +399,19 @@ export const ModalArticuloInsumo = ({
                             <Form.Label>Categoría</Form.Label>
                             <Autocomplete
                               id="idCategoria"
-                              options={sortedOptions}
-                              groupBy={(option) =>
-                                option.parent || option.denominacion
-                              }
+                              options={categoriasData}
+                              groupBy={(option) => option.parent ? categoriasData.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                formik.setFieldValue(
-                                  "idCategoria",
-                                  value ? value.id : null
-                                );
+                                formik.setFieldValue('idCategoria', value ? value.id : 0);
                               }}
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
                               sx={{ width: 300 }}
-                              renderInput={(params) => (
-                                <TextField {...params} label="Categorías" />
-                              )}
-                              renderGroup={(params) => (
+                              renderInput={(params) => <TextField {...params} label="Categorías" />}
+                              renderGroup={(params: AutocompleteRenderGroupParams) => (
                                 <li key={params.key}>
                                   <GroupHeader>{params.group}</GroupHeader>
                                   <GroupItems>{params.children}</GroupItems>

@@ -5,5 +5,5 @@ export interface ICategoria extends IBaseEntity {
   id: number
   denominacion: string
   sucursales: ISucursal[]
-  subcategorias: ICategoria[]
+  subCategorias: ICategoria[]
 }
