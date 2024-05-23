@@ -2,13 +2,24 @@ import { useEffect, useState } from "react";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useAppDispatch } from "../../../../hooks/redux";
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 import { InsumoService } from "../../../../services/InsumoService";
 import { Form, Modal } from "react-bootstrap";
-import { Autocomplete, Box, Button, FormHelperText, Grid, Input, InputLabel, TextField } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  FormHelperText,
+  Grid,
+  Input,
+  InputLabel,
+  TextField,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import React from "react";
 import { ModalArticuloInsumo } from "../ModalInsumos/ModalInsumos";
+import { setDataTable } from "../../../../redux/slices/TablaReducer";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -33,6 +44,8 @@ export const ManufacturadosDetalleModal = ({
   openModal,
   setOpenModal,
 }: ManufacturadosDetalleModalProps) => {
+  const dispatch = useAppDispatch();
+
   // Abre el modal de Insumo
   const [showModalArticuloInsumo, setShowModalArticuloInsumo] =
     useState<boolean>(false);
@@ -69,7 +82,6 @@ export const ManufacturadosDetalleModal = ({
     await insumoService.getAll().then((insumoData) => {
       // console.log(insumoData)
       dispatch(setDataTable(insumoData));
-      setLoading(false);
     });
   };
 
@@ -97,12 +109,6 @@ export const ManufacturadosDetalleModal = ({
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
-            <React.Fragment>
-              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleCloseModal}>Finalizar</Button>
-              </Box>
-            </React.Fragment>
             <React.Fragment>
               <Form onSubmit={formik.handleSubmit}>
                 <>
@@ -159,44 +165,68 @@ export const ManufacturadosDetalleModal = ({
                       {formik.errors.idArticuloInsumo}
                     </Form.Control.Feedback>
                   </Form.Group>
-                  <Form.Group controlId="cantidad" className="mb-3">
-                    <Form.Label>Cantidad</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="Ingrese la cantidad"
-                      name="cantidad"
-                      value={formik.values.cantidad}
-                      onChange={formik.handleChange}
-                    // isInvalid={
-                    //   formik.touched.cantidad && formik.errors.cantidad
-                    // }
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {formik.errors.cantidad}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group controlId="idUnidadMedida" className="mb-3">
-                    <Form.Label>Unidad de Medida</Form.Label>
-                    <Form.Control disabled>
-                      <InputLabel htmlFor="component-disabled">Unidad de Medida</InputLabel>
-                      <Input
-                        id="component-disabled"
-                        value={insumos.map((insumo) => insumo.unidadMedida.denominacion)}
-                        readOnly
+                  <Grid container spacing={2} alignItems="center" justifyContent="center">
+                    <Grid item xs={6} alignSelf={"flex-start"}>
+                    <Form.Group controlId="cantidad" className="mb-3">
+                      <Form.Label>Cantidad</Form.Label>
+                      <Form.Control
+                        type="number"
+                        placeholder="Ingrese la cantidad"
+                        name="cantidad"
+                        value={formik.values.cantidad}
+                        onChange={formik.handleChange}
+                        // isInvalid={
+                        //   formik.touched.cantidad && formik.errors.cantidad
+                        // }
                       />
-                      <FormHelperText>Esta es la unidad de medida del insumo</FormHelperText>
-                    </Form.Control>
-                  </Form.Group>
+                      <Form.Control.Feedback type="invalid">
+                        {formik.errors.cantidad}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                    </Grid>
+                    <Grid item xs={6}>
+                    <Form.Group controlId="idUnidadMedida" className="mb-3">
+                      <Form.Label>Unidad de Medida</Form.Label>
+                      <div>
+                        <TextField
+                          id="component-disabled"
+                          label="Unidad de Medida"
+                          value={
+                            formik.values.idArticuloInsumo
+                              ? insumos.find(
+                                  (insumo) =>
+                                    insumo.id === formik.values.idArticuloInsumo
+                                )?.unidadMedida.denominacion
+                              : ""
+                          }
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                          fullWidth
+                        />
+                        <FormHelperText>
+                          Esta es la unidad de medida del insumo
+                        </FormHelperText>
+                      </div>
+                    </Form.Group>
+                    </Grid>
+                  </Grid>
                 </>
               </Form>
+            </React.Fragment>
+            <React.Fragment>
+              <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+                <Box sx={{ flex: "1 1 auto" }} />
+                <Button onClick={handleCloseModal}>Finalizar</Button>
+              </Box>
             </React.Fragment>
           </Box>
         </Modal.Body>
       </Modal>
       <ModalArticuloInsumo
         getInsumos={getInsumo}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
+        openModal={showModalArticuloInsumo}
+        setOpenModal={setShowModalArticuloInsumo}
       />
     </>
   );

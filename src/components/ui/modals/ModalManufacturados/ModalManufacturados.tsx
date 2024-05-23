@@ -18,7 +18,6 @@ import {
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { IUnidadMedidaPost } from "../../../../types/UnidadMedida/IUnidadMedidaPost";
 import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
 import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
 import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
@@ -69,9 +68,6 @@ export const ModalArticuloManufacturado = ({
 
   const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
   const [detalles, setDetalles] = useState<IArticuloManufacturadoDetalle[]>([]);
-  const [opcionesDetalles, setOpcionesDetalles] = useState<
-    { label: string; id: number }[]
-  >([]);
 
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
@@ -143,7 +139,7 @@ export const ModalArticuloManufacturado = ({
   const getDetalles = async () => {
     const response = await detallesService.getAll();
     setDetalles(response);
-  }
+  };
 
   //Trae las unidades de medida ya creadas
   useEffect(() => {
@@ -378,6 +374,39 @@ export const ModalArticuloManufacturado = ({
                     <>
                       <Form.Group controlId="detalles" className="mb-3">
                         <Form.Label>Insumos</Form.Label>
+                        <Grid container spacing={2} alignItems="center">
+                          <Grid
+                            item
+                            xs={5}
+                            display="flex"
+                            justifyContent="flex-end"
+                          >
+                            <Button
+                              onClick={() => {
+                                setShowDetallesModal(true);
+                              }}
+                              variant="contained"
+                              startIcon={<AddIcon />}
+                            >
+                              Añadir insumo
+                            </Button>
+                          </Grid>
+                          <Grid item xs={7}>
+                            {detalles.length > 0 && (
+                              <ul>
+                                {detalles.map((detalle, index) => (
+                                  <li key={index}>
+                                    {detalle.articuloInsumo.denominacion}:{" "}
+                                    {detalle.cantidad}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </Grid>
+                        </Grid>
+                        <Form.Control.Feedback type="invalid">
+                          {formik.errors.idArticuloManufacturadoDetalles}
+                        </Form.Control.Feedback>
                       </Form.Group>
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
