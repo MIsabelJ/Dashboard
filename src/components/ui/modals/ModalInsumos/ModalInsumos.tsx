@@ -10,6 +10,7 @@ import { ICategoria } from "../../../../types/Categoria/ICategoria";
 // SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
+import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
@@ -133,6 +134,7 @@ export const ModalArticuloInsumo = ({
     API_URL + "/unidad-medida"
   );
   const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const imagenArticuloService = new ImagenArticuloService(API_URL + "/imagen-articulo");
 
   // -------------------- HANDLES --------------------
   const handleCloseModal = () => {
@@ -206,13 +208,15 @@ export const ModalArticuloInsumo = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => {
-        const imagesData = data;
-        setImages(imagesData);
-      });
+  const getImages = async () => {
+    if (idImages.length > 0) {
+      const data : IImagenArticulo[] = await imagenArticuloService.getAllById(idImages);
+      console.log("Imagenes obtenidad del array de uuid")
+      console.log(data)
+      const imagesData = data.filter(image => image !== null);
+      setImages(imagesData);
+    }
+
   };
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
@@ -246,10 +250,11 @@ export const ModalArticuloInsumo = ({
     setOpcionesUnidadMedida(opciones);
   }, [unidadesMedida]);
 
-  // FIXME: No funca esto
   useEffect(() => {
-    setIdImages(() => images.map((image) => image.id));
-  }, [images]);
+    getImages();
+    console.log("idImages");
+    console.log(idImages);
+  }, [idImages]);
 
   // -------------------- RENDER --------------------
   return (
