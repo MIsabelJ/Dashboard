@@ -1,6 +1,6 @@
 import { AbstractBackendClient } from "./AbstractBackendClient";
 
-export abstract class BackendClient<TG, TP> extends AbstractBackendClient<TG, TP> {
+export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<TG, TP, TE> {
   constructor(baseUrl: string) {
     super(baseUrl);
   }
@@ -40,7 +40,7 @@ export abstract class BackendClient<TG, TP> extends AbstractBackendClient<TG, TP
     return newData as TG;
   }
 
-  async put(id: number, data: TG): Promise<TG> {
+  async put(id: number, data: TE): Promise<TG> {
     console.log(this.baseUrl)
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "PUT",

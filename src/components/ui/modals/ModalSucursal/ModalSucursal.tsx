@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Form } from "react-bootstrap";
 import { ISucursalPost } from "../../../../types/Sucursal/ISucursalPost";
 import { SucursalService } from "../../../../services/SucursalService";
@@ -6,6 +6,9 @@ import { ModalDomicilio } from "../ModalDomicilio/ModalDomicilio"; // Asegúrate
 import { DomicilioService } from "../../../../services/DomicilioService";
 import { Box, Button, Grid } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { useAppSelector } from "../../../../hooks/redux";
+import { ISucursalEdit } from "../../../../types/Sucursal/ISucursalEdit";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -14,6 +17,7 @@ interface SucursalModalProps {
   handleClose: () => void;
   idEmpresa: number; // Recibe el idEmpresa como prop
   handleSave: (sucursal: ISucursalPost) => void;
+  getSucursal: () => void;
 }
 
 export const ModalSucursal: React.FC<SucursalModalProps> = ({
@@ -21,6 +25,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   handleClose,
   idEmpresa,
   handleSave,
+  getSucursal,
 }) => {
   const [nombre, setNombre] = useState<string>("");
   const [horarioApertura, setHorarioApertura] = useState<string>("00:00");
@@ -31,6 +36,29 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
 
   const sucursalService = new SucursalService(API_URL + "/sucursal");
   const domicilioService = new DomicilioService(API_URL + "/domicilio");
+
+  const handleUpdate = (id : number, sucursal: ISucursalEdit) => {
+    console.log(id, sucursal)
+    sucursalService.put(id, sucursal);
+    handleClose();
+  }
+
+  const elementActive = useAppSelector(
+    (state) => state.tableReducer.elementActive
+  );
+
+  useEffect(() => {
+    if (elementActive && elementActive.element) {
+      const sucursal = elementActive.element as ISucursal;
+      setNombre(sucursal.nombre);
+      setHorarioApertura(sucursal.horarioApertura);
+      setHorarioCierre(sucursal.horarioCierre);
+      setEsCasaMatriz(sucursal.esCasaMatriz);
+      setIdDomicilio(sucursal.domicilio.id);
+    }
+
+    getSucursal;
+  }, [elementActive]);
 
   const onSave = () => {
     // Convertir el horario a formato HH:mm:ss antes de guardar
@@ -45,7 +73,9 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       idDomicilio,
       idEmpresa,
     };
+
     handleSave(sucursal);
+    getSucursal();
     handleClose();
     // Resetear los valores del formulario
     setNombre("");
@@ -54,6 +84,21 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     setEsCasaMatriz(false);
     setIdDomicilio(0);
   };
+
+  const onUpdate = () => {
+    const horarioAperturaFormatted = `${horarioApertura}:00`;
+    const horarioCierreFormatted = `${horarioCierre}:00`;
+
+    const sucursal: ISucursalEdit = {
+      horarioApertura: horarioAperturaFormatted,
+      horarioCierre: horarioCierreFormatted,
+      esCasaMatriz
+    };
+    handleUpdate(elementActive.element.id, sucursal);
+    getSucursal();
+    handleClose();
+
+  }
 
   const handleSaveDomicilio = (domicilio: any) => {
     setIdDomicilio(domicilio.id); // Asigna el ID del domicilio guardado
@@ -74,6 +119,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                 type="text"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
+                readOnly={!!elementActive}
               />
             </Form.Group>
             <Grid container spacing={2}>
@@ -118,14 +164,17 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                   }
                   readOnly
                 />
-                <Button
-                  variant="contained"
-                  color="inherit"
-                  startIcon={<AddIcon />}
-                  onClick={() => setShowDomicilioModal(true)}
-                >
-                  Añadir
-                </Button>
+                  {!elementActive ?  (
+                    <Button
+                      variant="contained"
+                      color="inherit"
+                      startIcon={<AddIcon />}
+                      onClick={() => setShowDomicilioModal(true)}
+                    >
+                      Añadir
+                    </Button>
+                  ) : null}
+                  
               </div>
             </Form.Group>
           </Form>
@@ -141,8 +190,12 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
             <Button variant="outlined" color="primary" onClick={handleClose}>
               Cancelar
             </Button>
-            <Button variant="contained" color="primary" onClick={onSave}>
-              Guardar
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={elementActive ? () => onUpdate() : () => onSave()}
+            >
+              {elementActive ? "Actualizar" : "Guardar"}
             </Button>
           </Box>
         </Modal.Footer>

@@ -10,6 +10,7 @@ import {
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import { SwitchButton } from "../../ButtonsTable/Switch";
 import AddIcon from "@mui/icons-material/Add";
+import { ModalSucursal } from "../../modals/ModalSucursal/ModalSucursal";
 
 interface IGenericAtribute<T> {
   label: string;

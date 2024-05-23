@@ -3,4 +3,4 @@ import { IEmpresaPost } from "../types/Empresa/IEmpresaPost";
 import { BackendClient } from "./BackendClient";
 
 
-export class EmpresaService extends BackendClient<IEmpresa, IEmpresaPost> {}
+export class EmpresaService extends BackendClient<IEmpresa, IEmpresaPost, IEmpresaPost> {}
