@@ -214,10 +214,7 @@ export const ModalArticuloInsumo = ({
 
   // FIXME: No funca esto
   useEffect(() => {
-    // const imagesId : string[] = images.map((image) => image.id);
-    setIdImages((prevIdImages) => images.map((image) => image.id));
-    console.log("CONSOLE LOG DESDE INSUMO");
-    console.log(idImages);
+    setIdImages(() => images.map((image) => image.id));
   }, [images]);
 
   return (

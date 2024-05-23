@@ -10,6 +10,7 @@ import { ModalArticuloManufacturado } from "../../../ui/modals/ModalManufacturad
 import "./manufacturados.css";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 import { Carousel } from "react-bootstrap";
+import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,6 +21,16 @@ export const SeccionManufacturados = () => {
   const manufacturadoService = new ManufacturadoService(
     API_URL + "/articulo-manufacturado"
   );
+
+  const handleSave = async (manufacturado: IArticuloManufacturadoPost) => {
+    try {
+      await manufacturadoService.post(manufacturado);
+      getManufacturado();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const dispatch = useAppDispatch();
 
   // Necesario para establecer las columnas de la tabla genérica
@@ -125,6 +136,7 @@ export const SeccionManufacturados = () => {
       )}
 
       <ModalArticuloManufacturado
+        handleSave={handleSave}
         getManufacturados={getManufacturado}
         openModal={openModal}
         setOpenModal={setOpenModal}

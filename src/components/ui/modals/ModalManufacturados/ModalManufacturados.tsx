@@ -26,6 +26,10 @@ import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoD
 import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { CategoriaService } from "../../../../services/CategoriaService";
+import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
+import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
+import { useDispatch } from "react-redux";
+import { setDataTable } from "../../../../redux/slices/TablaReducer";
 
 //Estilos del item de cabecera en el combo de categoría
 const GroupHeader = styled("div")(({ theme }) => ({
@@ -47,6 +51,7 @@ const GroupItems = styled("ul")({
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface IManufacturadosModalProps {
+  handleSave: (detalle: IArticuloManufacturadoPost) => void;
   getManufacturados: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
@@ -80,11 +85,13 @@ export const validationSchema = Yup.object({
 const steps = ["Información General", "Detalles", "Insumos e Imágenes"];
 
 export const ModalArticuloManufacturado = ({
+  handleSave,
   getManufacturados,
   openModal,
   setOpenModal,
 }: IManufacturadosModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
+
   const [idImages, setIdImages] = useState<string[]>([]);
   const [images, setImages] = useState<IImagenArticulo[]>([]);
 
@@ -116,15 +123,30 @@ export const ModalArticuloManufacturado = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      const manufacturado: IArticuloManufacturadoPost = {
+        ...values,
+        idImagenes: idImages,
+      };
+      console.log(manufacturado);
+      handleSave(manufacturado);
       getManufacturados();
       handleCloseModal();
     },
   });
 
-  const handleSubmit = () => {
-    formik.handleSubmit();
+  const manufacturadoDetalleService = new ManufacturadoDetalleService(API_URL + "/articulo-manufacturado-detalle");
+
+  const handleSaveDetalle = async (manufacturadoDetalle: IArticuloManufacturadoDetallePost) => {
+    try {
+      const result = await manufacturadoDetalleService.post(manufacturadoDetalle);
+      setDetalles([...detalles, result]);
+      formik.setFieldValue("idArticuloManufacturadoDetalles", [...detalles, result]);
+      // getManufacturadoDetalle();
+    } catch (error) {
+      console.error(error);
+    }
   };
+
 
   interface CategoriaData {
     id: number;
@@ -159,13 +181,16 @@ export const ModalArticuloManufacturado = ({
   const categoriasFiltradas = formatCategorias();
 
   const handleCloseModal = () => {
-    formik.resetForm();
     setOpenModal(false);
+    formik.resetForm();
+    setDetalles([]);
+    setIdImages([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
+      console.log(formik.values)
       formik.handleSubmit();
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -195,16 +220,6 @@ export const ModalArticuloManufacturado = ({
     setShowDetallesModal(false);
   };
 
-  const getUnidadesMedida = async () => {
-    const response = await unidadMedidaService.getAll();
-    setUnidadesMedida(response);
-  };
-
-  const getDetalles = async () => {
-    const response = await detallesService.getAll();
-    setDetalles(response);
-  };
-
   const getCategorias = async () => {
     const response = await categoriaService.getAll();
     setCategorias(response);
@@ -212,8 +227,11 @@ export const ModalArticuloManufacturado = ({
 
   //Trae las unidades de medida, detalles y categorías ya creadas
   useEffect(() => {
+    const getUnidadesMedida = async () => {
+      const response = await unidadMedidaService.getAll();
+      setUnidadesMedida(response);
+    };
     getUnidadesMedida();
-    getDetalles();
     getCategorias();
   }, []);
 
@@ -237,10 +255,7 @@ export const ModalArticuloManufacturado = ({
 
   // FIXME: No funca esto
   useEffect(() => {
-    // const imagesId : string[] = images.map((image) => image.id);
-    setIdImages((prevIdImages) => images.map((image) => image.id));
-    console.log("CONSOLE LOG DESDE INSUMO");
-    console.log(idImages);
+    setIdImages(() => images.map((image) => image.id));
   }, [images]);
 
   return (
@@ -457,7 +472,7 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 2 && (
                     <>
-                      <Form.Group controlId="detalles" className="mb-3">
+                      <Form.Group controlId="idArticuloManufacturadoDetalles" className="mb-3">
                         <Form.Label>Insumos</Form.Label>
                         <Grid container spacing={2} alignItems="center">
                           <Grid
@@ -521,9 +536,7 @@ export const ModalArticuloManufacturado = ({
                     <Box sx={{ flex: "1 1 auto" }} />
                     <Button
                       onClick={
-                        activeStep === steps.length - 1
-                          ? handleSubmit
-                          : handleNext
+                        () => handleNext()
                       }
                       variant="contained"
                       color={
@@ -548,7 +561,7 @@ export const ModalArticuloManufacturado = ({
       />
       {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
       <ManufacturadosDetalleModal
-        getDetalles={getDetalles}
+        handleSave={handleSaveDetalle}
         openModal={showDetallesModal}
         setOpenModal={setShowDetallesModal}
       />

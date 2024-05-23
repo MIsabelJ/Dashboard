@@ -108,9 +108,7 @@ export const SeccionInsumos = () => {
 
   const handleSave = async (insumo: IArticuloInsumoPost) => {
     try {
-      const response = await insumoService.post(insumo);
-      console.log("Respuesta de handleSave");
-      console.log(response);
+      await insumoService.post(insumo);
       getInsumo();
     } catch (error) {
       console.error(error);

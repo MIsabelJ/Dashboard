@@ -30,11 +30,11 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
-//   useEffect(() => {
-//     getImages();
-//     console.log("Console log desde imagen");
-//     console.log(images);
-//   }, []);
+  //   useEffect(() => {
+  //     getImages();
+  //     console.log("Console log desde imagen");
+  //     console.log(images);
+  //   }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(event.target.files);
@@ -139,10 +139,10 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
     Swal.fire(title, content, icon);
   };
 
-//   const handleRemoveImage = (indexToRemove: number) => {
-//     const newImages = images.filter((_, index) => index !== indexToRemove);
-//     setImages(newImages);
-//   };
+  //   const handleRemoveImage = (indexToRemove: number) => {
+  //     const newImages = images.filter((_, index) => index !== indexToRemove);
+  //     setImages(newImages);
+  //   };
 
   return (
     <>

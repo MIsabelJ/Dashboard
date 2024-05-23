@@ -17,11 +17,12 @@ import AddIcon from "@mui/icons-material/Add";
 import React from "react";
 import { ModalArticuloInsumo } from "../ModalInsumos/ModalInsumos";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
+import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 interface ManufacturadosDetalleModalProps {
-  getDetalles: () => void;
+  handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
 }
@@ -37,11 +38,10 @@ const validationSchema = Yup.object({
 });
 
 export const ManufacturadosDetalleModal = ({
-  getDetalles,
+  handleSave,
   openModal,
   setOpenModal,
 }: ManufacturadosDetalleModalProps) => {
-  const dispatch = useAppDispatch();
 
   // Abre el modal de Insumo
   const [showModalArticuloInsumo, setShowModalArticuloInsumo] =
@@ -58,7 +58,7 @@ export const ManufacturadosDetalleModal = ({
     validationSchema: validationSchema,
     onSubmit: (values) => {
       console.log(values);
-      getDetalles();
+      handleSave(values);
       handleCloseModal();
     },
   });
@@ -79,10 +79,18 @@ export const ManufacturadosDetalleModal = ({
     setShowModalArticuloInsumo(false);
   };
 
+  const handleSaveInsumo = async (insumo: IArticuloInsumoPost) => {
+    try {
+      await insumoService.post(insumo);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
       // console.log(insumoData)
-      dispatch(setDataTable(insumoData));
+      // dispatch(setDataTable(insumoData));
     });
   };
 
@@ -118,9 +126,10 @@ export const ManufacturadosDetalleModal = ({
                     <Grid container spacing={2} alignItems="center">
                       <Grid item xs={7}>
                         <Autocomplete
-                          disablePortal
+                          // disablePortal
                           id="combo-box-demo"
                           options={opcionesInsumos}
+                          getOptionKey={(option) => option.id}
                           sx={{ width: "100%" }}
                           value={
                             opcionesInsumos.find(
@@ -168,45 +177,45 @@ export const ManufacturadosDetalleModal = ({
                   </Form.Group>
                   <Grid container spacing={2} alignItems="center" justifyContent="center">
                     <Grid item xs={6} alignSelf={"flex-start"}>
-                    <Form.Group controlId="cantidad" className="mb-3">
-                      <Form.Label>Cantidad</Form.Label>
-                      <Form.Control
-                        type="number"
-                        placeholder="Ingrese la cantidad"
-                        name="cantidad"
-                        value={formik.values.cantidad}
-                        onChange={formik.handleChange}
+                      <Form.Group controlId="cantidad" className="mb-3">
+                        <Form.Label>Cantidad</Form.Label>
+                        <Form.Control
+                          type="number"
+                          placeholder="Ingrese la cantidad"
+                          name="cantidad"
+                          value={formik.values.cantidad}
+                          onChange={formik.handleChange}
                         // isInvalid={
                         //   formik.touched.cantidad && formik.errors.cantidad
                         // }
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {formik.errors.cantidad}
-                      </Form.Control.Feedback>
-                    </Form.Group>
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {formik.errors.cantidad}
+                        </Form.Control.Feedback>
+                      </Form.Group>
                     </Grid>
                     <Grid item xs={6}>
-                    <Form.Group controlId="idUnidadMedida" className="mb-3">
-                      <Form.Label>Unidad de Medida</Form.Label>
-                      <div>
-                        <TextField
-                          id="component-disabled"
-                          label="Unidad de Medida"
-                          value={
-                            formik.values.idArticuloInsumo
-                              ? insumos.find(
+                      <Form.Group controlId="idUnidadMedida" className="mb-3">
+                        <Form.Label>Unidad de Medida</Form.Label>
+                        <div>
+                          <TextField
+                            id="component-disabled"
+                            label="Unidad de Medida"
+                            value={
+                              formik.values.idArticuloInsumo
+                                ? insumos.find(
                                   (insumo) =>
                                     insumo.id === formik.values.idArticuloInsumo
                                 )?.unidadMedida.denominacion
-                              : ""
-                          }
-                          InputProps={{
-                            readOnly: true,
-                          }}
-                          fullWidth
-                        />
-                      </div>
-                    </Form.Group>
+                                : ""
+                            }
+                            InputProps={{
+                              readOnly: true,
+                            }}
+                            fullWidth
+                          />
+                        </div>
+                      </Form.Group>
                     </Grid>
                   </Grid>
                 </>
@@ -222,6 +231,7 @@ export const ManufacturadosDetalleModal = ({
         </Modal.Body>
       </Modal>
       <ModalArticuloInsumo
+        handleSave={handleSaveInsumo}
         getInsumos={getInsumo}
         openModal={showModalArticuloInsumo}
         setOpenModal={setShowModalArticuloInsumo}
