@@ -3,7 +3,7 @@ import { ICategoriaPost } from "../types/Categoria/ICategoriaPost";
 import { BackendClient } from "./BackendClient";
 
 
-export class CategoriaService extends BackendClient<ICategoria, ICategoriaPost> {
+export class CategoriaService extends BackendClient<ICategoria, ICategoriaPost, ICategoriaPost> {
     async addSubCategoria(idCategoria: number, subCategoria: ICategoriaPost): Promise<ICategoria> {
         const response = await fetch(`${this.baseUrl}/addSubCategoria/${idCategoria}`, {
           method: "PUT",

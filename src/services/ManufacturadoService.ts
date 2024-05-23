@@ -3,5 +3,5 @@ import { IArticuloManufacturadoPost } from "../types/ArticuloManufacturado/IArti
 import { BackendClient } from "./BackendClient";
 
 
-export class ManufacturadoService extends BackendClient<IArticuloManufacturado, IArticuloManufacturadoPost> {
+export class ManufacturadoService extends BackendClient<IArticuloManufacturado, IArticuloManufacturadoPost, IArticuloManufacturadoPost> {
 }

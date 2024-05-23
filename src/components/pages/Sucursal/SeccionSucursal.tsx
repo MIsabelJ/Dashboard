@@ -124,6 +124,8 @@ const SeccionSucursal = () => {
         handleClose={() => setOpenModal(false)}
         idEmpresa={Number(empresaActual)}
         handleSave={handleSave}
+        getSucursal={getSucursal}
+        
       />
     </>
   );
