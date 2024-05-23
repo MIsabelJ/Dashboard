@@ -107,9 +107,14 @@ export const ModalArticuloInsumo = ({
       });
   };
 
+  interface CategoriaData {
+    id: number;
+    denominacion: string;
+    parent: number | null;
+  }
 
-  const categoriasData: ICategoria[] = [];
-  const subCategorias: ICategoria[] = [];
+  const categoriasData: CategoriaData[] = [];
+  const subCategorias: CategoriaData[] = [];
 
   // TODO: ver por qué está repitiendo a la subcategoría como si fuera una categoría principal.
 
@@ -118,18 +123,18 @@ export const ModalArticuloInsumo = ({
     categorias.forEach((categoria) => {
       if (categoria.subCategorias.length > 0) {
         categoria.subCategorias.forEach((subCategoria) => {
-          subCategorias.push(subCategoria);
+          subCategorias.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: null });
         });
       }
     })
     categorias.forEach((categoria) => {
       if (!subCategorias.find((subCategoria) => subCategoria.id === categoria.id)) {
-        categoriasData.push(categoria);
-        // if (categoria.subCategorias.length > 0) {
-        //   categoria.subCategorias.forEach((subCategoria) => {
-        //     categoriasData.push();
-        //   });
-        // }
+        categoriasData.push({ id: categoria.id, denominacion: categoria.denominacion, parent: null });
+        if (categoria.subCategorias.length > 0) {
+          categoria.subCategorias.forEach((subCategoria) => {
+            categoriasData.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: categoria.id });
+          });
+        }
       }
     });
     return categoriasData;
@@ -409,7 +414,7 @@ export const ModalArticuloInsumo = ({
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
-                              groupBy={(option) => option.parent ? categoriasData.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
+                              groupBy={(option) => option.parent ? categoriasFiltradas.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
