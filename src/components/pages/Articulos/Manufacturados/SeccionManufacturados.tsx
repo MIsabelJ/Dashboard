@@ -9,6 +9,7 @@ import { ModalArticuloManufacturado } from "../../../ui/modals/ModalManufacturad
 
 import "./manufacturados.css";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
+import { Carousel } from "react-bootstrap";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -38,19 +39,32 @@ export const SeccionManufacturados = () => {
       label: "Ingredientes",
       key: "articuloManufacturadoDetalles",
       render: (manufacturado: IArticuloManufacturado) => (
-        <>{manufacturado.articuloManufacturadoDetalles.length}</> // TODO: Modificar para mostrar lista de ingredientes con cantidades.
+        <ul>
+          {manufacturado.articuloManufacturadoDetalles.map((detalle, index) => (
+            <li key={index}>
+              {detalle.articuloInsumo.denominacion}: {detalle.cantidad}
+            </li>
+          ))}
+        </ul>
       ),
     },
     {
-      label: "Imagen",
-      key: "image",
+      label: "Imágenes",
+      key: "imagenes",
       render: (manufacturado: IArticuloManufacturado) => (
-        <img
-          src={manufacturado.imagenes[0].url}
-          alt={manufacturado.denominacion}
-          style={{ maxWidth: "100px", maxHeight: "100px" }}
-        />
-      ), // TODO: Modificar para mostrar slider de imágenes o algo similar.
+        <Carousel>
+          {manufacturado.imagenes.map((imagen, index) => (
+            <Carousel.Item key={index}>
+              <img
+                className="d-block w-100"
+                src={imagen.url}
+                alt={`Slide ${index}`}
+                style={{ maxWidth: "100px", maxHeight: "100px" }}
+              />
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      ),
     },
     { label: "Unidad de Medida", key: "unidadMedida" },
     { label: "Categoría", key: "categoria" },

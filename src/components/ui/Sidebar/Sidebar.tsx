@@ -204,7 +204,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
   const [branch, setBranch] = React.useState(sucursalActive);
 
   const handleChange = (event: SelectChangeEvent) => {
-    setBranch(event.target.value as string);
+    setBranch(parseInt(event.target.value as string, 10));
   };
   // -----------------------------------------------------
 
