@@ -13,26 +13,28 @@ import {
 import Swal from "sweetalert2";
 import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 import { extractPublicId } from "cloudinary-build-url";
+import { South } from "@mui/icons-material";
 
 interface ImagenArticuloModalProps {
-  setIdImages: React.Dispatch<React.SetStateAction<number>>;
+  getImages: () => void;
+  images: IImagenArticulo[];
+  setIdImages: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdImages }) => {
-  const [images, setImages] = useState<IImagenArticulo[]>([]);
+export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
+  getImages,
+  images,
+  setIdImages,
+}) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
-  useEffect(() => {
-    getImages();
-  }, []);
-
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => setImages(data));
-  };
+//   useEffect(() => {
+//     getImages();
+//     console.log("Console log desde imagen");
+//     console.log(images);
+//   }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(event.target.files);
@@ -69,10 +71,8 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdI
 
       if (response.ok) {
         swalAlert("Éxito", "Imágenes subidas correctamente", "success");
-
-        const ids = await response.json();
-        setIdImages(ids);
         getImages();
+        setIdImages(images.map((image) => image.id));
       } else {
         swalAlert(
           "Error",
@@ -115,6 +115,7 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdI
         if (response.ok) {
           swalAlert("Éxito", "Imagen eliminada correctamente", "success");
           getImages();
+          setIdImages(images.map((image) => image.id));
         } else {
           swalAlert(
             "Error",
@@ -138,10 +139,10 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({ setIdI
     Swal.fire(title, content, icon);
   };
 
-  const handleRemoveImage = (indexToRemove: number) => {
-    const newImages = images.filter((_, index) => index !== indexToRemove);
-    setImages(newImages);
-  };
+//   const handleRemoveImage = (indexToRemove: number) => {
+//     const newImages = images.filter((_, index) => index !== indexToRemove);
+//     setImages(newImages);
+//   };
 
   return (
     <>

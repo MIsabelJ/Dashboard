@@ -21,6 +21,7 @@ import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo"
 import { darken, lighten, styled } from '@mui/material/styles';
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { CategoriaService } from "../../../../services/CategoriaService";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 
 //Estilos del item de cabecera en el combo de categoría
 const GroupHeader = styled('div')(({ theme }) => ({
@@ -49,7 +50,7 @@ const flattenCategories = (categories: any[], parent: string | null = null): any
     });
 
     if (category.subcategorias) {
-      category.subcategorias.forEach((subcategoria) => {
+      category.subcategorias.forEach((subcategoria: ICategoria) => {
         acc.push({
           id: subcategoria.id,
           denominacion: subcategoria.denominacion,
@@ -104,7 +105,8 @@ export const ModalArticuloInsumo = ({
   setOpenModal,
 }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [images, setImages] = useState<{ file: File; url: string; name: string; }[]>([]);
+  const [idImages, setIdImages] = useState<string[]>([]);
+  const [images, setImages] = useState<IImagenArticulo[]>([]);
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
     useState<boolean>(false);
@@ -117,8 +119,17 @@ export const ModalArticuloInsumo = ({
     { label: string; id: number }[]
   >([]);
 
-  // Aplanar las opciones
-  const flatOptions = flattenCategories(categorias);
+  const getImages = () => {
+    fetch(`${API_URL}/imagen-articulo/getImages`)
+      .then((res) => res.json())
+      .then((data) => {
+        const imagesData = data;
+        setImages(imagesData);
+      });
+  };
+
+   // Aplanar las opciones
+   const flatOptions = flattenCategories(categorias);
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -133,7 +144,7 @@ export const ModalArticuloInsumo = ({
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
-    setImages([]);
+    setIdImages([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
@@ -205,8 +216,10 @@ export const ModalArticuloInsumo = ({
 
   // No funca esto 
   useEffect(() => {
-    formik.setFieldValue('idImagenes', images.map(image => image.file));
-    console.log('Imagenes dentro del useEffect:', images);
+   // const imagesId : string[] = images.map((image) => image.id);
+    setIdImages(prevIdImages => images.map((image) => image.id)); 
+    console.log("CONSOLE LOG DESDE INSUMO")
+    console.log(idImages);
   }, [images]);
 
   return (
@@ -398,33 +411,18 @@ export const ModalArticuloInsumo = ({
                         <Grid item xs={6}>
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
-                            {/* <Form.Control
-                              type="number"
-                              placeholder="Ingrese el ID de la categoría"
-                              name="idCategoria"
-                              value={formik.values.idCategoria}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.idCategoria &&
-                                !!formik.errors.idCategoria
-                              }
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.idCategoria}
-                            </Form.Control.Feedback> */}
                             <Autocomplete
                               id="idCategoria"
                               options={sortedOptions}
                               groupBy={(option) => option.parent || option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
-
+                              getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                if (value) {
-                                  console.log('Selected ID:', value.id);
-                                }
+                                formik.setFieldValue('idCategoria', value ? value.id : null);
                               }}
+                              isOptionEqualToValue={(option, value) => option.id === value.id}
                               sx={{ width: 300 }}
-                              renderInput={(params) => <TextField {...params} label="With categories" />}
+                              renderInput={(params) => <TextField {...params} label="Categorías" />}
                               renderGroup={(params) => (
                                 <li key={params.key}>
                                   <GroupHeader>{params.group}</GroupHeader>
@@ -432,6 +430,7 @@ export const ModalArticuloInsumo = ({
                                 </li>
                               )}
                             />
+
                           </Form.Group>
                         </Grid>
                         <Grid
@@ -465,8 +464,9 @@ export const ModalArticuloInsumo = ({
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
                       <ImagenArticuloModal
-                        images={images}
-                        setImages={setImages}
+                      images={images}
+                      getImages={getImages}
+                      setIdImages={setIdImages}
                       />
                     </>
                   )}
