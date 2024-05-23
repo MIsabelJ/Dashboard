@@ -1,7 +1,7 @@
 export interface IArticuloInsumoPost {
     denominacion: string
     precioVenta: number
-    imagenes: string[]
+    idImagenes: string[]
     precioCompra: number
     stockActual: number
     stockMaximo: number

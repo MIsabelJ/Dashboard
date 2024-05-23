@@ -72,7 +72,7 @@ interface IArticuloInsumoModalProps {
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  imagenes: [],
+  idImagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -135,7 +135,7 @@ export const ModalArticuloInsumo = ({
     onSubmit: (values) => {
       const insumo: IArticuloInsumoPost = {
         ...values,
-        imagenes: idImages,
+        idImagenes: idImages,
       };
       console.log(insumo);
       handleSave(insumo);
