@@ -19,25 +19,25 @@ import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
-import { darken, lighten, styled } from '@mui/material/styles';
+import { darken, lighten, styled } from "@mui/material/styles";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { CategoriaService } from "../../../../services/CategoriaService";
 import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 
 //Estilos del item de cabecera en el combo de categoría
-const GroupHeader = styled('div')(({ theme }) => ({
-  position: 'sticky',
-  top: '-8px',
-  padding: '4px 10px',
+const GroupHeader = styled("div")(({ theme }) => ({
+  position: "sticky",
+  top: "-8px",
+  padding: "4px 10px",
   color: theme.palette.primary.main,
   backgroundColor:
-    theme.palette.mode === 'light'
+    theme.palette.mode === "light"
       ? lighten(theme.palette.primary.light, 0.85)
       : darken(theme.palette.primary.main, 0.8),
 }));
 
 //Estilos del item de subcategoría en el combo de categoría
-const GroupItems = styled('ul')({
+const GroupItems = styled("ul")({
   padding: 0,
 });
 
@@ -61,7 +61,7 @@ const initialValues: IArticuloInsumoPost = {
   idCategoria: 0,
 };
 
-//TODO: Agregar mensaje de error que traiga el error de 
+//TODO: Agregar mensaje de error que traiga el error de
 //steps anteriores al último step del stepper
 
 const validationSchema = Yup.object({
@@ -146,10 +146,9 @@ export const ModalArticuloInsumo = ({
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
       try {
-
         formik.handleSubmit();
       } catch (err) {
-        console.log(err)
+        console.log(err);
       }
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -163,9 +162,7 @@ export const ModalArticuloInsumo = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
-  const categoriaService = new CategoriaService(
-    API_URL + "/categoria"
-  );
+  const categoriaService = new CategoriaService(API_URL + "/categoria");
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
@@ -194,13 +191,13 @@ export const ModalArticuloInsumo = ({
       id: unidadMedida.id,
     }));
     setOpcionesUnidadMedida(opciones);
-  }, [unidadesMedida])
+  }, [unidadesMedida]);
 
-  // No funca esto 
+  // FIXME: No funca esto
   useEffect(() => {
     // const imagesId : string[] = images.map((image) => image.id);
-    setIdImages(prevIdImages => images.map((image) => image.id));
-    console.log("CONSOLE LOG DESDE INSUMO")
+    setIdImages((prevIdImages) => images.map((image) => image.id));
+    console.log("CONSOLE LOG DESDE INSUMO");
     console.log(idImages);
   }, [images]);
 
@@ -208,7 +205,7 @@ export const ModalArticuloInsumo = ({
     <>
       <Modal show={openModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Nuevo Artículo / Insumo</Modal.Title>
+          <Modal.Title>Artículo Insumo</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
@@ -390,7 +387,7 @@ export const ModalArticuloInsumo = ({
                         </Form.Control.Feedback>
                       </Form.Group>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid item xs={8}>
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
                             <Autocomplete
@@ -402,7 +399,9 @@ export const ModalArticuloInsumo = ({
                               onChange={(event, value) => {
                                 formik.setFieldValue('idCategoria', value ? value.id : 0);
                               }}
-                              isOptionEqualToValue={(option, value) => option.id === value.id}
+                              isOptionEqualToValue={(option, value) =>
+                                option.id === value.id
+                              }
                               sx={{ width: 300 }}
                               renderInput={(params) => <TextField {...params} label="Categorías" />}
                               renderGroup={(params: AutocompleteRenderGroupParams) => (
@@ -412,12 +411,11 @@ export const ModalArticuloInsumo = ({
                                 </li>
                               )}
                             />
-
                           </Form.Group>
                         </Grid>
                         <Grid
                           item
-                          xs={6}
+                          xs={4}
                           display="flex"
                           alignItems="end"
                           justifyContent="center"
@@ -449,6 +447,9 @@ export const ModalArticuloInsumo = ({
                         images={images}
                         getImages={getImages}
                         setIdImages={setIdImages}
+                        images={images}
+                        getImages={getImages}
+                        setIdImages={setIdImages}
                       />
                     </>
                   )}
@@ -468,9 +469,15 @@ export const ModalArticuloInsumo = ({
                       Atrás
                     </Button>
                     <Box sx={{ flex: "1 1 auto" }} />
-                    <Button onClick={handleNext} variant="contained">
+                    <Button
+                      onClick={handleNext}
+                      variant="contained"
+                      color={
+                        activeStep === steps.length - 1 ? "success" : "primary"
+                      }
+                    >
                       {activeStep === steps.length - 1
-                        ? "Finalizar"
+                        ? "Guardar"
                         : "Siguiente"}
                     </Button>
                   </Box>
