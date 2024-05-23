@@ -10,10 +10,7 @@ import {
   Autocomplete,
   Box,
   Button,
-  FormHelperText,
   Grid,
-  Input,
-  InputLabel,
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -65,6 +62,10 @@ export const ManufacturadosDetalleModal = ({
       handleCloseModal();
     },
   });
+
+  const handleSubmit = () => {
+    formik.handleSubmit();
+  };
 
   const handleCloseModal = () => {
     formik.resetForm();
@@ -214,7 +215,7 @@ export const ManufacturadosDetalleModal = ({
             <React.Fragment>
               <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                 <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleCloseModal} variant="contained" color="success">Guardar</Button>
+                <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
               </Box>
             </React.Fragment>
           </Box>

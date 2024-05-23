@@ -198,7 +198,8 @@ export const ModalArticuloManufacturado = ({
   };
 
   const addDetalles = (detalle: IArticuloManufacturadoDetalle) => {
-    setDetalles([...detalles, detalle]);
+    console.log("Detalle agregado:", detalle);
+    setDetalles((prevDetalles) => [...prevDetalles, detalle]);
     setShowDetallesModal(false);
   };
 
@@ -234,6 +235,7 @@ export const ModalArticuloManufacturado = ({
   }, [unidadesMedida]);
 
   useEffect(() => {
+    console.log("Detalles actualizados:", detalles);
     const opciones = detalles.map((detalles) => ({
       label: detalles.articuloInsumo.denominacion,
       id: detalles.id,

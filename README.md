@@ -8,12 +8,14 @@ Previo a la ejecución del proyecto, es necesario ejecutar el siguiente comando,
 npm install
 ```
 
-Luego, se puede continuar con la ejecución del proyecto, utilizando los siguientes comandos **en simultáneo**:
+Luego, se puede continuar con la ejecución del proyecto.
 
-```
-npm run start:server
-```
-```
+- Abrí el proyecto contenido en "https://github.com/MIsabelJ/buenSabor.git" con un IDE indicado para Java Spring.
+- Ejecutá el archivo "BuenSaborApplication" contenido en "buenSabor/src/main/java/com/entidades/buenSabor" para iniciar el servidor backend.
+
+- **En simultáneo**, en otra terminal, navegá hasta el proyecto contenido en este repositorio ("Dashboard"), y ejecutá el siguiente comando para levantar el servidor frontend:
+
+```bash
 npm run dev
 ```
 
