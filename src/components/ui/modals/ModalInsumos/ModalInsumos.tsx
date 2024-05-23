@@ -116,8 +116,6 @@ export const ModalArticuloInsumo = ({
   const categoriasData: CategoriaData[] = [];
   const subCategorias: CategoriaData[] = [];
 
-  // TODO: ver por qué está repitiendo a la subcategoría como si fuera una categoría principal.
-
   const formatCategorias = () => {
 
     categorias.forEach((categoria) => {
