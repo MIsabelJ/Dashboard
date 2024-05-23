@@ -2,10 +2,23 @@ import React from "react";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
+// ---------- ARCHIVOS----------
+// INTERFACES
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
+import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
+import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
+// SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
+import { CategoriaService } from "../../../../services/CategoriaService";
+import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
+// MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
+// ---------- ESTILOS ----------
 import { Modal, Form } from "react-bootstrap";
 import {
   Autocomplete,
@@ -20,18 +33,9 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
-import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
-import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
-import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
-import { ICategoria } from "../../../../types/Categoria/ICategoria";
-import { CategoriaService } from "../../../../services/CategoriaService";
-import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
-import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
-import { useDispatch } from "react-redux";
-import { setDataTable } from "../../../../redux/slices/TablaReducer";
 
-//Estilos del item de cabecera en el combo de categoría
+// ------------------------------ CÓDIGO ------------------------------
+// ESTILOS del item de cabecera en el combo de CATEGORÍA
 const GroupHeader = styled("div")(({ theme }) => ({
   position: "sticky",
   top: "-8px",
@@ -43,20 +47,14 @@ const GroupHeader = styled("div")(({ theme }) => ({
       : darken(theme.palette.primary.main, 0.8),
 }));
 
-//Estilos del item de subcategoría en el combo de categoría
+// ESTILOS del item de subcategoría en el combo de CATEGORÍA
 const GroupItems = styled("ul")({
   padding: 0,
 });
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-interface IManufacturadosModalProps {
-  handleSave: (detalle: IArticuloManufacturadoPost) => void;
-  getManufacturados: () => void;
-  openModal: boolean;
-  setOpenModal: (open: boolean) => void;
-}
-
+// ---------- FORMIK ----------
 const initialValues = {
   id: 0,
   denominacion: "",
@@ -84,12 +82,22 @@ export const validationSchema = Yup.object({
 
 const steps = ["Información General", "Detalles", "Insumos e Imágenes"];
 
+// ---------- INTERFAZ ----------
+interface IManufacturadosModalProps {
+  handleSave: (detalle: IArticuloManufacturadoPost) => void;
+  getManufacturados: () => void;
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+}
+
+// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
 export const ModalArticuloManufacturado = ({
   handleSave,
   getManufacturados,
   openModal,
   setOpenModal,
 }: IManufacturadosModalProps) => {
+  // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
 
   const [idImages, setIdImages] = useState<string[]>([]);
@@ -110,15 +118,7 @@ export const ModalArticuloManufacturado = ({
 
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => {
-        const imagesData = data;
-        setImages(imagesData);
-      });
-  };
-
+  // -------------------- FORMIK --------------------
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
@@ -134,20 +134,56 @@ export const ModalArticuloManufacturado = ({
     },
   });
 
-  const manufacturadoDetalleService = new ManufacturadoDetalleService(API_URL + "/articulo-manufacturado-detalle");
+  // -------------------- SERVICES --------------------
+  const manufacturadoDetalleService = new ManufacturadoDetalleService(
+    API_URL + "/articulo-manufacturado-detalle"
+  );
+  const unidadMedidaService = new UnidadMedidaService(
+    API_URL + "/unidad-medida"
+  );
+  const categoriaService = new CategoriaService(API_URL + "/categoria");
 
-  const handleSaveDetalle = async (manufacturadoDetalle: IArticuloManufacturadoDetallePost) => {
+  // -------------------- HANDLES --------------------
+  const handleSaveDetalle = async (
+    manufacturadoDetalle: IArticuloManufacturadoDetallePost
+  ) => {
     try {
-      const result = await manufacturadoDetalleService.post(manufacturadoDetalle);
+      const result = await manufacturadoDetalleService.post(
+        manufacturadoDetalle
+      );
       setDetalles([...detalles, result]);
-      formik.setFieldValue("idArticuloManufacturadoDetalles", [...detalles, result]);
+      formik.setFieldValue("idArticuloManufacturadoDetalles", [
+        ...detalles,
+        result,
+      ]);
       // getManufacturadoDetalle();
     } catch (error) {
       console.error(error);
     }
   };
 
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    formik.resetForm();
+    setDetalles([]);
+    setIdImages([]);
+    setActiveStep(0); // Resetear el stepper al cerrar el modal
+  };
 
+  const handleNext = () => {
+    if (activeStep === steps.length - 1) {
+      console.log(formik.values);
+      formik.handleSubmit();
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  // -------------------- MANEJO DE CATEGORÍAS --------------------
   interface CategoriaData {
     id: number;
     denominacion: string;
@@ -161,16 +197,30 @@ export const ModalArticuloManufacturado = ({
     categorias.forEach((categoria) => {
       if (categoria.subCategorias.length > 0) {
         categoria.subCategorias.forEach((subCategoria) => {
-          subCategorias.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: null });
+          subCategorias.push({
+            id: subCategoria.id,
+            denominacion: subCategoria.denominacion,
+            parent: null,
+          });
         });
       }
-    })
+    });
     categorias.forEach((categoria) => {
-      if (!subCategorias.find((subCategoria) => subCategoria.id === categoria.id)) {
-        categoriasData.push({ id: categoria.id, denominacion: categoria.denominacion, parent: null });
+      if (
+        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
+      ) {
+        categoriasData.push({
+          id: categoria.id,
+          denominacion: categoria.denominacion,
+          parent: null,
+        });
         if (categoria.subCategorias.length > 0) {
           categoria.subCategorias.forEach((subCategoria) => {
-            categoriasData.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: categoria.id });
+            categoriasData.push({
+              id: subCategoria.id,
+              denominacion: subCategoria.denominacion,
+              parent: categoria.id,
+            });
           });
         }
       }
@@ -180,34 +230,20 @@ export const ModalArticuloManufacturado = ({
 
   const categoriasFiltradas = formatCategorias();
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    formik.resetForm();
-    setDetalles([]);
-    setIdImages([]);
-    setActiveStep(0); // Resetear el stepper al cerrar el modal
+  // -------------------- FUNCIONES --------------------
+  const getImages = () => {
+    fetch(`${API_URL}/imagen-articulo/getImages`)
+      .then((res) => res.json())
+      .then((data) => {
+        const imagesData = data;
+        setImages(imagesData);
+      });
   };
-
-  const handleNext = () => {
-    if (activeStep === steps.length - 1) {
-      console.log(formik.values)
-      formik.handleSubmit();
-    } else {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    }
+  
+  const getCategorias = async () => {
+    const response = await categoriaService.getAll();
+    setCategorias(response);
   };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const unidadMedidaService = new UnidadMedidaService(
-    API_URL + "/unidad-medida"
-  );
-  const detallesService = new ManufacturadoDetalleService(
-    API_URL + "/articulo-manufacturado-detalle"
-  );
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
 
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
     setUnidadesMedida([...unidadesMedida, unidadMedida]);
@@ -220,11 +256,7 @@ export const ModalArticuloManufacturado = ({
     setShowDetallesModal(false);
   };
 
-  const getCategorias = async () => {
-    const response = await categoriaService.getAll();
-    setCategorias(response);
-  };
-
+  // -------------------- EFFECTS --------------------
   //Trae las unidades de medida, detalles y categorías ya creadas
   useEffect(() => {
     const getUnidadesMedida = async () => {
@@ -250,7 +282,7 @@ export const ModalArticuloManufacturado = ({
       label: detalles.articuloInsumo.denominacion,
       id: detalles.id,
     }));
-    setOpcionesUnidadMedida(opciones);
+    setOpcionesUnidadMedida(opciones); // TODO: ?
   }, [detalles]);
 
   // FIXME: No funca esto
@@ -258,6 +290,7 @@ export const ModalArticuloManufacturado = ({
     setIdImages(() => images.map((image) => image.id));
   }, [images]);
 
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={openModal} onHide={handleCloseModal}>
@@ -289,6 +322,7 @@ export const ModalArticuloManufacturado = ({
                 <Form onSubmit={formik.handleSubmit}>
                   {activeStep === 0 && (
                     <>
+                      {/* DENOMINACION */}
                       <Form.Group controlId="denominacion" className="mb-3">
                         <Form.Label>Denominación</Form.Label>
                         <Form.Control
@@ -308,23 +342,38 @@ export const ModalArticuloManufacturado = ({
                       </Form.Group>
                       <Grid container spacing={2}>
                         <Grid item xs={8}>
+                          {/* CATEGORIA */}
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
-                              groupBy={(option) => option.parent ? categoriasFiltradas.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
+                              groupBy={(option) =>
+                                option.parent
+                                  ? categoriasFiltradas.find(
+                                      (categoria) =>
+                                        categoria.id === option.parent
+                                    )?.denominacion || ""
+                                  : option.denominacion
+                              }
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                formik.setFieldValue('idCategoria', value ? value.id : 0);
+                                formik.setFieldValue(
+                                  "idCategoria",
+                                  value ? value.id : 0
+                                );
                               }}
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
                               sx={{ width: 300 }}
-                              renderInput={(params) => <TextField {...params} label="Categorías" />}
-                              renderGroup={(params: AutocompleteRenderGroupParams) => (
+                              renderInput={(params) => (
+                                <TextField {...params} label="Categorías" />
+                              )}
+                              renderGroup={(
+                                params: AutocompleteRenderGroupParams
+                              ) => (
                                 <li key={params.key}>
                                   <GroupHeader>{params.group}</GroupHeader>
                                   <GroupItems>{params.children}</GroupItems>
@@ -334,6 +383,7 @@ export const ModalArticuloManufacturado = ({
                           </Form.Group>
                         </Grid>
                         <Grid item xs={4}>
+                          {/* PRECIO VENTA */}
                           <Form.Group controlId="precioVenta" className="mb-3">
                             <Form.Label>Precio de Venta</Form.Label>
                             <Form.Control
@@ -353,6 +403,7 @@ export const ModalArticuloManufacturado = ({
                           </Form.Group>
                         </Grid>
                       </Grid>
+                      {/* DESCRIPCION */}
                       <Form.Group controlId="descripcion" className="mb-3">
                         <Form.Label>Descripción</Form.Label>
                         <Form.Control
@@ -375,6 +426,7 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 1 && (
                     <>
+                      {/* UNIDAD DE MEDIDA */}
                       <Form.Group controlId="idUnidadMedida" className="mb-3">
                         <Form.Label>Unidad de Medida</Form.Label>
                         <Grid container spacing={2} alignItems="center">
@@ -428,6 +480,7 @@ export const ModalArticuloManufacturado = ({
                           {formik.errors.idUnidadMedida}
                         </Form.Control.Feedback>
                       </Form.Group>
+                      {/* PREPARACION */}
                       <Form.Group controlId="preparacion" className="mb-3">
                         <Form.Label>Preparación</Form.Label>
                         <Form.Control
@@ -446,6 +499,7 @@ export const ModalArticuloManufacturado = ({
                           {formik.errors.preparacion}
                         </Form.Control.Feedback>
                       </Form.Group>
+                      {/* TIEMPO DE ESTIMADO EN MINUTOS */}
                       <Form.Group
                         controlId="tiempoEstimadoMinutos"
                         className="mb-3"
@@ -472,7 +526,11 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 2 && (
                     <>
-                      <Form.Group controlId="idArticuloManufacturadoDetalles" className="mb-3">
+                      {/* DETALLES MANUFACTURADO */}
+                      <Form.Group
+                        controlId="idArticuloManufacturadoDetalles"
+                        className="mb-3"
+                      >
                         <Form.Label>Insumos</Form.Label>
                         <Grid container spacing={2} alignItems="center">
                           <Grid
@@ -508,6 +566,7 @@ export const ModalArticuloManufacturado = ({
                           {formik.errors.idArticuloManufacturadoDetalles}
                         </Form.Control.Feedback>
                       </Form.Group>
+                      {/* IMAGENES */}
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
                         <ImagenArticuloModal
@@ -535,9 +594,7 @@ export const ModalArticuloManufacturado = ({
                     </Button>
                     <Box sx={{ flex: "1 1 auto" }} />
                     <Button
-                      onClick={
-                        () => handleNext()
-                      }
+                      onClick={() => handleNext()}
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"
@@ -554,12 +611,12 @@ export const ModalArticuloManufacturado = ({
           </Box>
         </Modal.Body>
       </Modal>
+      {/* MODALS */}
       <UnidadMedidaModal
         show={showUnidadMedidaModal}
         handleClose={() => setShowUnidadMedidaModal(false)}
         addUnidadMedida={addUnidadMedida}
       />
-      {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
       <ManufacturadosDetalleModal
         handleSave={handleSaveDetalle}
         openModal={showDetallesModal}

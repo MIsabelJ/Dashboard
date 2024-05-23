@@ -1,30 +1,36 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form } from "react-bootstrap";
 import * as Yup from "yup";
 import { useFormik } from "formik";
-import Box from "@mui/material/Box";
-import Stepper from "@mui/material/Stepper";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
+// ---------- ARCHIVOS----------
+// INTERFACES
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
+// SERVICES
+import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
+import { CategoriaService } from "../../../../services/CategoriaService";
+// MODALS
+import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
+import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+// ---------- ESTILOS ----------
+import { Modal, Form } from "react-bootstrap";
 import {
   Autocomplete,
   AutocompleteRenderGroupParams,
+  Box,
   Button,
   Grid,
+  Step,
+  StepLabel,
+  Stepper,
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
-import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
-import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
-import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 import { darken, lighten, styled } from "@mui/material/styles";
-import { ICategoria } from "../../../../types/Categoria/ICategoria";
-import { CategoriaService } from "../../../../services/CategoriaService";
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 
-//Estilos del item de cabecera en el combo de categoría
+// ------------------------------ CÓDIGO ------------------------------
+// ESTILOS del item de cabecera en el combo de CATEGORÍA
 const GroupHeader = styled("div")(({ theme }) => ({
   position: "sticky",
   top: "-8px",
@@ -36,20 +42,14 @@ const GroupHeader = styled("div")(({ theme }) => ({
       : darken(theme.palette.primary.main, 0.8),
 }));
 
-//Estilos del item de subcategoría en el combo de categoría
+// ESTILOS del item de subcategoría en el combo de CATEGORÍA
 const GroupItems = styled("ul")({
   padding: 0,
 });
 
-
 const API_URL = import.meta.env.VITE_API_URL;
-interface IArticuloInsumoModalProps {
-  getInsumos: () => void;
-  openModal: boolean;
-  setOpenModal: (open: boolean) => void;
-  handleSave: (insumo: IArticuloInsumoPost) => void;
-}
 
+// ---------- FORMIK ----------
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
@@ -75,71 +75,44 @@ const validationSchema = Yup.object({
   idUnidadMedida: Yup.number().required("Campo requerido"),
   idCategoria: Yup.number().required("Campo requerido"),
 });
+
 const steps = ["Información del Artículo", "Información Adicional", "Imágenes"];
 
+// ---------- INTERFAZ ----------
+interface IArticuloInsumoModalProps {
+  getInsumos: () => void;
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+  handleSave: (insumo: IArticuloInsumoPost) => void;
+}
+
+// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
 export const ModalArticuloInsumo = ({
   getInsumos,
   openModal,
   setOpenModal,
   handleSave,
 }: IArticuloInsumoModalProps) => {
+  // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
+
   const [idImages, setIdImages] = useState<string[]>([]);
   const [images, setImages] = useState<IImagenArticulo[]>([]);
+
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
     useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
-  //Guarda los valores de todas categorías
-  const [categorias, setCategorias] = useState<ICategoria[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
     { label: string; id: number }[]
   >([]);
 
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => {
-        const imagesData = data;
-        setImages(imagesData);
-      });
-  };
+  //Guarda los valores de todas categorías
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
-  interface CategoriaData {
-    id: number;
-    denominacion: string;
-    parent: number | null;
-  }
-
-  const categoriasData: CategoriaData[] = [];
-  const subCategorias: CategoriaData[] = [];
-
-  const formatCategorias = () => {
-
-    categorias.forEach((categoria) => {
-      if (categoria.subCategorias.length > 0) {
-        categoria.subCategorias.forEach((subCategoria) => {
-          subCategorias.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: null });
-        });
-      }
-    })
-    categorias.forEach((categoria) => {
-      if (!subCategorias.find((subCategoria) => subCategoria.id === categoria.id)) {
-        categoriasData.push({ id: categoria.id, denominacion: categoria.denominacion, parent: null });
-        if (categoria.subCategorias.length > 0) {
-          categoria.subCategorias.forEach((subCategoria) => {
-            categoriasData.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: categoria.id });
-          });
-        }
-      }
-    });
-    return categoriasData;
-  };
-
-  const categoriasFiltradas = formatCategorias();
-
+  // -------------------- FORMIK --------------------
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
@@ -155,6 +128,13 @@ export const ModalArticuloInsumo = ({
     },
   });
 
+  // -------------------- SERVICES --------------------
+  const unidadMedidaService = new UnidadMedidaService(
+    API_URL + "/unidad-medida"
+  );
+  const categoriaService = new CategoriaService(API_URL + "/categoria");
+
+  // -------------------- HANDLES --------------------
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
@@ -178,16 +158,70 @@ export const ModalArticuloInsumo = ({
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const unidadMedidaService = new UnidadMedidaService(
-    API_URL + "/unidad-medida"
-  );
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  // -------------------- MANEJO DE CATEGORÍAS --------------------
+  interface CategoriaData {
+    id: number;
+    denominacion: string;
+    parent: number | null;
+  }
+
+  const categoriasData: CategoriaData[] = [];
+  const subCategorias: CategoriaData[] = [];
+
+  const formatCategorias = () => {
+    categorias.forEach((categoria) => {
+      if (categoria.subCategorias.length > 0) {
+        categoria.subCategorias.forEach((subCategoria) => {
+          subCategorias.push({
+            id: subCategoria.id,
+            denominacion: subCategoria.denominacion,
+            parent: null,
+          });
+        });
+      }
+    });
+    categorias.forEach((categoria) => {
+      if (
+        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
+      ) {
+        categoriasData.push({
+          id: categoria.id,
+          denominacion: categoria.denominacion,
+          parent: null,
+        });
+        if (categoria.subCategorias.length > 0) {
+          categoria.subCategorias.forEach((subCategoria) => {
+            categoriasData.push({
+              id: subCategoria.id,
+              denominacion: subCategoria.denominacion,
+              parent: categoria.id,
+            });
+          });
+        }
+      }
+    });
+    return categoriasData;
+  };
+
+  const categoriasFiltradas = formatCategorias();
+
+  // -------------------- FUNCIONES --------------------
+  const getImages = () => {
+    fetch(`${API_URL}/imagen-articulo/getImages`)
+      .then((res) => res.json())
+      .then((data) => {
+        const imagesData = data;
+        setImages(imagesData);
+      });
+  };
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
     setUnidadesMedida([...unidadesMedida, unidadMedida]);
     setShowUnidadMedidaModal(false);
   };
+
+  // -------------------- EFFECTS --------------------
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
@@ -217,6 +251,7 @@ export const ModalArticuloInsumo = ({
     setIdImages(() => images.map((image) => image.id));
   }, [images]);
 
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={openModal} onHide={handleCloseModal}>
@@ -248,6 +283,7 @@ export const ModalArticuloInsumo = ({
                 <Form onSubmit={formik.handleSubmit}>
                   {activeStep === 0 && (
                     <>
+                      {/* DENOMINACION */}
                       <Form.Group controlId="denominacion" className="mb-3">
                         <Form.Label>Denominación</Form.Label>
                         <Form.Control
@@ -267,6 +303,7 @@ export const ModalArticuloInsumo = ({
                       </Form.Group>
                       <Grid container spacing={2}>
                         <Grid item xs={6}>
+                          {/* PRECIO DE VENTA */}
                           <Form.Group controlId="precioVenta" className="mb-3">
                             <Form.Label>Precio de Venta</Form.Label>
                             <Form.Control
@@ -286,6 +323,7 @@ export const ModalArticuloInsumo = ({
                           </Form.Group>
                         </Grid>
                         <Grid item xs={6}>
+                          {/* PRECIO DE COMPRA */}
                           <Form.Group controlId="precioCompra" className="mb-3">
                             <Form.Label>Precio de Compra</Form.Label>
                             <Form.Control
@@ -311,6 +349,7 @@ export const ModalArticuloInsumo = ({
                     <>
                       <Grid container spacing={2}>
                         <Grid item xs={6}>
+                          {/* STOCK ACTUAL */}
                           <Form.Group controlId="stockActual" className="mb-3">
                             <Form.Label>Stock Actual</Form.Label>
                             <Form.Control
@@ -330,6 +369,7 @@ export const ModalArticuloInsumo = ({
                           </Form.Group>
                         </Grid>
                         <Grid item xs={6}>
+                          {/* STOCK MAXIMO */}
                           <Form.Group controlId="stockMaximo" className="mb-3">
                             <Form.Label>Stock Máximo</Form.Label>
                             <Form.Control
@@ -349,6 +389,7 @@ export const ModalArticuloInsumo = ({
                           </Form.Group>
                         </Grid>
                       </Grid>
+                      {/* UNIDAD DE MEDIDA */}
                       <Form.Group controlId="idUnidadMedida" className="mb-3">
                         <Form.Label>Unidad de Medida</Form.Label>
                         <Grid container spacing={2} alignItems="center">
@@ -404,23 +445,38 @@ export const ModalArticuloInsumo = ({
                       </Form.Group>
                       <Grid container spacing={2}>
                         <Grid item xs={8}>
+                          {/* CATEGORIA */}
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
-                              groupBy={(option) => option.parent ? categoriasFiltradas.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
+                              groupBy={(option) =>
+                                option.parent
+                                  ? categoriasFiltradas.find(
+                                      (categoria) =>
+                                        categoria.id === option.parent
+                                    )?.denominacion || ""
+                                  : option.denominacion
+                              }
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                formik.setFieldValue('idCategoria', value ? value.id : 0);
+                                formik.setFieldValue(
+                                  "idCategoria",
+                                  value ? value.id : 0
+                                );
                               }}
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
                               sx={{ width: 300 }}
-                              renderInput={(params) => <TextField {...params} label="Categorías" />}
-                              renderGroup={(params: AutocompleteRenderGroupParams) => (
+                              renderInput={(params) => (
+                                <TextField {...params} label="Categorías" />
+                              )}
+                              renderGroup={(
+                                params: AutocompleteRenderGroupParams
+                              ) => (
                                 <li key={params.key}>
                                   <GroupHeader>{params.group}</GroupHeader>
                                   <GroupItems>{params.children}</GroupItems>
@@ -436,6 +492,7 @@ export const ModalArticuloInsumo = ({
                           alignItems="end"
                           justifyContent="center"
                         >
+                          {/* ES PARA ELABORAR */}
                           <Form.Group
                             controlId="esParaElaborar"
                             className="mb-3"
@@ -454,6 +511,7 @@ export const ModalArticuloInsumo = ({
                   )}
                   {activeStep === 2 && (
                     <>
+                    {/* IMAGENES */}
                       <Form.Group
                         controlId="idImagenes"
                         className="mb-3"
@@ -507,7 +565,6 @@ export const ModalArticuloInsumo = ({
           setShowUnidadMedidaModal(false);
         }}
       />
-      {/* <ImagenArticuloModal show={showImagenArticuloModal} handleClose={() => { setShowImagenArticuloModal(false) }} handleSave={addImagenArticulo} /> */}
     </>
   );
 };

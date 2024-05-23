@@ -1,10 +1,14 @@
+import React from "react";
 import { useEffect, useState } from "react";
-import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAppDispatch } from "../../../../hooks/redux";
+// ---------- ARCHIVOS----------
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
+import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import { InsumoService } from "../../../../services/InsumoService";
+import { ModalArticuloInsumo } from "../ModalInsumos/ModalInsumos";
+// ---------- ESTILOS ----------
 import { Form, Modal } from "react-bootstrap";
 import {
   Autocomplete,
@@ -14,19 +18,11 @@ import {
   TextField,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import React from "react";
-import { ModalArticuloInsumo } from "../ModalInsumos/ModalInsumos";
-import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 
+// ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
-interface ManufacturadosDetalleModalProps {
-  handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
-  openModal: boolean;
-  setOpenModal: (open: boolean) => void;
-}
-
+// ---------- FORMIK ----------
 const initialValues: IArticuloManufacturadoDetallePost = {
   cantidad: 0,
   idArticuloInsumo: 0,
@@ -37,12 +33,22 @@ const validationSchema = Yup.object({
   idArticuloInsumo: Yup.number().required("Campo requerido"),
 });
 
+// ---------- INTERFAZ ----------
+interface ManufacturadosDetalleModalProps {
+  handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+}
+
+// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
+
 export const ManufacturadosDetalleModal = ({
   handleSave,
   openModal,
   setOpenModal,
 }: ManufacturadosDetalleModalProps) => {
 
+  // -------------------- STATES --------------------
   // Abre el modal de Insumo
   const [showModalArticuloInsumo, setShowModalArticuloInsumo] =
     useState<boolean>(false);
@@ -53,6 +59,7 @@ export const ManufacturadosDetalleModal = ({
     { label: string; id: number }[]
   >([]);
 
+  // -------------------- FORMIK --------------------
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
@@ -63,6 +70,10 @@ export const ManufacturadosDetalleModal = ({
     },
   });
 
+  // -------------------- SERVICES --------------------
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+
+  // -------------------- HANDLES --------------------
   const handleSubmit = () => {
     formik.handleSubmit();
   };
@@ -70,13 +81,6 @@ export const ManufacturadosDetalleModal = ({
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
-  };
-
-  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-
-  const addInsumo = (insumo: IArticuloInsumo) => {
-    setInsumos([...insumos, insumo]);
-    setShowModalArticuloInsumo(false);
   };
 
   const handleSaveInsumo = async (insumo: IArticuloInsumoPost) => {
@@ -87,6 +91,13 @@ export const ManufacturadosDetalleModal = ({
     }
   };
 
+  // -------------------- FUNCIONES --------------------
+
+  const addInsumo = (insumo: IArticuloInsumo) => {
+    setInsumos([...insumos, insumo]);
+    setShowModalArticuloInsumo(false);
+  };
+
   const getInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
       // console.log(insumoData)
@@ -94,6 +105,7 @@ export const ManufacturadosDetalleModal = ({
     });
   };
 
+  // -------------------- EFFECTS --------------------
   useEffect(() => {
     const getInsumos = async () => {
       const response = await insumoService.getAll();
@@ -110,6 +122,7 @@ export const ManufacturadosDetalleModal = ({
     setOpcionesInsumos(opciones);
   }, [insumos]);
 
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={openModal} onHide={handleCloseModal}>
@@ -121,6 +134,7 @@ export const ManufacturadosDetalleModal = ({
             <React.Fragment>
               <Form onSubmit={formik.handleSubmit}>
                 <>
+                  {/* ARTICULO INSUMO */}
                   <Form.Group controlId="idArticuloInsumo" className="mb-3">
                     <Form.Label>Insumo</Form.Label>
                     <Grid container spacing={2} alignItems="center">
@@ -177,6 +191,7 @@ export const ManufacturadosDetalleModal = ({
                   </Form.Group>
                   <Grid container spacing={2} alignItems="center" justifyContent="center">
                     <Grid item xs={6} alignSelf={"flex-start"}>
+                      {/* CANTIDAD */}
                       <Form.Group controlId="cantidad" className="mb-3">
                         <Form.Label>Cantidad</Form.Label>
                         <Form.Control
@@ -195,6 +210,7 @@ export const ManufacturadosDetalleModal = ({
                       </Form.Group>
                     </Grid>
                     <Grid item xs={6}>
+                      {/* UNIDAD DE MEDIDA */}
                       <Form.Group controlId="idUnidadMedida" className="mb-3">
                         <Form.Label>Unidad de Medida</Form.Label>
                         <div>

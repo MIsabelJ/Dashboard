@@ -1,23 +1,29 @@
 import React, { useState } from "react";
+// ---------- ARCHIVOS----------
+import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
+import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { useAppSelector } from "../../../../hooks/redux";
+// ---------- ESTILOS ----------
 import { Modal, Form, ListGroup } from "react-bootstrap";
 import { Button } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
-import { ISucursal } from "../../../../types/Sucursal/ISucursal";
-import { useAppSelector } from "../../../../hooks/redux";
 
+// ------------------------------ CÓDIGO ------------------------------
+// ---------- INTERFAZ ----------
 interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
   handleSave: (categoria: ICategoriaPost) => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
   handleSave,
 }) => {
+  // -------------------- STATES --------------------
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
@@ -25,6 +31,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     (state) => state.empresaReducer.empresaActual
   );
 
+  // -------------------- FUNCIONES --------------------
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const dataFilter: ISucursal[] = dataCard.filter(
     (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
@@ -44,6 +51,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     setIdSubcategorias([]);
   };
 
+  // -------------------- HANDLES --------------------
   const handleAddSucursal = (id: number) => {
     if (!idSucursales.includes(id)) {
       setIdSucursales([...idSucursales, id]);
@@ -66,6 +74,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     );
   };
 
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={show} onHide={handleClose}>
