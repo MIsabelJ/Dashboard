@@ -10,6 +10,7 @@ import "./insumos.css";
 import Carousel from "react-bootstrap/Carousel";
 import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -95,6 +96,17 @@ export const SeccionInsumos = () => {
     getInsumo();
   }, []);
 
+  const handleSave = async (insumo: IArticuloInsumoPost) => {
+    try {
+      const response = await insumoService.post(insumo);
+      console.log("Respuesta de handleSave");
+      console.log(response);
+      getInsumo();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       {/* Mostrar indicador de carga mientras se cargan los datos */}
@@ -113,6 +125,7 @@ export const SeccionInsumos = () => {
         getInsumos={getInsumo}
         openModal={openModal}
         setOpenModal={setOpenModal}
+        handleSave={handleSave}
       />
     </>
   );

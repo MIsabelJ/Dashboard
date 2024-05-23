@@ -70,6 +70,7 @@ interface IArticuloInsumoModalProps {
   getInsumos: () => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
+  handleSave: (insumo: IArticuloInsumoPost) => void;
 }
 
 const initialValues: IArticuloInsumoPost = {
@@ -103,6 +104,7 @@ export const ModalArticuloInsumo = ({
   getInsumos,
   openModal,
   setOpenModal,
+  handleSave,
 }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
   const [idImages, setIdImages] = useState<string[]>([]);
@@ -135,7 +137,12 @@ export const ModalArticuloInsumo = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
+      const insumo: IArticuloInsumoPost = {
+        ...values,
+        imagenes: idImages,
+      };
+      console.log(insumo);
+      handleSave(insumo);
       getInsumos();
       handleCloseModal();
     },
