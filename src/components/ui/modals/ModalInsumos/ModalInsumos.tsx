@@ -447,9 +447,6 @@ export const ModalArticuloInsumo = ({
                         images={images}
                         getImages={getImages}
                         setIdImages={setIdImages}
-                        images={images}
-                        getImages={getImages}
-                        setIdImages={setIdImages}
                       />
                     </>
                   )}
