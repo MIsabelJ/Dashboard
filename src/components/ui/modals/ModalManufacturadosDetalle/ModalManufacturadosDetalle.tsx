@@ -105,7 +105,7 @@ export const ManufacturadosDetalleModal = ({
     <>
       <Modal show={openModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Nuevo detalle de artículo manufacturado</Modal.Title>
+          <Modal.Title>Detalle de Artículo Manufacturado</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
@@ -204,9 +204,6 @@ export const ManufacturadosDetalleModal = ({
                           }}
                           fullWidth
                         />
-                        <FormHelperText>
-                          Esta es la unidad de medida del insumo
-                        </FormHelperText>
                       </div>
                     </Form.Group>
                     </Grid>
@@ -217,7 +214,7 @@ export const ManufacturadosDetalleModal = ({
             <React.Fragment>
               <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                 <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleCloseModal}>Finalizar</Button>
+                <Button onClick={handleCloseModal} variant="contained" color="success">Guardar</Button>
               </Box>
             </React.Fragment>
           </Box>
