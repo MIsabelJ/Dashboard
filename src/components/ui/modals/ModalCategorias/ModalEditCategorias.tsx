@@ -21,15 +21,15 @@ export const ModalEditCategorias = ({
 }: ICategoriaModalProps) => {
   const [denominacion, setDenominacion] = useState(categoria.denominacion);
   const [idSucursales, setIdSucursales] = useState(categoria.sucursales);
-  const [idSubcategorias, setIdSubcategorias] = useState(categoria.subcategorias);
+  const [idSubcategorias, setIdSubcategorias] = useState(categoria.subCategorias);
   const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     setDenominacion(categoria.denominacion);
     setIdSucursales(categoria.sucursales);
-    setIdSubcategorias(categoria.subcategorias);
-  }, [categoria ]);
-  
+    setIdSubcategorias(categoria.subCategorias);
+  }, [categoria]);
+
 
   const onSave = () => {
     const categoriaUpdate: ICategoria = {
@@ -37,7 +37,7 @@ export const ModalEditCategorias = ({
       eliminado: categoria.eliminado,
       denominacion: denominacion,
       sucursales: idSucursales,
-      subcategorias: idSubcategorias,
+      subCategorias: idSubcategorias,
     };
     handleUpdate(categoria.id, categoriaUpdate);
     handleClose();
@@ -48,7 +48,7 @@ export const ModalEditCategorias = ({
   const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
     await addSubCategoria(categoria.id, subcategoria);
     setOpenModal(false);
-};
+  };
   return (
     <>
       <Modal show={show} onHide={handleClose}>
