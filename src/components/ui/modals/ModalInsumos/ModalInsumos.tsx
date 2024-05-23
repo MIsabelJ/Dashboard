@@ -25,6 +25,7 @@ import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 // import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -71,7 +72,8 @@ export const ModalArticuloInsumo = ({
   setOpenModal,
 }: IArticuloInsumoModalProps) => {
   const [activeStep, setActiveStep] = useState(0);
-  const [images, setImages] = useState<{ file: File; url: string; name: string; }[]>([]);
+  const [idImages, setIdImages] = useState<string[]>([]);
+  const [images, setImages] = useState<IImagenArticulo[]>([]);
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
     useState<boolean>(false);
@@ -82,8 +84,14 @@ export const ModalArticuloInsumo = ({
     { label: string; id: number }[]
   >([]);
 
-  // Estado para almacenar archivos seleccionados para subir - CLOUDINARY
-  // const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const getImages = () => {
+    fetch(`${API_URL}/imagen-articulo/getImages`)
+      .then((res) => res.json())
+      .then((data) => {
+        const imagesData = data;
+        setImages(imagesData);
+      });
+  };
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -98,7 +106,7 @@ export const ModalArticuloInsumo = ({
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
-    setImages([]);
+    setIdImages([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
@@ -148,8 +156,10 @@ export const ModalArticuloInsumo = ({
   }, [unidadesMedida])
 
   useEffect(() => {
-    formik.setFieldValue('idImagenes', images.map(image => image.file));
-    console.log('Imagenes dentro del useEffect:', images);
+   // const imagesId : string[] = images.map((image) => image.id);
+    setIdImages(prevIdImages => images.map((image) => image.id)); 
+    console.log("CONSOLE LOG DESDE INSUMO")
+    console.log(idImages);
   }, [images]);
 
   return (
@@ -382,8 +392,9 @@ export const ModalArticuloInsumo = ({
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
                       <ImagenArticuloModal
-                        images={images}
-                        setImages={setImages}
+                      images={images}
+                      getImages={getImages}
+                      setIdImages={setIdImages}
                       />
                     </>
                   )}
