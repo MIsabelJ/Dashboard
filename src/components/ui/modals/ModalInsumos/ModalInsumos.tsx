@@ -107,26 +107,35 @@ export const ModalArticuloInsumo = ({
       });
   };
 
-  interface CategoriaData {
-    id: number;
-    denominacion: string;
-    parent: number | null;
-  }
 
-  const categoriasData: CategoriaData[] = [];
+  const categoriasData: ICategoria[] = [];
+  const subCategorias: ICategoria[] = [];
 
   // TODO: ver por qué está repitiendo a la subcategoría como si fuera una categoría principal.
 
-  // Mapear las categorías y guardar las subcategorías dentro del mapa
-  categorias.forEach((categoria) => {
-    // Agregar la categoría principal
-    categoriasData.push({ id: categoria.id, denominacion: categoria.denominacion, parent: null });
+  const formatCategorias = () => {
 
-    // Agregar las subcategorías dentro de su categoría principal
-    categoria.subCategorias.forEach((subCategoria) => {
-      categoriasData.push({ id: subCategoria.id, denominacion: subCategoria.denominacion, parent: categoria.id });
+    categorias.forEach((categoria) => {
+      if (categoria.subCategorias.length > 0) {
+        categoria.subCategorias.forEach((subCategoria) => {
+          subCategorias.push(subCategoria);
+        });
+      }
+    })
+    categorias.forEach((categoria) => {
+      if (!subCategorias.find((subCategoria) => subCategoria.id === categoria.id)) {
+        categoriasData.push(categoria);
+        // if (categoria.subCategorias.length > 0) {
+        //   categoria.subCategorias.forEach((subCategoria) => {
+        //     categoriasData.push();
+        //   });
+        // }
+      }
     });
-  });
+    return categoriasData;
+  };
+
+  const categoriasFiltradas = formatCategorias();
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -399,7 +408,7 @@ export const ModalArticuloInsumo = ({
                             <Form.Label>Categoría</Form.Label>
                             <Autocomplete
                               id="idCategoria"
-                              options={categoriasData}
+                              options={categoriasFiltradas}
                               groupBy={(option) => option.parent ? categoriasData.find((categoria) => categoria.id === option.parent)?.denominacion || "" : option.denominacion}
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
