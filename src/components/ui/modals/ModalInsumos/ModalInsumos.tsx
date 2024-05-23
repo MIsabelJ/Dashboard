@@ -21,6 +21,7 @@ import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo"
 import { darken, lighten, styled } from '@mui/material/styles';
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { CategoriaService } from "../../../../services/CategoriaService";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 
 //Estilos del item de cabecera en el combo de categoría
 const GroupHeader = styled('div')(({ theme }) => ({
