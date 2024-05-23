@@ -23,6 +23,7 @@ import { darken, lighten, styled } from "@mui/material/styles";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { CategoriaService } from "../../../../services/CategoriaService";
 import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 
 //Estilos del item de cabecera en el combo de categoría
 const GroupHeader = styled("div")(({ theme }) => ({
@@ -77,6 +78,7 @@ const validationSchema = Yup.object({
 });
 const steps = ["Información del Artículo", "Información Adicional", "Imágenes"];
 
+
 export const ModalArticuloInsumo = ({
   getInsumos,
   openModal,
@@ -98,13 +100,17 @@ export const ModalArticuloInsumo = ({
     { label: string; id: number }[]
   >([]);
 
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => {
-        const imagesData = data;
-        setImages(imagesData);
-      });
+  const imagenArticuloService = new ImagenArticuloService(API_URL + "/imagen-articulo");
+
+  const getImages = async () => {
+    if (idImages.length > 0) {
+      const data : IImagenArticulo[] = await imagenArticuloService.getAllById(idImages);
+      console.log("Imagenes obtenidad del array de uuid")
+      console.log(data)
+      const imagesData = data.filter(image => image !== null);
+      setImages(imagesData);
+    }
+
   };
 
   interface CategoriaData {
@@ -214,8 +220,10 @@ export const ModalArticuloInsumo = ({
 
   // FIXME: No funca esto
   useEffect(() => {
-    setIdImages(() => images.map((image) => image.id));
-  }, [images]);
+    getImages();
+    console.log("idImages");
+    console.log(idImages);
+  }, [idImages]);
 
   return (
     <>

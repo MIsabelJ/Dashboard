@@ -30,12 +30,6 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
 }) => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
 
-  //   useEffect(() => {
-  //     getImages();
-  //     console.log("Console log desde imagen");
-  //     console.log(images);
-  //   }, []);
-
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(event.target.files);
   };
@@ -71,8 +65,9 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
 
       if (response.ok) {
         swalAlert("Éxito", "Imágenes subidas correctamente", "success");
-        getImages();
-        setIdImages(images.map((image) => image.id));
+        const data : IImagenArticulo[] = await response.json();
+        setIdImages((prevImages) => [...prevImages, ...data.map((image) => image.id)]);
+        await getImages();
       } else {
         swalAlert(
           "Error",
@@ -114,8 +109,8 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
 
         if (response.ok) {
           swalAlert("Éxito", "Imagen eliminada correctamente", "success");
-          getImages();
-          setIdImages(images.map((image) => image.id));
+          setIdImages((prevImages) => prevImages.filter((image) => image !== uuid));
+          await getImages();
         } else {
           swalAlert(
             "Error",
@@ -138,11 +133,6 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
   ) => {
     Swal.fire(title, content, icon);
   };
-
-  //   const handleRemoveImage = (indexToRemove: number) => {
-  //     const newImages = images.filter((_, index) => index !== indexToRemove);
-  //     setImages(newImages);
-  //   };
 
   return (
     <>
