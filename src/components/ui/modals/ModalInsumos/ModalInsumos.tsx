@@ -134,7 +134,9 @@ export const ModalArticuloInsumo = ({
     API_URL + "/unidad-medida"
   );
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-  const imagenArticuloService = new ImagenArticuloService(API_URL + "/imagen-articulo");
+  const imagenArticuloService = new ImagenArticuloService(
+    API_URL + "/imagen-articulo"
+  );
 
   // -------------------- HANDLES --------------------
   const handleCloseModal = () => {
@@ -210,13 +212,14 @@ export const ModalArticuloInsumo = ({
   // -------------------- FUNCIONES --------------------
   const getImages = async () => {
     if (idImages.length > 0) {
-      const data : IImagenArticulo[] = await imagenArticuloService.getAllById(idImages);
-      console.log("Imagenes obtenidad del array de uuid")
-      console.log(data)
-      const imagesData = data.filter(image => image !== null);
+      const data: IImagenArticulo[] = await imagenArticuloService.getAllById(
+        idImages
+      );
+      console.log("Imagenes obtenidad del array de uuid");
+      console.log(data);
+      const imagesData = data.filter((image) => image !== null);
       setImages(imagesData);
     }
-
   };
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
@@ -516,7 +519,7 @@ export const ModalArticuloInsumo = ({
                   )}
                   {activeStep === 2 && (
                     <>
-                    {/* IMAGENES */}
+                      {/* IMAGENES */}
                       <Form.Group
                         controlId="idImagenes"
                         className="mb-3"
