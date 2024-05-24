@@ -1,6 +1,6 @@
+import { IBaseEntity } from "../IBaseEntity";
 
 
-export interface IUnidadMedida {
-    id: number
+export interface IUnidadMedida extends IBaseEntity {
     denominacion: string
 }

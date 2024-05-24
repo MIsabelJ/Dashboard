@@ -39,8 +39,9 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
-import SearchIcon from "@mui/icons-material/Search";
+//import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
+
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -104,8 +105,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ---------- FORMIK ----------
-const initialValues = {
-  id: 0,
+const initialValues : IArticuloManufacturadoPost = {
   denominacion: "",
   precioVenta: 0,
   descripcion: "",
@@ -118,15 +118,14 @@ const initialValues = {
 };
 
 export const validationSchema = Yup.object({
-  denominacion: Yup.string().required("Campo requerido"),
-  precioVenta: Yup.number().required("Campo requerido"),
-  descripcion: Yup.string().required("Campo requerido"),
-  tiempoEstimadoMinutos: Yup.number().required("Campo requerido"),
-  preparacion: Yup.string().required("Campo requerido"),
-  articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
-  imagenes: Yup.array().required("Campo requerido"),
-  idUnidadMedida: Yup.number().required("Campo requerido"),
-  idCategoria: Yup.number().required("Campo requerido"),
+  // denominacion: Yup.string().required("Campo requerido"),
+  // precioVenta: Yup.number().required("Campo requerido"),
+  // descripcion: Yup.string().required("Campo requerido"),
+  // tiempoEstimadoMinutos: Yup.number().required("Campo requerido"),
+  // preparacion: Yup.string().required("Campo requerido"),
+  // articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
+  // idUnidadMedida: Yup.number().required("Campo requerido"),
+  // idCategoria: Yup.number().required("Campo requerido"),
 });
 
 const steps = [
@@ -162,6 +161,7 @@ export const ModalArticuloManufacturado = ({
 
   const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
   const [detalles, setDetalles] = useState<IArticuloManufacturadoDetalle[]>([]);
+  const [idDetalles, setIdDetalles] = useState<number[]>([]);
 
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
@@ -182,8 +182,12 @@ export const ModalArticuloManufacturado = ({
     onSubmit: (values) => {
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
+        idArticuloManufacturadoDetalles: detalles.map((d) => d.id),
         idImagenes: idImages,
       };
+      console.log("Imagenes para guardar")
+      console.log(idImages)
+      console.log("Manufact")
       console.log(manufacturado);
       handleSave(manufacturado);
       getManufacturados();
@@ -217,6 +221,7 @@ export const ModalArticuloManufacturado = ({
         manufacturadoDetalle
       );
       setDetalles([...detalles, result]);
+      setIdDetalles([...idDetalles, result.id]);
       formik.setFieldValue("idArticuloManufacturadoDetalles", [
         ...detalles,
         result,
@@ -226,6 +231,19 @@ export const ModalArticuloManufacturado = ({
       console.error(error);
     }
   };
+
+  const handleDeleteDetalle = async (id: number) => {
+    if(id){
+      try {
+        await manufacturadoDetalleService.delete(id);
+        setDetalles(detalles.filter((d) => d.id !== id));
+        setIdDetalles(idDetalles.filter((d) => d !== id));
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+  }
 
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -237,8 +255,12 @@ export const ModalArticuloManufacturado = ({
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
-      console.log(formik.values);
-      formik.handleSubmit();
+      try {
+        console.log(formik.values);
+        formik.handleSubmit();
+      } catch (err) {
+        console.log(err);
+      }
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
@@ -644,7 +666,7 @@ export const ModalArticuloManufacturado = ({
                             }}
                           >
                             <SearchIconWrapper>
-                              <SearchIcon />
+                              {/* <SearchIcon /> */}
                             </SearchIconWrapper>
                             <StyledInputBase
                               value={searchTerm}
@@ -715,8 +737,7 @@ export const ModalArticuloManufacturado = ({
                                           label="Unidad de Medida"
                                           variant="outlined"
                                           value={
-                                            detalle.articuloInsumo.unidadMedida
-                                              .denominacion
+                                            detalle.articuloInsumo.unidadMedida.denominacion
                                           }
                                           disabled
                                           fullWidth
@@ -726,7 +747,7 @@ export const ModalArticuloManufacturado = ({
                                         item
                                         xs={3}
                                       >
-                                        <IconButton aria-label="delete">
+                                        <IconButton aria-label="delete" onClick={() => handleDeleteDetalle(detalle.id)}>
                                           <DeleteIcon />
                                         </IconButton>
                                         <IconButton aria-label="edit">
@@ -776,7 +797,7 @@ export const ModalArticuloManufacturado = ({
                     </Button>
                     <Box sx={{ flex: "1 1 auto" }} />
                     <Button
-                      onClick={() => handleNext()}
+                      onClick={handleNext}
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"

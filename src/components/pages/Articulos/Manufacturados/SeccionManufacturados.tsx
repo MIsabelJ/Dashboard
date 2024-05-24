@@ -35,15 +35,9 @@ export const SeccionManufacturados = () => {
 
   // Necesario para establecer las columnas de la tabla genérica
   const ColumnsManufacturado = [
-    {
-      label: "id",
-      key: "id",
-      render: (manufacturado: IArticuloManufacturado) =>
-        manufacturado?.id ? manufacturado.id : 0,
-    },
     { label: "Denominación", key: "denominacion" },
     { label: "Precio de Venta", key: "precioVenta" },
-    { label: "Descripción", key: "description" },
+    { label: "Descripción", key: "descripcion" },
     { label: "Tiempo Estimado (minutos)", key: "tiempoEstimadoMinutos" },
     { label: "Preparación", key: "preparacion" },
     {
@@ -77,8 +71,8 @@ export const SeccionManufacturados = () => {
         </Carousel>
       ),
     },
-    { label: "Unidad de Medida", key: "unidadMedida" },
-    { label: "Categoría", key: "categoria" },
+    // { label: "Unidad de Medida", key: "unidadMedida" }, // Aplicar render para que no de problemas
+    // { label: "Categoría", key: "categoria" },
     // {
     //   label: "Acciones",
     //   key: "actions",

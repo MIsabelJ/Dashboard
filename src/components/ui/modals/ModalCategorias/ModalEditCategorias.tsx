@@ -73,7 +73,7 @@ export const ModalEditCategorias = ({
                   onClick={() => setOpenModal(true)}
                   className="ml-2"
                 >
-                  Agregar nueva
+                  Agregar Sub Categoria
                 </Button>
               </div>
             </Form.Group>
