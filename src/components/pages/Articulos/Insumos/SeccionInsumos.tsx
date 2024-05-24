@@ -21,13 +21,11 @@ export const SeccionInsumos = () => {
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const dispatch = useAppDispatch();
 
+  
+
   // Necesario para establecer las columnas de la tabla genérica
   const ColumnsInsumo = [
-    {
-      label: "id",
-      key: "id",
-      render: (insumo: IArticuloInsumo) => (insumo?.id ? insumo.id : 0),
-    },
+
     { label: "Denominación", key: "denominacion" },
     { label: "Precio de Venta", key: "precioVenta" },
     { label: "Precio de Compra", key: "precioCompra" },
@@ -77,12 +75,12 @@ export const SeccionInsumos = () => {
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
-      text: `¿Seguro que quieres eliminar?`,
+      text: `¿Seguro que quieres cambiar el estado?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Si, Eliminar!",
+      confirmButtonText: "Si, Adelante!",
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {

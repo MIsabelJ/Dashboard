@@ -89,12 +89,12 @@ export const SeccionManufacturados = () => {
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
-      text: `¿Seguro que quieres eliminar?`,
+      text: `¿Seguro que quieres cambiar el estado?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Si, Eliminar!",
+      confirmButtonText: "Si, Adelante!",
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {

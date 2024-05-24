@@ -1,7 +1,7 @@
 import { useAppDispatch } from "../../../hooks/redux";
 import { setElementActive } from "../../../redux/slices/TablaReducer";
 
-import { Button, Icon, IconButton } from "@mui/material";
+import { Button, Icon, IconButton, Switch } from "@mui/material";
 import { DeleteRounded, Edit, EditAttributes, EditAttributesRounded, EditNotifications, EditRounded } from "@mui/icons-material";
 
 // Define una interfaz genérica para los props del componente
@@ -11,7 +11,7 @@ interface IButtonsTable<T> {
   setOpenModal: (state: boolean) => void; // Función para manejar la eliminación de un elemento
 }
 
-export const ButtonsTable = <T extends { id: number }>({
+export const ButtonsTable = <T extends { id: number, eliminado: boolean }>({
   el,
   handleDelete,
   setOpenModal,
@@ -37,15 +37,19 @@ export const ButtonsTable = <T extends { id: number }>({
         display: "flex",
         alignItems: "center",
         justifyContent: "space-around",
+        cursor: "pointer",
+        opacity: 1.0,
+        
       }}
     >
       {/* Botón para editar el elemento */}
       <IconButton onClick={handleModalSelected} color="primary">
         <EditRounded />
       </IconButton>
-      <IconButton onClick={() => handleDelete(el.id)} color="error">
-        <DeleteRounded />
-      </IconButton>
+      <Switch
+          checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
+          onChange={() => handleDelete(el.id)}
+        />
     </div>
   );
 };

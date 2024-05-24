@@ -13,6 +13,7 @@ import { SwitchButton } from "../../ui/ButtonsTable/Switch";
 import "./category.css";
 import { ModalEditCategorias } from "../../ui/modals/ModalCategorias/ModalEditCategorias";
 import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
+import { ButtonsTable } from "../../ui/ButtonsTable/ButtonsTable";
 
 interface CategoryItemProps {
   category: ICategoria;
@@ -20,6 +21,7 @@ interface CategoryItemProps {
   handleUpdate: (id: number, category: ICategoria) => void;
   handleSave: (category: ICategoriaPost) => void;
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
+  handleDelete: (id: number) => void;
 }
 export const CategoryItem: React.FC<CategoryItemProps> = ({
   category,
@@ -27,6 +29,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   handleUpdate,
   handleSave,
   addSubCategoria,
+  handleDelete,
 }) => {
   const [open, setOpen] = React.useState(false);
   const handleClick = () => setOpen(!open);
@@ -41,12 +44,9 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         </ListItemIcon>
         <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
-          <IconButton color="primary" onClick={() => setOpenModal(true)}>
-            <EditRounded />
-          </IconButton>
-          <SwitchButton id={category.id} currentState={category.eliminado}/>
+          <ButtonsTable setOpenModal={() => setOpenModal(true)} el={category} handleDelete={handleDelete} />
         </div>
-        {category.subcategorias && category.subcategorias.length > 0 ? (
+        {category.subCategorias && category.subCategorias.length > 0 ? (
           open ? (
             <ExpandLess onClick={handleClick} />
           ) : (
@@ -54,11 +54,11 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
           )
         ) : null}
       </ListItemButton>
-      {category.subcategorias && category.subcategorias.length > 0 && (
+      {category.subCategorias && category.subCategorias.length > 0 && (
         <>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {category.subcategorias.map((subcategory) => (
+              {category.subCategorias.map((subcategory) => (
                 <CategoryItem
                   key={subcategory.id}
                   category={subcategory}
@@ -66,6 +66,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
                   handleUpdate={handleUpdate}
                   handleSave={handleSave}
                   addSubCategoria={addSubCategoria}
+                  handleDelete={handleDelete}
                 />
               ))}
             </List>

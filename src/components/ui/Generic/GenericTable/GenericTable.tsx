@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from "react";
 import { useAppSelector } from "../../../../hooks/redux";
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import { SwitchButton } from "../../ButtonsTable/Switch";
+import "./StyleGenericTable.css"
 
 import {
   IconButton,
@@ -188,29 +189,23 @@ export const GenericTable = <T extends { id: number }>({
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
                     return (
-                      <TableRow key={index}>
+                      <TableRow key={index} className={row.eliminado ? "filaDeshabilitada" : ""}>
                         {columns.map((column, i) => {
+                          if (column.key === "id") return null;
                           return (
-                            <TableCell key={i} align="center">
-                              {column.render ? (
-                                column.render(row)
-                              ) : column.label === "Acciones" ? (
-                                <ButtonsTable
-                                  el={row}
-                                  handleDelete={handleDelete}
-                                  setOpenModal={setOpenModal}
-                                />
-                              ) : column.label === "Estado" ? (
-                                <SwitchButton
-                                  id={row.id}
-                                  currentState={row.eliminado}
-                                />
-                              ) : (
-                                row[column.key]
-                              )}
-                            </TableCell>
+                              <TableCell key={i} align="center">
+                                {column.render
+                                  ? column.render(row)
+                                  : row[column.key]}
+                              </TableCell>
                           );
                         })}
+
+                        <ButtonsTable
+                          el={row}
+                          handleDelete={handleDelete}
+                          setOpenModal={setOpenModal}
+                        />
                       </TableRow>
                     );
                   })

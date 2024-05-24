@@ -9,6 +9,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { CategoriaService } from "../../../services/CategoriaService";
 import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
 import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
+import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,6 +28,25 @@ export function SeccionCategorias() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDelete = async (id: number) => {
+    Swal.fire({
+      title: "¿Estas seguro?",
+      text: `¿Seguro que quieres editar el estado?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Si, Adelante!",
+      cancelButtonText: "Cancelar",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        await categoriaService.delete(id).then(() => {
+          getCategoria();
+        });
+      }
+    });
   };
 
   const handleSave = async (categoria: ICategoriaPost) => {
@@ -93,7 +113,7 @@ export function SeccionCategorias() {
         >
           {Categoria.length > 0 ? (
             Categoria.map((category) => (
-              <CategoryItem key={category.id} category={category} padding={2} handleUpdate={handleUpdate} handleSave={handleSave} addSubCategoria={addSubCategoria}/>
+              <CategoryItem key={category.id} category={category} padding={2} handleUpdate={handleUpdate} handleSave={handleSave} addSubCategoria={addSubCategoria} handleDelete={handleDelete}/>
             ))
           ) : (
             <div>No hay categorías creadas.</div>

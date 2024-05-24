@@ -58,13 +58,14 @@ export const GenericCards = <T extends { id: number }>({
                 "&:hover": {
                   boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
                 },
+                opacity: item.eliminado ? 0.5 : 1.0,
+                cursor: item.eliminado ? "not-allowed" : "pointer",
               }}
             >
               <div style={{ textAlign: "center" }}>
                 <Typography variant="h5" component="h2" gutterBottom>
                   {item.nombre}
                 </Typography>
-                <SwitchButton id={item.id} currentState={item.eliminado} />
               </div>
               <div style={{ marginBottom: "10px" }}>
                 {item.razonSocial && (
