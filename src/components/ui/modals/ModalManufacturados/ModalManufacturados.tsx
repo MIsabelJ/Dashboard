@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
+import { useAppSelector } from "../../../../hooks/redux";
 // INTERFACES
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
@@ -14,6 +15,7 @@ import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloMan
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
 import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
+import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
@@ -30,9 +32,15 @@ import {
   TextField,
   Button,
   AutocompleteRenderGroupParams,
+  Divider,
+  InputBase,
+  IconButton,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { darken, lighten, styled } from "@mui/material/styles";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditRounded from "@mui/icons-material/EditRounded";
+import SearchIcon from "@mui/icons-material/Search";
+import { alpha, darken, lighten, styled } from "@mui/material/styles";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -51,6 +59,47 @@ const GroupHeader = styled("div")(({ theme }) => ({
 const GroupItems = styled("ul")({
   padding: 0,
 });
+
+// ESTILOS de la BARRA DE BÚSQUEDA
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    [theme.breakpoints.up("sm")]: {
+      width: "12ch",
+      "&:focus": {
+        width: "20ch",
+      },
+    },
+  },
+}));
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -80,7 +129,12 @@ export const validationSchema = Yup.object({
   idCategoria: Yup.number().required("Campo requerido"),
 });
 
-const steps = ["Información General", "Detalles", "Insumos e Imágenes"];
+const steps = [
+  "Información General",
+  "Detalles",
+  "Insumos Necesarios",
+  "Imágenes",
+];
 
 // ---------- INTERFAZ ----------
 interface IManufacturadosModalProps {
@@ -99,6 +153,9 @@ export const ModalArticuloManufacturado = ({
 }: IManufacturadosModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
+  // Barra de búsqueda para detalles manufacturados
+  const [searchTerm, setSearchTerm] = useState("");
+  const [rows, setRows] = useState<any[]>([]);
 
   const [idImages, setIdImages] = useState<string[]>([]);
   const [images, setImages] = useState<IImagenArticulo[]>([]);
@@ -142,8 +199,16 @@ export const ModalArticuloManufacturado = ({
     API_URL + "/unidad-medida"
   );
   const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const imagenArticuloService = new ImagenArticuloService(
+    API_URL + "/imagen-articulo"
+  );
 
-  // -------------------- HANDLES --------------------
+  // -------------------- HANDLERS --------------------
+  // Barra de búsqueda para detalles manufacturados
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
   const handleSaveDetalle = async (
     manufacturadoDetalle: IArticuloManufacturadoDetallePost
   ) => {
@@ -231,15 +296,18 @@ export const ModalArticuloManufacturado = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
-  const getImages = () => {
-    fetch(`${API_URL}/imagen-articulo/getImages`)
-      .then((res) => res.json())
-      .then((data) => {
-        const imagesData = data;
-        setImages(imagesData);
-      });
+  const getImages = async () => {
+    if (idImages.length > 0) {
+      const data: IImagenArticulo[] = await imagenArticuloService.getAllById(
+        idImages
+      );
+      console.log("Imagenes obtenidad del array de uuid");
+      console.log(data);
+      const imagesData = data.filter((image) => image !== null);
+      setImages(imagesData);
+    }
   };
-  
+
   const getCategorias = async () => {
     const response = await categoriaService.getAll();
     setCategorias(response);
@@ -256,7 +324,22 @@ export const ModalArticuloManufacturado = ({
     setShowDetallesModal(false);
   };
 
+  // BARRA DE BÚSQUEDA
+  // Obtener los datos de la tabla en su estado inicial (sin datos)
+  const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
+
   // -------------------- EFFECTS --------------------
+  // BARRA DE BÚSQUEDA
+  // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
+  useEffect(() => {
+    const filteredRows = dataTable.filter((row) =>
+      Object.values(row).some((value: any) =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setRows(filteredRows);
+  }, [dataTable, searchTerm]);
+
   //Trae las unidades de medida, detalles y categorías ya creadas
   useEffect(() => {
     const getUnidadesMedida = async () => {
@@ -285,10 +368,11 @@ export const ModalArticuloManufacturado = ({
     setOpcionesUnidadMedida(opciones); // TODO: ?
   }, [detalles]);
 
-  // FIXME: No funca esto
   useEffect(() => {
-    setIdImages(() => images.map((image) => image.id));
-  }, [images]);
+    getImages();
+    console.log("idImages");
+    console.log(idImages);
+  }, [idImages]);
 
   // -------------------- RENDER --------------------
   return (
@@ -530,15 +614,13 @@ export const ModalArticuloManufacturado = ({
                       <Form.Group
                         controlId="idArticuloManufacturadoDetalles"
                         className="mb-3"
+                        style={{ marginBottom: "2rem" }}
                       >
-                        <Form.Label>Insumos</Form.Label>
+                        <Form.Label style={{ marginBottom: "1rem" }}>
+                          Insumos
+                        </Form.Label>
                         <Grid container spacing={2} alignItems="center">
-                          <Grid
-                            item
-                            xs={5}
-                            display="flex"
-                            justifyContent="flex-end"
-                          >
+                          <Grid item display="flex" justifyContent="flex-start">
                             <Button
                               onClick={() => {
                                 setShowDetallesModal(true);
@@ -549,23 +631,123 @@ export const ModalArticuloManufacturado = ({
                               Añadir insumo
                             </Button>
                           </Grid>
-                          <Grid item xs={7}>
+                          <Divider
+                            style={{ width: "100%", margin: "1rem 0" }}
+                          />
+                          <Search
+                            style={{
+                              flexGrow: 1,
+                              marginLeft: "1rem",
+                              marginRight: "1rem",
+                              backgroundColor: "#f0f0f0",
+                              marginBottom: "1rem",
+                            }}
+                          >
+                            <SearchIconWrapper>
+                              <SearchIcon />
+                            </SearchIconWrapper>
+                            <StyledInputBase
+                              value={searchTerm}
+                              onChange={handleSearch}
+                              placeholder="Buscar Insumo..."
+                              inputProps={{ "aria-label": "search" }}
+                            />
+                          </Search>
+                          <div
+                            style={{
+                              maxHeight: "150px",
+                              overflowY: "auto",
+                              marginLeft: "1rem",
+                            }}
+                          >
                             {detalles.length > 0 && (
-                              <ul>
+                              <ul
+                                style={{
+                                  paddingLeft: 0,
+                                  listStyleType: "none",
+                                }}
+                              >
                                 {detalles.map((detalle, index) => (
-                                  <li key={index}>
-                                    {detalle.articuloInsumo.denominacion}:{" "}
-                                    {detalle.cantidad}
-                                  </li>
+                                  <div
+                                    key={index}
+                                    style={{ marginBottom: "1rem" }}
+                                  >
+                                    <Grid
+                                      container
+                                      spacing={1}
+                                      alignItems="center"
+                                      style={{ marginBottom: "1rem" }}
+                                    >
+                                      <Grid
+                                        item
+                                        xs={3}
+                                      >
+                                        <TextField
+                                          id="outlined-basic"
+                                          label="Insumo"
+                                          variant="outlined"
+                                          value={
+                                            detalle.articuloInsumo.denominacion
+                                          }
+                                          disabled
+                                          fullWidth
+                                        />
+                                      </Grid>
+                                      <Grid
+                                        item
+                                        xs={3}
+                                      >
+                                        <TextField
+                                          id="outlined-basic"
+                                          label="Cantidad"
+                                          variant="outlined"
+                                          value={detalle.cantidad}
+                                          disabled
+                                          fullWidth
+                                        />
+                                      </Grid>
+                                      <Grid
+                                        item
+                                        xs={3}
+                                      >
+                                        <TextField
+                                          id="outlined-basic"
+                                          label="Unidad de Medida"
+                                          variant="outlined"
+                                          value={
+                                            detalle.articuloInsumo.unidadMedida
+                                              .denominacion
+                                          }
+                                          disabled
+                                          fullWidth
+                                        />
+                                      </Grid>
+                                      <Grid
+                                        item
+                                        xs={3}
+                                      >
+                                        <IconButton aria-label="delete">
+                                          <DeleteIcon />
+                                        </IconButton>
+                                        <IconButton aria-label="edit">
+                                          <EditRounded color="primary" />
+                                        </IconButton>
+                                      </Grid>
+                                    </Grid>
+                                  </div>
                                 ))}
                               </ul>
                             )}
-                          </Grid>
+                          </div>
                         </Grid>
                         <Form.Control.Feedback type="invalid">
                           {formik.errors.idArticuloManufacturadoDetalles}
                         </Form.Control.Feedback>
                       </Form.Group>
+                    </>
+                  )}
+                  {activeStep === 3 && (
+                    <>
                       {/* IMAGENES */}
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
