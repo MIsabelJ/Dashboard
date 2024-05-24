@@ -42,7 +42,6 @@ import EditRounded from "@mui/icons-material/EditRounded";
 //import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
 
-
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
 const GroupHeader = styled("div")(({ theme }) => ({
@@ -105,7 +104,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ---------- FORMIK ----------
-const initialValues : IArticuloManufacturadoPost = {
+const initialValues: IArticuloManufacturadoPost = {
   denominacion: "",
   precioVenta: 0,
   descripcion: "",
@@ -185,9 +184,9 @@ export const ModalArticuloManufacturado = ({
         idArticuloManufacturadoDetalles: detalles.map((d) => d.id),
         idImagenes: idImages,
       };
-      console.log("Imagenes para guardar")
-      console.log(idImages)
-      console.log("Manufact")
+      console.log("Imagenes para guardar");
+      console.log(idImages);
+      console.log("Manufact");
       console.log(manufacturado);
       handleSave(manufacturado);
       getManufacturados();
@@ -233,7 +232,7 @@ export const ModalArticuloManufacturado = ({
   };
 
   const handleDeleteDetalle = async (id: number) => {
-    if(id){
+    if (id) {
       try {
         await manufacturadoDetalleService.delete(id);
         setDetalles(detalles.filter((d) => d.id !== id));
@@ -242,8 +241,7 @@ export const ModalArticuloManufacturado = ({
         console.error(error);
       }
     }
-
-  }
+  };
 
   const handleCloseModal = () => {
     setOpenModal(false);
@@ -689,74 +687,75 @@ export const ModalArticuloManufacturado = ({
                                   listStyleType: "none",
                                 }}
                               >
-                                {detalles.map((detalle, index) => (
-                                  <div
-                                    key={index}
-                                    style={{ marginBottom: "1rem" }}
-                                  >
-                                    <Grid
-                                      container
-                                      spacing={1}
-                                      alignItems="center"
+                                {detalles
+                                  .filter((detalle) =>
+                                    detalle.articuloInsumo.denominacion
+                                      .toLowerCase()
+                                      .includes(searchTerm.toLowerCase())
+                                  )
+                                  .map((detalle, index) => (
+                                    <div
+                                      key={index}
                                       style={{ marginBottom: "1rem" }}
                                     >
                                       <Grid
-                                        item
-                                        xs={3}
+                                        container
+                                        spacing={1}
+                                        alignItems="center"
+                                        style={{ marginBottom: "1rem" }}
                                       >
-                                        <TextField
-                                          id="outlined-basic"
-                                          label="Insumo"
-                                          variant="outlined"
-                                          value={
-                                            detalle.articuloInsumo.denominacion
-                                          }
-                                          disabled
-                                          fullWidth
-                                        />
+                                        <Grid item xs={3}>
+                                          <TextField
+                                            id="outlined-basic"
+                                            label="Insumo"
+                                            variant="outlined"
+                                            value={
+                                              detalle.articuloInsumo
+                                                .denominacion
+                                            }
+                                            disabled
+                                            fullWidth
+                                          />
+                                        </Grid>
+                                        <Grid item xs={3}>
+                                          <TextField
+                                            id="outlined-basic"
+                                            label="Cantidad"
+                                            variant="outlined"
+                                            value={detalle.cantidad}
+                                            disabled
+                                            fullWidth
+                                          />
+                                        </Grid>
+                                        <Grid item xs={3}>
+                                          <TextField
+                                            id="outlined-basic"
+                                            label="Unidad de Medida"
+                                            variant="outlined"
+                                            value={
+                                              detalle.articuloInsumo
+                                                .unidadMedida.denominacion
+                                            }
+                                            disabled
+                                            fullWidth
+                                          />
+                                        </Grid>
+                                        <Grid item xs={3}>
+                                          <IconButton
+                                            aria-label="delete"
+                                            onClick={() =>
+                                              handleDeleteDetalle(detalle.id)
+                                            }
+                                          >
+                                            <DeleteIcon />
+                                          </IconButton>
+                                          <IconButton aria-label="edit">
+                                            <EditRounded color="primary" />
+                                          </IconButton>
+                                        </Grid>
                                       </Grid>
-                                      <Grid
-                                        item
-                                        xs={3}
-                                      >
-                                        <TextField
-                                          id="outlined-basic"
-                                          label="Cantidad"
-                                          variant="outlined"
-                                          value={detalle.cantidad}
-                                          disabled
-                                          fullWidth
-                                        />
-                                      </Grid>
-                                      <Grid
-                                        item
-                                        xs={3}
-                                      >
-                                        <TextField
-                                          id="outlined-basic"
-                                          label="Unidad de Medida"
-                                          variant="outlined"
-                                          value={
-                                            detalle.articuloInsumo.unidadMedida.denominacion
-                                          }
-                                          disabled
-                                          fullWidth
-                                        />
-                                      </Grid>
-                                      <Grid
-                                        item
-                                        xs={3}
-                                      >
-                                        <IconButton aria-label="delete" onClick={() => handleDeleteDetalle(detalle.id)}>
-                                          <DeleteIcon />
-                                        </IconButton>
-                                        <IconButton aria-label="edit">
-                                          <EditRounded color="primary" />
-                                        </IconButton>
-                                      </Grid>
-                                    </Grid>
-                                  </div>
-                                ))}
+                                    </div>
+                                  ))}
                               </ul>
                             )}
                           </div>
