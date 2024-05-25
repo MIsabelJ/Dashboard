@@ -51,7 +51,7 @@ export const ModalEditCategorias = ({
   };
   return (
     <>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Editar Categoría</Modal.Title>
         </Modal.Header>

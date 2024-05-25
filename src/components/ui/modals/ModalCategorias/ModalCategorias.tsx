@@ -1,15 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { useAppSelector } from "../../../../hooks/redux";
 // ---------- ESTILOS ----------
-import { Modal, Form, ListGroup } from "react-bootstrap";
-import { Button } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
+import { Modal, Form} from "react-bootstrap";
+import { Button, Grid, InputBase, alpha, styled } from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
 
 // ------------------------------ CÓDIGO ------------------------------
+
+// BARRA DE BÚSQUEDA DE SUCURSALES
+const Search = styled("div")(({ theme }) => ({
+  position: "relative",
+  borderRadius: theme.shape.borderRadius,
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.common.white, 0.25),
+  },
+  marginLeft: 0,
+  width: "100%",
+  [theme.breakpoints.up("sm")]: {
+    marginLeft: 0, //theme.spacing(1),
+    width: "auto",
+  },
+}));
+
+const SearchIconWrapper = styled("div")(({ theme }) => ({
+  padding: theme.spacing(0, 2),
+  height: "100%",
+  position: "absolute",
+  pointerEvents: "none",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+}));
+
+const StyledInputBase = styled(InputBase)(({ theme }) => ({
+  color: "inherit",
+  "& .MuiInputBase-input": {
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    transition: theme.transitions.create("width"),
+    minWidth: "200px",
+    [theme.breakpoints.up("sm")]: {
+      width: "20ch",
+      "&:focus": {
+        width: "30ch",
+      },
+    },
+  },
+}));
+
 // ---------- INTERFAZ ----------
 interface CategoriaModalProps {
   show: boolean;
@@ -27,6 +69,11 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
+
+  // Barra de búsqueda para sucursales
+  const [searchTerm, setSearchTerm] = useState("");
+  const [rows, setRows] = useState<any[]>([]);
+
   const empresaActual = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   );
@@ -51,11 +98,20 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     setIdSubcategorias([]);
   };
 
-  // -------------------- HANDLES --------------------
+  // BARRA DE BÚSQUEDA
+  // Obtener los datos de la tabla en su estado inicial (sin datos)
+  const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
+
+  // -------------------- HANDLERS --------------------
+  // Barra de búsqueda para sucursales
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
   const handleAddSucursal = (id: number) => {
-    if (!idSucursales.includes(id)) {
-      setIdSucursales([...idSucursales, id]);
-    }
+    // if (!idSucursales.includes(id)) {
+    setIdSucursales([...idSucursales, id]);
+    // }
   };
 
   const handleAddSubcategoria = (id: number) => {
@@ -74,10 +130,31 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     );
   };
 
+  // Para seleccionar todas las sucursales
+  const handleToggleAll = () => {
+    if (idSucursales.length === existingSucursales.length) {
+      setIdSucursales([]);
+    } else {
+      setIdSucursales(existingSucursales.map((sucursal) => sucursal.id));
+    }
+  };
+
+  // -------------------- EFFECTS --------------------
+  // BARRA DE BÚSQUEDA
+  // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
+  useEffect(() => {
+    const filteredRows = dataTable.filter((row) =>
+      Object.values(row).some((value: any) =>
+        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+    setRows(filteredRows);
+  }, [dataTable, searchTerm]);
+
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Crear Categoría</Modal.Title>
         </Modal.Header>
@@ -93,43 +170,79 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
             </Form.Group>
             <Form.Group controlId="formIdSucursales" className="mb-3">
               <Form.Label className="mr-2">Sucursales</Form.Label>
-              <div className="d-flex flex-wrap mb-2 justify-content-between">
-                <div
-                  style={{ flex: "1 1 45%", minWidth: "200px" }}
-                  className="mr-3"
-                >
-                  <ListGroup>
-                    {existingSucursales.map((sucursal) => (
-                      <ListGroup.Item
-                        key={sucursal.id}
-                        className="d-flex justify-content-between align-items-center"
-                      >
-                        <span>{sucursal.nombre}</span>
-                        <Button
-                          variant="outlined"
-                          color={
-                            idSucursales.includes(sucursal.id)
-                              ? "error"
-                              : "success"
+              <Grid container spacing={2} justifyContent="space-between">
+                <Grid item xs={9}>
+                  <Search
+                    style={{
+                      flexGrow: 1,
+                      // marginLeft: "1rem",
+                      // marginRight: "1rem",
+                      backgroundColor: "#f0f0f0",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      value={searchTerm}
+                      onChange={handleSearch}
+                      placeholder="Buscar Sucursal..."
+                      inputProps={{ "aria-label": "search" }}
+                    />
+                  </Search>
+                </Grid>
+                <Grid item xs={3} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                  <Form.Check
+                    type="checkbox"
+                    id="checkbox-all"
+                    label="Seleccionar todas"
+                    checked={idSucursales.length === existingSucursales.length}
+                    onChange={handleToggleAll}
+                  />
+                </Grid>
+              </Grid>
+              <div
+                className="sucursales-grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "10px",
+                  border: "1px solid #dee2e6",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  backgroundColor: "#f8f9fa",
+                }}
+              >
+                {existingSucursales
+                  .filter((sucursal) =>
+                    sucursal.nombre
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  )
+                  .map((sucursal) => (
+                    <div
+                      key={sucursal.id}
+                      className="mb-3"
+                      style={{ maxHeight: "150px", overflowY: "auto" }}
+                    >
+                      <Form.Check
+                        type="checkbox"
+                        id={`checkbox-${sucursal.id}`}
+                        label={sucursal.nombre}
+                        checked={idSucursales.includes(sucursal.id)}
+                        onChange={() => {
+                          if (idSucursales.includes(sucursal.id)) {
+                            handleRemoveSucursal(sucursal.id);
+                          } else {
+                            handleAddSucursal(sucursal.id);
                           }
-                          onClick={() => {
-                            if (idSucursales.includes(sucursal.id)) {
-                              handleRemoveSucursal(sucursal.id);
-                            } else {
-                              handleAddSucursal(sucursal.id);
-                            }
-                          }}
-                          className="ml-2"
-                        >
-                          {idSucursales.includes(sucursal.id)
-                            ? <DeleteIcon fontSize="small" />
-                            : <AddIcon fontSize="small" />}
-                        </Button>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </div>
-                <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
+                        }}
+                      />
+                    </div>
+                  ))}
+              </div>
+              {/* <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
                   <ListGroup>
                     {idSucursales.map((id) => (
                       <ListGroup.Item
@@ -146,8 +259,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                       </ListGroup.Item>
                     ))}
                   </ListGroup>
-                </div>
-              </div>
+                </div> */}
             </Form.Group>
           </Form>
         </Modal.Body>

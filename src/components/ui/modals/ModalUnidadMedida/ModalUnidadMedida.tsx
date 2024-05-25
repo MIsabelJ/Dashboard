@@ -38,7 +38,7 @@ export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, hand
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleClose} size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Crear Unidad de Medida</Modal.Title>
             </Modal.Header>

@@ -262,7 +262,7 @@ export const ModalArticuloInsumo = ({
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={openModal} onHide={handleCloseModal}>
+      <Modal show={openModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Artículo Insumo</Modal.Title>
         </Modal.Header>

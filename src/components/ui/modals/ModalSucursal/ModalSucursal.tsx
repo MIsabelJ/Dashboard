@@ -107,7 +107,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
 
   return (
     <>
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={show} onHide={handleClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Agregar Sucursal</Modal.Title>
         </Modal.Header>

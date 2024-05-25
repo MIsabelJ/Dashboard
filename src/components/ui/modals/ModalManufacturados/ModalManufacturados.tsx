@@ -397,7 +397,7 @@ export const ModalArticuloManufacturado = ({
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={openModal} onHide={handleCloseModal}>
+      <Modal show={openModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Articulo Manufacturado</Modal.Title>
         </Modal.Header>
