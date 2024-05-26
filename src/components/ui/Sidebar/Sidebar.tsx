@@ -7,6 +7,7 @@ import { SeccionCategorias } from "../../pages/Categorias/SeccionCategorias";
 // import { SeccionPromocion } from "../../pages/Promociones/SeccionPromociones";
 // import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
 import SeccionSucursal from "../../pages/Sucursal/SeccionSucursal";
+import { SeccionUnidadesMedida } from "../../pages/Unidades de Medida/SeccionUnidadesMedida";
 
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -30,8 +31,9 @@ import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import CategoryIcon from "@mui/icons-material/Category";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 // import DomainIcon from "@mui/icons-material/Domain";
-import StoreIcon from '@mui/icons-material/Store';
+import StoreIcon from "@mui/icons-material/Store";
 import GroupIcon from "@mui/icons-material/Group";
+import ScaleIcon from "@mui/icons-material/Scale";
 import { AccountCircle, ExpandLess, ExpandMore } from "@mui/icons-material";
 import {
   Collapse,
@@ -114,7 +116,7 @@ const dashboardItems: IDashboard = {
     {
       text: "Inicio",
       icon: <DashboardIcon />,
-      route: "inicio"
+      route: "inicio",
     },
     {
       text: "Artículos",
@@ -123,34 +125,39 @@ const dashboardItems: IDashboard = {
         {
           text: "Manufacturados",
           icon: <ShoppingBagIcon />,
-          route: "articulo-manufacturado"
+          route: "articulo-manufacturado",
         },
         {
           text: "Insumos",
           icon: <ShoppingBagIcon />,
-          route: "articulo-insumo"
+          route: "articulo-insumo",
         },
       ],
     },
     {
       text: "Categorías",
       icon: <CategoryIcon />,
-      route: "categoria"
+      route: "categoria",
+    },
+    {
+      text: "Unidades de Medida",
+      icon: <ScaleIcon />,
+      route: "unidad-medida",
     },
     {
       text: "Promocion",
       icon: <LocalOfferIcon />,
-      route: "promocion"
+      route: "promocion",
     },
     {
       text: "Sucursales",
       icon: <StoreIcon />,
-      route: "sucursal"
+      route: "sucursal",
     },
     {
       text: "Usuarios",
       icon: <GroupIcon />,
-      route: "usuario"
+      route: "usuario",
     },
   ],
 };
@@ -158,7 +165,11 @@ const dashboardItems: IDashboard = {
 //-------------------------------------------------------------------------------------------------------------
 
 // COMPONENTE PRINCIPAL
-export default function PersistentDrawerLeft({ sectionName }: { sectionName: string }) {
+export default function PersistentDrawerLeft({
+  sectionName,
+}: {
+  sectionName: string;
+}) {
   const theme = useTheme();
   const [open, setOpen] = React.useState(true);
   const [openSubMenu, setOpenSubMenu] = React.useState<{
@@ -176,7 +187,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
 
   // Función para renderizar la sección correspondiente en función del estado actual
   const dashboardSection = (seccionActual: string) => {
-    console.log(seccionActual)
+    console.log(seccionActual);
     switch (seccionActual) {
       case "Inicio":
         return <SeccionInicio />;
@@ -186,9 +197,11 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
         return <SeccionInsumos />;
       case "Categorías":
         return <SeccionCategorias />;
+      case "Unidades de Medida":
+        return <SeccionUnidadesMedida />;
       case "Promociones":
         // return <SeccionPromocion />;
-        return <h1>Promociones</h1>
+        return <h1>Promociones</h1>;
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":
@@ -223,7 +236,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
         {/* Navbar */}
         <Toolbar>
           <IconButton
-            style={{alignSelf: 'center'}}
+            style={{ alignSelf: "center" }}
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
@@ -253,7 +266,10 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
         open={open}
       >
         <DrawerHeader>
-          <IconButton onClick={handleDrawerClose} style={{alignSelf: 'center'}}>
+          <IconButton
+            onClick={handleDrawerClose}
+            style={{ alignSelf: "center" }}
+          >
             {theme.direction === "ltr" ? (
               <ChevronLeftIcon />
             ) : (
@@ -275,7 +291,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
             aria-label="user"
             color="primary"
             onClick={() => {
-              handleChange
+              handleChange;
             }}
           >
             <AccountCircle fontSize="large" />
@@ -339,9 +355,7 @@ export default function PersistentDrawerLeft({ sectionName }: { sectionName: str
         </List>
       </Drawer>
       <Main style={{ marginTop: "36px" }} open={open}>
-        {
-          dashboardSection(sectionName)
-        }
+        {dashboardSection(sectionName)}
       </Main>
     </Box>
   );

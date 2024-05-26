@@ -1,16 +1,11 @@
 import React, { useState } from 'react';
-import { IUnidadMedida } from '../../../../types/UnidadMedida/IUnidadMedida';
 import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaPost';
-import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 import { Modal, Button, Form } from 'react-bootstrap';
-
-// ------------------------------ CÓDIGO ------------------------------
-const API_URL = import.meta.env.VITE_API_URL;
 
 // ---------- INTERFAZ ----------
 interface UnidadMedidaModalProps {
     show: boolean;
-    addUnidadMedida: (unidadMedida: IUnidadMedida) => void;
+    addUnidadMedida: (unidadMedida: IUnidadMedidaPost) => void;
     handleClose: () => void;
 }
 
@@ -18,24 +13,15 @@ interface UnidadMedidaModalProps {
 export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, handleClose, addUnidadMedida }) => {
     const [denominacion, setDenominacion] = useState<string>('');
 
-    const unidadMedidaService = new UnidadMedidaService(API_URL + "/unidad-medida");
-
-    const handleSave = async (unidadMedida: IUnidadMedidaPost) => {
+    const handleSave = async () => {
+        const unidadMedida: IUnidadMedidaPost = { denominacion };
         try {
-            const response = await unidadMedidaService.post(unidadMedida);
-            addUnidadMedida(response)
-            console.log(response);
+            addUnidadMedida(unidadMedida);
+            handleClose();
+            setDenominacion(''); // Reset form
         } catch (error) {
             console.error(error);
         }
-    }
-    const onSave = () => {
-        const unidadMedida: IUnidadMedidaPost = {
-            denominacion: denominacion
-        }
-        handleSave(unidadMedida);
-        handleClose();
-        setDenominacion(''); // Reset form
     };
 
     return (
@@ -59,7 +45,7 @@ export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, hand
                 <Button variant="secondary" onClick={handleClose}>
                     Cancelar
                 </Button>
-                <Button variant="primary" onClick={onSave}>
+                <Button variant="primary" onClick={handleSave}>
                     Guardar
                 </Button>
             </Modal.Footer>

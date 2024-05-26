@@ -55,6 +55,12 @@ function App() {
           </Box>
         }
         />
+        <Route path="/unidad-medida" element={
+          <Box sx={{ display: 'flex' }}>
+            <PersistentDrawerLeft sectionName="Unidades de Medida" />
+          </Box>
+        }
+        />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
