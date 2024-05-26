@@ -13,13 +13,21 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
+import { IEmpresaPost } from "../../../types/Empresa/IEmpresaPost";
+import { setCurrentEmpresa } from "../../../redux/slices/EmpresaReducer";
+import useLocalStorage from "../../../hooks/localstorage";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const SeccionEmpresa = () => {
-  // -------------------- STATES --------------------
+  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
+  const navigate = useNavigate();
+
+  //manejo de datos en el localStorage
+  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
@@ -27,10 +35,21 @@ export const SeccionEmpresa = () => {
 
   // -------------------- SERVICES --------------------
   const empresaService = new EmpresaService(API_URL + "/empresa");
+  const dispatch = useAppDispatch();
 
-  // -------------------- HANDLERS --------------------
+  const empresaActive = useAppSelector((state) => state.empresaReducer.empresaActual);
+
+  useEffect(() => {
+    if (redirectId !== null && empresaActive === redirectId) {
+      console.log("Redireccionando a la subruta de la empresa " + empresaActive);
+      navigate(`/sucursal`);
+      setRedirectId(null); // Reset redirect ID after navigation
+    }
+  }, [empresaActive, redirectId, navigate]);
+
   const handleClick = (id: number) => {
     dispatch(setCurrentEmpresa(id));
+    setIdEmpresaLocalStorage(id)
     setRedirectId(id);
   };
 

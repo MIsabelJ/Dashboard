@@ -13,16 +13,27 @@ import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 import { Loader } from "../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
+import { setCurrentSucursal } from "../../../redux/slices/SucursalReducer";
+import useLocalStorage from "../../../hooks/localstorage";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 const SeccionSucursal = () => {
-  // -------------------- STATES --------------------
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [redirectId, setRedirectId] = useState<number | null>(null);
+  //manejo de datos en el localStorage
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
+
+
+  // Recibo el ID del endpoint proveniente de la empresa
+  const navigate = useNavigate();
+  const empresaActual = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
+  );
 
   // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
@@ -30,6 +41,7 @@ const SeccionSucursal = () => {
   // -------------------- HANDLERS --------------------
   const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
+    setIdSucursalLocalStorage(id);
     setRedirectId(id);
   };
   const handleDelete = async (id: number) => {
