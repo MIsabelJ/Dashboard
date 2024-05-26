@@ -13,9 +13,6 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
-import { IEmpresaPost } from "../../../types/Empresa/IEmpresaPost";
-import { setCurrentEmpresa } from "../../../redux/slices/EmpresaReducer";
 import useLocalStorage from "../../../hooks/localstorage";
 
 // ------------------------------ CÓDIGO ------------------------------
@@ -89,15 +86,6 @@ export const SeccionEmpresa = () => {
   };
 
   // -------------------- FUNCIONES --------------------
-  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-
-  const navigate = useNavigate();
-
-  const dispatch = useAppDispatch();
-
-  const empresaActive = useAppSelector(
-    (state) => state.empresaReducer.empresaActual
-  );
 
   const getEmpresa = async () => {
     await empresaService.getAll().then((empresaData) => {
