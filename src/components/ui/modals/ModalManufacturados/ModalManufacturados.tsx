@@ -37,9 +37,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
-import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
 import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
-import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
 import { InsumoService } from "../../../../services/InsumoService";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 // import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
@@ -119,18 +117,18 @@ const initialValues: IArticuloManufacturadoPost = {
 };
 
 export const validationSchema = Yup.object({
-  // denominacion: Yup.string().required("Campo requerido"),
-  // precioVenta: Yup.number()
-  //   .required("Campo requerido")
-  //   .min(0, "El precio debe ser mayor o igual a 0."),
-  // descripcion: Yup.string().required("Campo requerido"),
-  // tiempoEstimadoMinutos: Yup.number()
-  //   .required("Campo requerido")
-  //   .min(0, "El tiempo estimado debe ser mayor o igual a 0."),
-  // preparacion: Yup.string().required("Campo requerido"),
-  // articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
-  // idUnidadMedida: Yup.number().required("Campo requerido"),
-  // idCategoria: Yup.number().required("Campo requerido"),
+  denominacion: Yup.string().required("Campo requerido"),
+  precioVenta: Yup.number()
+    .required("Campo requerido")
+    .min(0, "El precio debe ser mayor o igual a 0."),
+  descripcion: Yup.string().required("Campo requerido"),
+  tiempoEstimadoMinutos: Yup.number()
+    .required("Campo requerido")
+    .min(0, "El tiempo estimado debe ser mayor o igual a 0."),
+  preparacion: Yup.string().required("Campo requerido"),
+  articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
+  idUnidadMedida: Yup.number().required("Campo requerido"),
+  idCategoria: Yup.number().required("Campo requerido"),
 });
 
 const steps = [
@@ -233,6 +231,7 @@ export const ModalArticuloManufacturado = ({
     setOpenModal(false);
     formik.resetForm();
     setNewDetalles([]);
+    setArticuloSeleccionado([]);
     setSelectedFiles([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
@@ -335,7 +334,7 @@ export const ModalArticuloManufacturado = ({
   };
 
   const getInsumosSeleccionados = async () => {
-    const insumos = [];
+    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: string; }[] = [];
 
     const fetchInsumos = newDetalles.map(async (detalle) => {
       const response = await insumoService.getById(detalle.idArticuloInsumo);
@@ -346,6 +345,17 @@ export const ModalArticuloManufacturado = ({
 
     await Promise.all(fetchInsumos);
     setArticuloSeleccionado(insumos);
+  };
+
+  const getUnidadesMedida = async () => {
+    const response = await unidadMedidaService.getAll();
+    setUnidadesMedida(response);
+
+  };
+
+  const getCategorias = async () => {
+    const response = await categoriaService.getAll();
+    setCategorias(response);
   };
 
   useEffect(() => {
@@ -371,17 +381,17 @@ export const ModalArticuloManufacturado = ({
 
   //Trae las unidades de medida, newDetalles y categorías ya creadas
   useEffect(() => {
-    const getUnidadesMedida = async () => {
-      const response = await unidadMedidaService.getAll();
-      setUnidadesMedida(response);
-    };
-    const getCategorias = async () => {
-      const response = await categoriaService.getAll();
-      setCategorias(response);
-    };
     getUnidadesMedida();
     getCategorias();
   }, []);
+
+  useEffect(() => {
+    const opciones = unidadesMedida.map((unidadMedida) => ({
+      label: unidadMedida.denominacion,
+      id: unidadMedida.id,
+    }));
+    setOpcionesUnidadMedida(opciones);
+  }, [unidadesMedida]);
 
   // -------------------- RENDER --------------------
   return (
