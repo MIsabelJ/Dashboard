@@ -1,10 +1,13 @@
 import { ReactNode, useEffect, useState } from "react";
+// ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../../hooks/redux";
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
+// ---------- ESTILOS ----------
 import "./StyleGenericTable.css";
-
+import { Table } from "react-bootstrap";
 import {
   IconButton,
+  InputBase,
   Paper,
   TableBody,
   TableCell,
@@ -15,14 +18,14 @@ import {
   TableSortLabel,
 } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
-import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
-import { Table } from "react-bootstrap";
 
+// ------------------------------ CÓDIGO ------------------------------
 // Definición del tipo Order
 type Order = "asc" | "desc";
 
+// ESTILOS de BARRA DE BÚSQUEDA
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -63,28 +66,34 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
+// -------------------- INTERFAZ --------------------
 interface ITableColumn<T> {
   label: string;
   key: string;
   render?: (item: T) => ReactNode;
 }
+
 export interface ITableProps<T> {
   columns: ITableColumn<T>[];
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const GenericTable = <T extends { id: number }>({
   columns,
   handleDelete,
   setOpenModal,
 }: ITableProps<T>) => {
+  // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [rows, setRows] = useState<any[]>([]);
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<string>("");
 
+  // -------------------- HANDLERS --------------------
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
@@ -102,11 +111,20 @@ export const GenericTable = <T extends { id: number }>({
     setPage(0);
   };
 
-  const [rows, setRows] = useState<any[]>([]);
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: string
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
+  // -------------------- FUNCIONES --------------------
   //Obtener los datos de la tabla en su estado inicial (sin datos)
   const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
 
+  // -------------------- EFFECTS --------------------
   //useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
     const filteredRows = dataTable.filter((row) =>
@@ -117,15 +135,7 @@ export const GenericTable = <T extends { id: number }>({
     setRows(filteredRows);
   }, [dataTable, searchTerm]);
 
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: string
-  ) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
+  // -------------------- RENDER --------------------
   return (
     <div
       style={{
@@ -149,6 +159,7 @@ export const GenericTable = <T extends { id: number }>({
           marginBottom: "1rem",
         }}
       >
+        {/* BARRA DE BÚSQUEDA */}
         <Search
           style={{
             flexGrow: 1,

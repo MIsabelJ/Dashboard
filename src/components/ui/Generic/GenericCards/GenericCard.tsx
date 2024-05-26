@@ -1,13 +1,8 @@
-// import { ReactNode } from "react";
+import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import { Button, Card, CardActions, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 
-// interface IGenericAtribute<T> {
-//   label: string;
-//   key: string;
-//   render?: (item: T) => ReactNode;
-// }
+// -------------------- INTERFAZ --------------------
 export interface ICardProps<T> {
   items: any[];
   handleClick: (id: number) => void;
@@ -16,6 +11,7 @@ export interface ICardProps<T> {
   denominacion: string;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const GenericCards = <T extends { id: number }>({
   items,
   handleClick,
@@ -23,6 +19,7 @@ export const GenericCards = <T extends { id: number }>({
   setOpenModal,
   denominacion,
 }: ICardProps<T>) => {
+  // -------------------- RENDER --------------------
   if (items && items.length > 0) {
     return (
       <div
@@ -54,7 +51,7 @@ export const GenericCards = <T extends { id: number }>({
           <Typography
             variant="h4"
             component="h1"
-            style={{ cursor: "pointer", marginBottom: "3px", color: "grey"}}
+            style={{ cursor: "pointer", marginBottom: "3px", color: "grey" }}
           >
             Añadir
           </Typography>
@@ -142,18 +139,34 @@ export const GenericCards = <T extends { id: number }>({
           sx={{
             width: "250px",
             height: "280px",
+            padding: "16px",
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
+            justifyContent: "flex-start",
             alignItems: "center",
+            backgroundColor: "#f5f5f5",
+            border: "2px dashed grey",
             borderRadius: "10px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
-            "&:hover": { boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)" },
+            boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
+            "&:hover": { boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)" },
           }}
           onClick={() => setOpenModal(true)}
         >
-          <Typography variant="h5" component="h2" style={{ cursor: "pointer" }}>
-            Añadir +
+          <Typography
+            variant="h4"
+            component="h1"
+            style={{ cursor: "pointer", marginBottom: "3px", color: "grey" }}
+          >
+            Añadir
           </Typography>
+          <Typography
+            variant="h6"
+            component="h5"
+            style={{ cursor: "pointer", marginBottom: "15px", color: "grey" }}
+          >
+            {denominacion}
+          </Typography>
+          <AddIcon sx={{ fontSize: "70px", color: "grey" }} color="action" />
         </Card>
       </div>
     );

@@ -1,22 +1,22 @@
-// EmpresaModal.tsx
 import React, { useState } from "react";
+import { IEmpresaPost } from "../../../../types/Empresa/IEmpresaPost";
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button } from "@mui/material";
-import { IEmpresaPost } from "../../../../types/Empresa/IEmpresaPost";
-import { EmpresaService } from "../../../../services/EmpresaService";
 
-const API_URL = import.meta.env.VITE_API_URL;
+// ---------- INTERFAZ ----------
 interface EmpresaModalProps {
   show: boolean;
   handleClose: () => void;
   handleSave: (empresa: IEmpresaPost) => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalEmpresa: React.FC<EmpresaModalProps> = ({
   show,
   handleClose,
   handleSave,
 }) => {
+  // -------------------- STATES --------------------
   const [nombre, setNombre] = useState<string>("");
   const [razonSocial, setRazonSocial] = useState<string>("");
   const [cuil, setCuil] = useState<string>("");

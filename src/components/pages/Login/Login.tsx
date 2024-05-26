@@ -1,15 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { Button, Form } from 'react-bootstrap';
 import './login.css';
+import { Button, Form } from 'react-bootstrap';
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    
     navigate('/empresa');
   };
 

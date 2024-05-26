@@ -1,8 +1,7 @@
 import { useAppDispatch } from "../../../hooks/redux";
 import { setElementActive } from "../../../redux/slices/TablaReducer";
-
-import { Button, Icon, IconButton, Switch } from "@mui/material";
-import { DeleteRounded, Edit, EditAttributes, EditAttributesRounded, EditNotifications, EditRounded } from "@mui/icons-material";
+import { IconButton, Switch } from "@mui/material";
+import { EditRounded } from "@mui/icons-material";
 
 // Define una interfaz genérica para los props del componente
 interface IButtonsTable<T> {
@@ -11,7 +10,8 @@ interface IButtonsTable<T> {
   setOpenModal: (state: boolean) => void; // Función para manejar la eliminación de un elemento
 }
 
-export const ButtonsTable = <T extends { id: number, eliminado: boolean }>({
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
+export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
   el,
   handleDelete,
   setOpenModal,
@@ -26,11 +26,7 @@ export const ButtonsTable = <T extends { id: number, eliminado: boolean }>({
     setOpenModal(true);
   };
 
-  // Función para manejar la eliminación de un elemento
-  // const handleDeleteItem = () => {
-  //   handleDelete(el.id); // Llamar a la función handleDelete con el ID del elemento
-  // };
-
+  // -------------------- RENDER --------------------
   return (
     <div
       style={{
@@ -39,7 +35,6 @@ export const ButtonsTable = <T extends { id: number, eliminado: boolean }>({
         justifyContent: "space-around",
         cursor: "pointer",
         opacity: 1.0,
-        
       }}
     >
       {/* Botón para editar el elemento */}
@@ -47,9 +42,9 @@ export const ButtonsTable = <T extends { id: number, eliminado: boolean }>({
         <EditRounded />
       </IconButton>
       <Switch
-          checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
-          onChange={() => handleDelete(el.id)}
-        />
+        checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
+        onChange={() => handleDelete(el.id)}
+      />
     </div>
   );
 };

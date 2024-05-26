@@ -1,22 +1,23 @@
 import React from "react";
+import { CircularProgress, Switch } from "@mui/material";
 
-import Switch from "@mui/material/Switch";
-import { CircularProgress } from "@mui/material";
-
-
+// -------------------- INTERFAZ --------------------
 interface ISwitchButton {
   id: number;
   currentState: boolean;
   // route: string;
 }
 
-export const SwitchButton = ({ id, currentState }: ISwitchButton) => {
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
+export const SwitchButton = ({ currentState }: ISwitchButton) => {
+  // -------------------- STATES --------------------
   const [active, setActive] = React.useState<boolean>(currentState);
   const [message, setMessage] = React.useState<string>(
     currentState ? "Activo" : "Inactivo"
   );
   const [loader, setLoader] = React.useState<boolean>(false);
 
+  // -------------------- HANDLERS --------------------
   const handleClick = async () => {
     setLoader(true); // Activar el loader antes de las operaciones asincrónicas
     setMessage("");
@@ -30,10 +31,14 @@ export const SwitchButton = ({ id, currentState }: ISwitchButton) => {
       setLoader(false); // Desactivar el loader después de las operaciones asincrónicas
     }
   };
+
+  // -------------------- RENDER --------------------
   return (
     <div>
       {message}
-      {loader ? <CircularProgress /> : (
+      {loader ? (
+        <CircularProgress />
+      ) : (
         <Switch
           checked={active} // Utiliza el estado local 'active' para controlar el estado del Switch
           onChange={() => handleClick()}

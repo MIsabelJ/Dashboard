@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
-import { Modal, Form, ListGroup } from "react-bootstrap";
-import { Button } from "@mui/material";
 import { CategoriaModal } from "./ModalCategorias";
+import { Modal, Form} from "react-bootstrap";
+import { Button } from "@mui/material";
+
+// ---------- INTERFAZ ----------
 interface ICategoriaModalProps {
   show: boolean;
   handleClose: () => void;
@@ -12,6 +14,7 @@ interface ICategoriaModalProps {
   addSubCategoria: (id: number, subCategoria: ICategoriaPost) => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalEditCategorias = ({
   show,
   handleClose,
@@ -19,18 +22,19 @@ export const ModalEditCategorias = ({
   categoria,
   addSubCategoria,
 }: ICategoriaModalProps) => {
+  // -------------------- STATES --------------------
   const [denominacion, setDenominacion] = useState(categoria.denominacion);
   const [idSucursales, setIdSucursales] = useState(categoria.sucursales);
   const [idSubcategorias, setIdSubcategorias] = useState(categoria.subCategorias);
   const [openModal, setOpenModal] = useState(false);
 
-  useEffect(() => {
-    setDenominacion(categoria.denominacion);
-    setIdSucursales(categoria.sucursales);
-    setIdSubcategorias(categoria.subCategorias);
-  }, [categoria]);
+  // -------------------- HANDLERS --------------------
+  const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
+    await addSubCategoria(categoria.id, subcategoria);
+    setOpenModal(false);
+  };
 
-
+  // -------------------- FUNCIONES --------------------
   const onSave = () => {
     const categoriaUpdate: ICategoria = {
       id: categoria.id,
@@ -45,10 +49,15 @@ export const ModalEditCategorias = ({
     setIdSucursales([]);
     setIdSubcategorias([]);
   };
-  const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
-    await addSubCategoria(categoria.id, subcategoria);
-    setOpenModal(false);
-  };
+
+  // -------------------- EFFECTS --------------------
+  useEffect(() => {
+    setDenominacion(categoria.denominacion);
+    setIdSucursales(categoria.sucursales);
+    setIdSubcategorias(categoria.subCategorias);
+  }, [categoria]);
+
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={show} onHide={handleClose} size="lg">

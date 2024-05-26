@@ -39,7 +39,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
-//import SearchIcon from "@mui/icons-material/Search";
+import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
 
 // ------------------------------ CÓDIGO ------------------------------
@@ -146,7 +146,7 @@ interface IManufacturadosModalProps {
   setOpenModal: (open: boolean) => void;
 }
 
-// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalArticuloManufacturado = ({
   handleSave,
   getManufacturados,

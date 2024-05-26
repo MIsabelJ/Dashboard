@@ -1,20 +1,24 @@
 import React from "react";
+// ---------- ARCHIVOS----------
 import { ICategoria } from "../../../types/Categoria/ICategoria";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Collapse from "@mui/material/Collapse";
+import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
+import { ModalEditCategorias } from "../../ui/modals/ModalCategorias/ModalEditCategorias";
+import { ButtonsTable } from "../../ui/ButtonsTable/ButtonsTable";
+// ---------- ESTILOS ----------
+import {
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
-import { IconButton, List } from "@mui/material";
-import { EditRounded } from "@mui/icons-material";
-import { SwitchButton } from "../../ui/ButtonsTable/Switch";
 import "./category.css";
-import { ModalEditCategorias } from "../../ui/modals/ModalCategorias/ModalEditCategorias";
-import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
-import { ButtonsTable } from "../../ui/ButtonsTable/ButtonsTable";
 
+// ------------------------------ CÓDIGO ------------------------------
+// -------------------- INTERFAZ --------------------
 interface CategoryItemProps {
   category: ICategoria;
   padding: number;
@@ -23,6 +27,8 @@ interface CategoryItemProps {
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
   handleDelete: (id: number) => void;
 }
+
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const CategoryItem: React.FC<CategoryItemProps> = ({
   category,
   padding,
@@ -31,11 +37,14 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   addSubCategoria,
   handleDelete,
 }) => {
+  // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
-  const handleClick = () => setOpen(!open);
   const [openModal, setOpenModal] = React.useState(false);
+  
+  // -------------------- FUNCIONES --------------------
+  const handleClick = () => setOpen(!open);
 
-
+  
   return (
     <div>
       <ListItemButton sx={{ pl: padding }}>
@@ -44,7 +53,11 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         </ListItemIcon>
         <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
-          <ButtonsTable setOpenModal={() => setOpenModal(true)} el={category} handleDelete={handleDelete} />
+          <ButtonsTable
+            setOpenModal={() => setOpenModal(true)}
+            el={category}
+            handleDelete={handleDelete}
+          />
         </div>
         {category.subCategorias && category.subCategorias.length > 0 ? (
           open ? (
@@ -79,7 +92,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         handleUpdate={handleUpdate}
         categoria={category}
         addSubCategoria={addSubCategoria}
-        />
+      />
     </div>
   );
 };

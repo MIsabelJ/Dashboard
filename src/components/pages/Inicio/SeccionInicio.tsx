@@ -1,12 +1,14 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
-
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemAvatar from "@mui/material/ListItemAvatar";
-import ListItemText from "@mui/material/ListItemText";
-import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
+// ---------- ESTILOS ----------
+import {
+  Avatar,
+  IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+} from "@mui/material";
 import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
 import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import {
@@ -23,10 +25,10 @@ import {
 } from "chart.js";
 import { Pie, Line } from "react-chartjs-2";
 import "./inicio.css";
-import { useAppSelector } from "../../../hooks/redux";
 
+// ------------------------------ CÓDIGO ------------------------------
 export const SeccionInicio = () => {
-
+  // -------------------- GRÁFICOS --------------------
   ChartJS.register(
     ArcElement,
     Tooltip,
@@ -35,9 +37,8 @@ export const SeccionInicio = () => {
     CategoryScale,
     PointElement,
     LineElement,
-    Title,
+    Title
   );
-  const navigate = useNavigate();
 
   const pieData = {
     labels: [
@@ -155,9 +156,14 @@ export const SeccionInicio = () => {
     },
   };
 
+  // -------------------- STATES --------------------
   const [dense, setDense] = React.useState(false);
   const [secondary, setSecondary] = React.useState(true);
 
+  // -------------------- FUNCIONES --------------------
+  const navigate = useNavigate();
+
+  // -------------------- HARDCODED --------------------
   const productos = [
     {
       nombre: "Pizza Muzzarella",
@@ -184,6 +190,7 @@ export const SeccionInicio = () => {
     },
   ];
 
+  // -------------------- RENDER --------------------
   return (
     <div id="seccion-inicio">
       <h2 style={{ fontSize: "22px", margin: "15px 0" }}>Resumen</h2>
@@ -205,10 +212,11 @@ export const SeccionInicio = () => {
           {" "}
           {productos.map(({ nombre, descripcion }, index) => {
             return (
-              <ListItem key={index}
+              <ListItem
+                key={index}
                 secondaryAction={
                   <IconButton
-                    onClick={() => navigate("/inicio")} //cambiar al modal correspondiente
+                    onClick={() => navigate("/inicio")} // Cambiar al modal correspondiente
                     edge="end"
                     aria-label="edit"
                   >

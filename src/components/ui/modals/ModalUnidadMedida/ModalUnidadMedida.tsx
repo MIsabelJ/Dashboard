@@ -4,17 +4,18 @@ import { IUnidadMedidaPost } from '../../../../types/UnidadMedida/IUnidadMedidaP
 import { UnidadMedidaService } from '../../../../services/UnidadMedidaService';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-
+// ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
+// ---------- INTERFAZ ----------
 interface UnidadMedidaModalProps {
     show: boolean;
     addUnidadMedida: (unidadMedida: IUnidadMedida) => void;
     handleClose: () => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({ show, handleClose, addUnidadMedida }) => {
-
     const [denominacion, setDenominacion] = useState<string>('');
 
     const unidadMedidaService = new UnidadMedidaService(API_URL + "/unidad-medida");

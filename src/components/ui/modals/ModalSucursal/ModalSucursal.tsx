@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form } from "react-bootstrap";
-import { ISucursalPost } from "../../../../types/Sucursal/ISucursalPost";
+// ---------- ARCHIVOS----------
+import { useAppSelector } from "../../../../hooks/redux";
 import { SucursalService } from "../../../../services/SucursalService";
-import { ModalDomicilio } from "../ModalDomicilio/ModalDomicilio"; // Asegúrate de importar el modal de Domicilio
-import { DomicilioService } from "../../../../services/DomicilioService";
+import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { ISucursalPost } from "../../../../types/Sucursal/ISucursalPost";
+import { ISucursalEdit } from "../../../../types/Sucursal/ISucursalEdit";
+import { ModalDomicilio } from "../ModalDomicilio/ModalDomicilio";
+// ---------- ESTILOS ----------
+import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Grid, Step, StepLabel, Stepper } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { ISucursal } from "../../../../types/Sucursal/ISucursal";
-import { useAppSelector } from "../../../../hooks/redux";
-import { ISucursalEdit } from "../../../../types/Sucursal/ISucursalEdit";
 
+// ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
 const steps = ["Información de la Sucursal", "Domicilio de la Sucursal"];
 
+// ---------- INTERFAZ ----------
 interface SucursalModalProps {
   show: boolean;
   handleClose: () => void;
@@ -22,6 +25,7 @@ interface SucursalModalProps {
   getSucursal: () => void;
 }
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalSucursal: React.FC<SucursalModalProps> = ({
   show,
   handleClose,
@@ -29,6 +33,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   handleSave,
   getSucursal,
 }) => {
+  // -------------------- STATES --------------------
   const [error, setError] = useState<string>("");
   const [activeStep, setActiveStep] = useState(0);
   const [nombre, setNombre] = useState<string>("");
@@ -38,17 +43,10 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   const [idDomicilio, setIdDomicilio] = useState<number>(0);
   const [showDomicilioModal, setShowDomicilioModal] = useState<boolean>(false);
 
-  const empresaActual = useAppSelector(
-    (state) => state.empresaReducer.empresaActual
-  );
-  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
-  );
-
+  // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
-  const domicilioService = new DomicilioService(API_URL + "/domicilio");
 
+  // -------------------- HANDLERS --------------------
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
       try {
@@ -71,22 +69,47 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     handleClose();
   };
 
+  const handleCloseModal = () => {
+    setNombre("");
+    setHorarioApertura("00:00");
+    setHorarioCierre("00:00");
+    setEsCasaMatriz(false);
+    setIdDomicilio(0);
+    setError("");
+    handleClose();
+  };
+
+  const handleSaveDomicilio = (domicilio: any) => {
+    setIdDomicilio(domicilio.id); // Asigna el ID del domicilio guardado
+    setShowDomicilioModal(false);
+  };
+
+  // Determinar la acción del botón basado en las condiciones
+  const handleButtonClick = () => {
+    if (activeStep === steps.length - 1) {
+      if (elementActive) {
+        onUpdate();
+      } else {
+        onSave();
+      }
+    } else {
+      handleNext();
+    }
+  };
+
+  // -------------------- FUNCIONES --------------------
+  const empresaActual = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
+  );
+
+  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
+  const dataFilter: ISucursal[] = dataCard.filter(
+    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
+  );
+
   const elementActive = useAppSelector(
     (state) => state.tableReducer.elementActive
   );
-
-  useEffect(() => {
-    if (elementActive && elementActive.element) {
-      const sucursal = elementActive.element as ISucursal;
-      setNombre(sucursal.nombre);
-      setHorarioApertura(sucursal.horarioApertura);
-      setHorarioCierre(sucursal.horarioCierre);
-      setEsCasaMatriz(sucursal.esCasaMatriz);
-      setIdDomicilio(sucursal.domicilio.id);
-    }
-
-    getSucursal();
-  }, [elementActive]);
 
   const onSave = () => {
     if (esCasaMatriz && dataFilter.some((sucursal) => sucursal.esCasaMatriz)) {
@@ -147,21 +170,6 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     handleClose();
   };
 
-  const handleCloseModal = () => {
-    setNombre("");
-    setHorarioApertura("00:00");
-    setHorarioCierre("00:00");
-    setEsCasaMatriz(false);
-    setIdDomicilio(0);
-    setError("");
-    handleClose();
-  };
-
-  const handleSaveDomicilio = (domicilio: any) => {
-    setIdDomicilio(domicilio.id); // Asigna el ID del domicilio guardado
-    setShowDomicilioModal(false);
-  };
-
   // BOTONES
   // Determinar el texto del botón basado en las condiciones
   const getButtonText = () => {
@@ -172,19 +180,21 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     }
   };
 
-  // Determinar la acción del botón basado en las condiciones
-  const handleButtonClick = () => {
-    if (activeStep === steps.length - 1) {
-      if (elementActive) {
-        onUpdate();
-      } else {
-        onSave();
-      }
-    } else {
-      handleNext();
+  // -------------------- EFFECTS --------------------
+  useEffect(() => {
+    if (elementActive && elementActive.element) {
+      const sucursal = elementActive.element as ISucursal;
+      setNombre(sucursal.nombre);
+      setHorarioApertura(sucursal.horarioApertura);
+      setHorarioCierre(sucursal.horarioCierre);
+      setEsCasaMatriz(sucursal.esCasaMatriz);
+      setIdDomicilio(sucursal.domicilio.id);
     }
-  };
 
+    getSucursal();
+  }, [elementActive]);
+
+  // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={show} onHide={handleClose} size="lg">
@@ -220,6 +230,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
               <Form>
                 {activeStep === 0 && (
                   <>
+                    {/* NOMBRE */}
                     <Form.Group controlId="formNombre" className="mb-3">
                       <Form.Label>Nombre</Form.Label>
                       <Form.Control
@@ -231,6 +242,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                     </Form.Group>
                     <Grid container spacing={2}>
                       <Grid item xs={4}>
+                        {/* HORARIO DE APERTURA */}
                         <Form.Group
                           controlId="formHorarioApertura"
                           className="mb-3"
@@ -244,6 +256,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         </Form.Group>
                       </Grid>
                       <Grid item xs={4}>
+                        {/* HORARIO DE CIERRE */}
                         <Form.Group
                           controlId="formHorarioCierre"
                           className="mb-3"
@@ -257,6 +270,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         </Form.Group>
                       </Grid>
                       <Grid item xs={4} alignContent="flex-end">
+                        {/* ES CASA MATRIZ */}
                         <Form.Group
                           controlId="formEsCasaMatriz"
                           className="mb-3"
@@ -274,6 +288,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                 )}
                 {activeStep === 1 && (
                   <Form.Group controlId="formDomicilio" className="mb-3">
+                    {/* DOMICILIO */}
                     <Form.Label>Domicilio</Form.Label>
                     <div className="d-flex">
                       <Form.Control
@@ -332,7 +347,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       <ModalDomicilio
         show={showDomicilioModal}
         handleClose={() => setShowDomicilioModal(false)}
-        handleSave={handleSaveDomicilio} // Pasar el manejador de guardar domicilio
+        handleSave={handleSaveDomicilio}
       />
     </>
   );

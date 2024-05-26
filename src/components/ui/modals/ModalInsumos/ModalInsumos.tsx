@@ -101,7 +101,7 @@ interface IArticuloInsumoModalProps {
   handleSave: (insumo: IArticuloInsumoPost) => void;
 }
 
-// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalArticuloInsumo = ({
   getInsumos,
   openModal,

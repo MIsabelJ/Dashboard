@@ -1,31 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { InsumoService } from "../../../../services/InsumoService";
+import Swal from "sweetalert2";
+// ---------- ARCHIVOS----------
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import Swal from "sweetalert2";
-import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
-import { Loader } from "../../../ui/Loader/Loader";
-import Carousel from "react-bootstrap/Carousel";
+import { InsumoService } from "../../../../services/InsumoService";
 import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
-
+import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
+import { Loader } from "../../../ui/Loader/Loader";
+// ---------- ESTILOS ----------
+import Carousel from "react-bootstrap/Carousel";
 import "./insumos.css";
 
+// ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const SeccionInsumos = () => {
+  // -------------------- STATES --------------------
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  // -------------------- SERVICES --------------------
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-  const dispatch = useAppDispatch();
 
-  
-
+  // -------------------- COLUMNAS --------------------
   // Necesario para establecer las columnas de la tabla genérica
   const ColumnsInsumo = [
-
     { label: "Denominación", key: "denominacion" },
     { label: "Precio de Venta", key: "precioVenta" },
     { label: "Precio de Compra", key: "precioCompra" },
@@ -58,20 +60,22 @@ export const SeccionInsumos = () => {
     {
       label: "Unidad de Medida",
       key: "unidadMedida",
-      render: (insumo: IArticuloInsumo) => insumo.unidadMedida.denominacion
+      render: (insumo: IArticuloInsumo) => insumo.unidadMedida.denominacion,
     },
     {
       label: "Categoría",
       key: "categoria",
-      render: (insumo: IArticuloInsumo) => insumo.categoria.denominacion
+      render: (insumo: IArticuloInsumo) => insumo.categoria.denominacion,
     },
     {
       label: "Estado",
       key: "eliminado",
-      render: (insumo: IArticuloInsumo) => (insumo.eliminado ? "Eliminado" : "Activo")
-    }
+      render: (insumo: IArticuloInsumo) =>
+        insumo.eliminado ? "Eliminado" : "Activo",
+    },
   ];
 
+  // -------------------- HANDLERS --------------------
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
@@ -91,18 +95,6 @@ export const SeccionInsumos = () => {
     });
   };
 
-  const getInsumo = async () => {
-    await insumoService.getAll().then((insumoData) => {
-      dispatch(setDataTable(insumoData));
-      setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    setLoading(true);
-    getInsumo();
-  }, []);
-
   const handleSave = async (insumo: IArticuloInsumoPost) => {
     try {
       await insumoService.post(insumo);
@@ -112,6 +104,23 @@ export const SeccionInsumos = () => {
     }
   };
 
+  // -------------------- FUNCIONES --------------------
+  const dispatch = useAppDispatch();
+
+  const getInsumo = async () => {
+    await insumoService.getAll().then((insumoData) => {
+      dispatch(setDataTable(insumoData));
+      setLoading(false);
+    });
+  };
+
+  // -------------------- EFFECTS --------------------
+  useEffect(() => {
+    setLoading(true);
+    getInsumo();
+  }, []);
+
+  // -------------------- RENDER --------------------
   return (
     <>
       {loading ? (

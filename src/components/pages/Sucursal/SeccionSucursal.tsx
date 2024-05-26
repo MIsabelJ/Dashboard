@@ -1,56 +1,33 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { SucursalService } from "../../../services/SucursalService";
+// ---------- ARCHIVOS----------
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
-import { Loader } from "../../ui/Loader/Loader";
-import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
-import { ISucursal } from "../../../types/Sucursal/ISucursal";
-import { useNavigate, useParams } from "react-router-dom";
-// import { EmpresaService } from "../../../services/EmpresaService";
-import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
-import { AppBar, Toolbar, Typography } from "@mui/material";
-import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
 import { setCurrentSucursal } from "../../../redux/slices/SucursalReducer";
+import { SucursalService } from "../../../services/SucursalService";
+import { ISucursal } from "../../../types/Sucursal/ISucursal";
+import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
+import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
+import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
+import { Loader } from "../../ui/Loader/Loader";
+// ---------- ESTILOS ----------
+import { AppBar, Toolbar, Typography } from "@mui/material";
 
+// ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
-const SeccionSucursal = () => {
-  // Recibo el ID del endpoint proveniente de la empresa
-  const navigate = useNavigate();
-  const empresaActual = useAppSelector(
-    (state) => state.empresaReducer.empresaActual
-  );
 
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
+const SeccionSucursal = () => {
+  // -------------------- STATES --------------------
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [redirectId, setRedirectId] = useState<number | null>(null);
 
+  // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
 
-  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
-  );
-
-  // Obtener el nombre de la empresa
-  const nombreEmpresa =
-    dataFilter.length > 0 ? dataFilter[0].empresa.nombre : "";
-
-  const dispatch = useAppDispatch();
-  const sucursalActive = useAppSelector(
-    (state) => state.sucursalReducer.sucursalActual
-  );
-
-  useEffect(() => {
-    if (redirectId !== null && sucursalActive === redirectId) {
-      console.log(
-        "Redireccionando a la subruta de la sucursal " + sucursalActive
-      );
-      navigate(`/inicio`);
-      setRedirectId(null); // Reset redirect ID after navigation
-    }
-  }, [sucursalActive, redirectId, navigate]);
-
+  // -------------------- HANDLERS --------------------
   const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
     setRedirectId(id);
@@ -80,13 +57,6 @@ const SeccionSucursal = () => {
     });
   };
 
-  const getSucursal = async () => {
-    await sucursalService.getAll().then((sucursalData) => {
-      console.log(sucursalData);
-      dispatch(setDataTable(sucursalData));
-      setLoading(false);
-    });
-  };
   const handleSave = async (sucursal: ISucursalPost) => {
     try {
       const response = await sucursalService.post(sucursal);
@@ -97,11 +67,54 @@ const SeccionSucursal = () => {
     }
   };
 
+  // -------------------- FUNCIONES --------------------
+  // Recibo el ID del endpoint proveniente de la empresa
+  const navigate = useNavigate();
+
+  const empresaActual = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
+  );
+
+  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
+  const dataFilter: ISucursal[] = dataCard.filter(
+    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
+  );
+
+  // Obtener el nombre de la empresa
+  const nombreEmpresa =
+    dataFilter.length > 0 ? dataFilter[0].empresa.nombre : "";
+
+  const dispatch = useAppDispatch();
+
+  const sucursalActive = useAppSelector(
+    (state) => state.sucursalReducer.sucursalActual
+  );
+
+  const getSucursal = async () => {
+    await sucursalService.getAll().then((sucursalData) => {
+      console.log(sucursalData);
+      dispatch(setDataTable(sucursalData));
+      setLoading(false);
+    });
+  };
+
+  // -------------------- EFFECTS --------------------
+  useEffect(() => {
+    if (redirectId !== null && sucursalActive === redirectId) {
+      console.log(
+        "Redireccionando a la subruta de la sucursal " + sucursalActive
+      );
+      navigate(`/inicio`);
+      setRedirectId(null); // Reset redirect ID after navigation
+    }
+  }, [sucursalActive, redirectId, navigate]);
+
   useEffect(() => {
     setLoading(true);
     getSucursal();
   }, []);
 
+  // -------------------- RENDER --------------------
   return (
     <>
       <div>
@@ -118,7 +131,6 @@ const SeccionSucursal = () => {
           {loading ? (
             <Loader />
           ) : (
-            // Mostrar la tabla de personas una vez que los datos se han cargado
             <GenericCards<ISucursal>
               items={dataFilter}
               handleClick={handleClick}

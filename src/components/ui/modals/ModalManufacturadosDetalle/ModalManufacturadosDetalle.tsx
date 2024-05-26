@@ -40,7 +40,7 @@ interface ManufacturadosDetalleModalProps {
   setOpenModal: (open: boolean) => void;
 }
 
-// ------------------------------ FUNCIÓN PRINCIPAL ------------------------------
+// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 
 export const ManufacturadosDetalleModal = ({
   handleSave,
