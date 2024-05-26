@@ -132,11 +132,6 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
           <Button
             variant="light"
             style={{ border: "1px solid rgba(0, 0, 0, 0.60)", padding: ".2rem .4rem ", borderRadius: "4px", margin: "0" }}
-            onClick={() => {
-              if (fileInput.current) {
-                fileInput.current.click();
-              }
-            }}
           >
             Elegir archivos
           </Button>

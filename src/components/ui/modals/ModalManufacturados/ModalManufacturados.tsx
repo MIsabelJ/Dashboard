@@ -334,17 +334,23 @@ export const ModalArticuloManufacturado = ({
     setShowUnidadMedidaModal(false);
   };
 
-  const getInsumosSeleccionados = () => {
-    newDetalles.forEach(async (detalle) => {
+  const getInsumosSeleccionados = async () => {
+    const insumos = [];
+
+    const fetchInsumos = newDetalles.map(async (detalle) => {
       const response = await insumoService.getById(detalle.idArticuloInsumo);
       if (response) {
-        setArticuloSeleccionado((prev) => [
-          ...prev,
-          { articuloInsumo: response, cantidad: detalle.cantidad.toString() }, // Convert detalle.cantidad to a string
-        ]);
+        insumos.push({ articuloInsumo: response, cantidad: detalle.cantidad.toString() });
       }
     });
+
+    await Promise.all(fetchInsumos);
+    setArticuloSeleccionado(insumos);
   };
+
+  useEffect(() => {
+    getInsumosSeleccionados()
+  }, [newDetalles])
 
   // BARRA DE BÚSQUEDA
   // Obtener los datos de la tabla en su estado inicial (sin datos)
