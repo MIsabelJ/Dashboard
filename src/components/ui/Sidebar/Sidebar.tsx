@@ -44,6 +44,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { useAppSelector } from "../../../hooks/redux";
+import { SeccionPromociones } from "../../pages/Promociones/SeccionPromociones";
 
 const drawerWidth = 240;
 
@@ -200,8 +201,8 @@ export default function PersistentDrawerLeft({
       case "Unidades de Medida":
         return <SeccionUnidadesMedida />;
       case "Promociones":
-        // return <SeccionPromocion />;
-        return <h1>Promociones</h1>;
+         return <SeccionPromociones />;
+        //return <h1>Promociones</h1>;
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":
