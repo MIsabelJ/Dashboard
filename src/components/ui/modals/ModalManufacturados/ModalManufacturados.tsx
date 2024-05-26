@@ -6,16 +6,12 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "../../../../hooks/redux";
 // INTERFACES
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
-import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 // SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
-import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
-import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
@@ -41,6 +37,12 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
+import { ManufacturadoDetalleService } from "../../../../services/ManufacturadoDetalleService";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { IArticuloManufacturadoDetalle } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle";
+import { InsumoService } from "../../../../services/InsumoService";
+import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+// import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -110,7 +112,7 @@ const initialValues: IArticuloManufacturadoPost = {
   descripcion: "",
   tiempoEstimadoMinutos: 0,
   preparacion: "",
-  idArticuloManufacturadoDetalles: [],
+  articuloManufacturadoDetalles: [],
   idImagenes: [],
   idUnidadMedida: 0,
   idCategoria: 0,
@@ -155,16 +157,14 @@ export const ModalArticuloManufacturado = ({
 }: IManufacturadosModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
-  // Barra de búsqueda para detalles manufacturados
+  // Barra de búsqueda para newDetalles manufacturados
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
-
-  const [idImages, setIdImages] = useState<string[]>([]);
-  const [images, setImages] = useState<IImagenArticulo[]>([]);
-
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
-  const [detalles, setDetalles] = useState<IArticuloManufacturadoDetalle[]>([]);
-  const [idDetalles, setIdDetalles] = useState<number[]>([]);
+  const [newDetalles, setNewDetalles] = useState<IArticuloManufacturadoDetallePost[]>([]);
+  const [articuloSeleccionado, setArticuloSeleccionado] = useState<{ articuloInsumo: IArticuloInsumo, cantidad: string }[]>([]);
+
 
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
@@ -182,14 +182,16 @@ export const ModalArticuloManufacturado = ({
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
+      const idImages = await handleSaveFiles(selectedFiles);
+      if (idImages === undefined) return;
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
-        idArticuloManufacturadoDetalles: detalles.map((d) => d.id),
+        articuloManufacturadoDetalles: newDetalles,
         idImagenes: idImages,
       };
       console.log("Imagenes para guardar");
-      console.log(idImages);
+      console.log(selectedFiles);
       console.log("Manufact");
       console.log(manufacturado);
       handleSave(manufacturado);
@@ -199,59 +201,39 @@ export const ModalArticuloManufacturado = ({
   });
 
   // -------------------- SERVICES --------------------
-  const manufacturadoDetalleService = new ManufacturadoDetalleService(
-    API_URL + "/articulo-manufacturado-detalle"
-  );
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-  const imagenArticuloService = new ImagenArticuloService(
-    API_URL + "/imagen-articulo"
-  );
 
   // -------------------- HANDLERS --------------------
-  // Barra de búsqueda para detalles manufacturados
+  // Barra de búsqueda para newDetalles manufacturados
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSaveDetalle = async (
-    manufacturadoDetalle: IArticuloManufacturadoDetallePost
-  ) => {
-    try {
-      const result = await manufacturadoDetalleService.post(
-        manufacturadoDetalle
-      );
-      setDetalles([...detalles, result]);
-      setIdDetalles([...idDetalles, result.id]);
-      formik.setFieldValue("idArticuloManufacturadoDetalles", [
-        ...detalles,
-        result,
-      ]);
-      // getManufacturadoDetalle();
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
-  const handleDeleteDetalle = async (id: number) => {
-    if (id) {
-      try {
-        await manufacturadoDetalleService.delete(id);
-        setDetalles(detalles.filter((d) => d.id !== id));
-        setIdDetalles(idDetalles.filter((d) => d !== id));
-      } catch (error) {
-        console.error(error);
-      }
-    }
+  const handleSaveDetalle = async (detalle: IArticuloManufacturadoDetallePost) => {
+    setNewDetalles([...newDetalles, detalle]);
+    await getInsumosSeleccionados();
+    setShowDetallesModal(false);
+  }
+
+  const handleDeleteDetalle = async (index: number) => {
+    setArticuloSeleccionado((prev) => {
+      return prev.filter((_, i) => i !== index);
+    });
+    setNewDetalles((prev) => {
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const handleCloseModal = () => {
     setOpenModal(false);
     formik.resetForm();
-    setDetalles([]);
-    setIdImages([]);
+    setNewDetalles([]);
+    setSelectedFiles([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
@@ -270,6 +252,32 @@ export const ModalArticuloManufacturado = ({
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSaveFiles = async (selectedFiles: File[]) => {
+
+    let idImages: string[] = [];
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append("uploads", file);
+    });
+
+    try {
+      const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data: IImagenArticulo[] = await response.json();
+        idImages = data.map((image) => image.id);
+        return idImages;
+      }
+      return undefined;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    //   setSelectedFiles(null);
   };
 
   // -------------------- MANEJO DE CATEGORÍAS --------------------
@@ -320,32 +328,22 @@ export const ModalArticuloManufacturado = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
-  const getImages = async () => {
-    if (idImages.length > 0) {
-      const data: IImagenArticulo[] = await imagenArticuloService.getAllById(
-        idImages
-      );
-      console.log("Imagenes obtenidad del array de uuid");
-      console.log(data);
-      const imagesData = data.filter((image) => image !== null);
-      setImages(imagesData);
-    }
-  };
-
-  const getCategorias = async () => {
-    const response = await categoriaService.getAll();
-    setCategorias(response);
-  };
 
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
     setUnidadesMedida([...unidadesMedida, unidadMedida]);
     setShowUnidadMedidaModal(false);
   };
 
-  const addDetalles = (detalle: IArticuloManufacturadoDetalle) => {
-    console.log("Detalle agregado:", detalle);
-    setDetalles((prevDetalles) => [...prevDetalles, detalle]);
-    setShowDetallesModal(false);
+  const getInsumosSeleccionados = () => {
+    newDetalles.forEach(async (detalle) => {
+      const response = await insumoService.getById(detalle.idArticuloInsumo);
+      if (response) {
+        setArticuloSeleccionado((prev) => [
+          ...prev,
+          { articuloInsumo: response, cantidad: detalle.cantidad.toString() }, // Convert detalle.cantidad to a string
+        ]);
+      }
+    });
   };
 
   // BARRA DE BÚSQUEDA
@@ -364,39 +362,20 @@ export const ModalArticuloManufacturado = ({
     setRows(filteredRows);
   }, [dataTable, searchTerm]);
 
-  //Trae las unidades de medida, detalles y categorías ya creadas
+
+  //Trae las unidades de medida, newDetalles y categorías ya creadas
   useEffect(() => {
     const getUnidadesMedida = async () => {
       const response = await unidadMedidaService.getAll();
       setUnidadesMedida(response);
     };
+    const getCategorias = async () => {
+      const response = await categoriaService.getAll();
+      setCategorias(response);
+    };
     getUnidadesMedida();
     getCategorias();
   }, []);
-
-  //Da formato a las unidades de medida para el dropdown de MUI
-  useEffect(() => {
-    const opciones = unidadesMedida.map((unidadMedida) => ({
-      label: unidadMedida.denominacion,
-      id: unidadMedida.id,
-    }));
-    setOpcionesUnidadMedida(opciones);
-  }, [unidadesMedida]);
-
-  useEffect(() => {
-    console.log("Detalles actualizados:", detalles);
-    const opciones = detalles.map((detalles) => ({
-      label: detalles.articuloInsumo.denominacion,
-      id: detalles.id,
-    }));
-    setOpcionesUnidadMedida(opciones); // TODO: ?
-  }, [detalles]);
-
-  useEffect(() => {
-    getImages();
-    console.log("idImages");
-    console.log(idImages);
-  }, [idImages]);
 
   // -------------------- RENDER --------------------
   return (
@@ -459,9 +438,9 @@ export const ModalArticuloManufacturado = ({
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                      (categoria) =>
-                                        categoria.id === option.parent
-                                    )?.denominacion || ""
+                                    (categoria) =>
+                                      categoria.id === option.parent
+                                  )?.denominacion || ""
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
@@ -675,14 +654,14 @@ export const ModalArticuloManufacturado = ({
                               marginLeft: "1rem",
                             }}
                           >
-                            {detalles.length > 0 && (
+                            {articuloSeleccionado.length > 0 && (
                               <ul
                                 style={{
                                   paddingLeft: 0,
                                   listStyleType: "none",
                                 }}
                               >
-                                {detalles
+                                {articuloSeleccionado
                                   .filter((detalle) =>
                                     detalle.articuloInsumo.denominacion
                                       .toLowerCase()
@@ -705,8 +684,7 @@ export const ModalArticuloManufacturado = ({
                                             label="Insumo"
                                             variant="outlined"
                                             value={
-                                              detalle.articuloInsumo
-                                                .denominacion
+                                              detalle.articuloInsumo.denominacion
                                             }
                                             disabled
                                             fullWidth
@@ -728,8 +706,7 @@ export const ModalArticuloManufacturado = ({
                                             label="Unidad de Medida"
                                             variant="outlined"
                                             value={
-                                              detalle.articuloInsumo
-                                                .unidadMedida.denominacion
+                                              detalle.articuloInsumo.unidadMedida.denominacion
                                             }
                                             disabled
                                             fullWidth
@@ -739,7 +716,7 @@ export const ModalArticuloManufacturado = ({
                                           <IconButton
                                             aria-label="delete"
                                             onClick={() =>
-                                              handleDeleteDetalle(detalle.id)
+                                              handleDeleteDetalle(index)
                                             }
                                           >
                                             <DeleteIcon />
@@ -756,7 +733,7 @@ export const ModalArticuloManufacturado = ({
                           </div>
                         </Grid>
                         <Form.Control.Feedback type="invalid">
-                          {formik.errors.idArticuloManufacturadoDetalles}
+                          {/* {formik.errors.articuloManufacturadoDetalles} */}
                         </Form.Control.Feedback>
                       </Form.Group>
                     </>
@@ -767,9 +744,8 @@ export const ModalArticuloManufacturado = ({
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
                         <ImagenArticuloModal
-                          images={images}
-                          getImages={getImages}
-                          setIdImages={setIdImages}
+                          selectedFiles={selectedFiles}
+                          setSelectedFiles={setSelectedFiles}
                         />
                       </Form.Group>
                     </>

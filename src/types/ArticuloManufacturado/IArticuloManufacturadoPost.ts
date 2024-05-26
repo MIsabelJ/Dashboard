@@ -1,7 +1,7 @@
-import { IArticuloManufacturadoDetalle } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle"
 import { IArticuloManufacturadoDetallePost } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost"
+import { IImagenArticuloPost } from "../ImagenArticulo/IImagenArticuloPost"
 
-export interface IArticuloManufacturadoPost{
+export interface IArticuloManufacturadoPost {
     denominacion: string
     precioVenta: number
     descripcion: string

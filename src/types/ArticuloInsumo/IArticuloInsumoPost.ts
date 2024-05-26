@@ -1,3 +1,5 @@
+import { IImagenArticuloPost } from "../ImagenArticulo/IImagenArticuloPost"
+
 export interface IArticuloInsumoPost {
     denominacion: string
     precioVenta: number
@@ -9,3 +11,4 @@ export interface IArticuloInsumoPost {
     idUnidadMedida: number
     idCategoria: number
 }
+
