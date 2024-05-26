@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../../hooks/redux";
 import { SucursalService } from "../../../../services/SucursalService";
+import { PaisService } from "../../../../services/PaisService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { ISucursalPost } from "../../../../types/Sucursal/ISucursalPost";
 import { ISucursalEdit } from "../../../../types/Sucursal/ISucursalEdit";
-import { ModalDomicilio } from "../ModalDomicilio/ModalDomicilio";
+import { IDomicilioPost } from "../../../../types/Domicilio/IDomicilioPost";
+import { IPais } from "../../../../types/Pais/IPais";
+import { IProvincia } from "../../../../types/Provincia/IProvincia";
+import { ILocalidad } from "../../../../types/Localidad/ILocalidad";
 // ---------- ESTILOS ----------
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Grid, Step, StepLabel, Stepper } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -40,13 +42,75 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   const [horarioApertura, setHorarioApertura] = useState<string>("00:00");
   const [horarioCierre, setHorarioCierre] = useState<string>("00:00");
   const [esCasaMatriz, setEsCasaMatriz] = useState<boolean>(false);
-  const [idDomicilio, setIdDomicilio] = useState<number>(0);
-  const [showDomicilioModal, setShowDomicilioModal] = useState<boolean>(false);
+  const [domicilio, setDomicilio] = useState<IDomicilioPost>({
+    calle: "",
+    numero: 0,
+    cp: 0,
+    piso: 0,
+    nroDpto: 0,
+    idLocalidad: 0,
+  });
+  const [paises, setPaises] = useState<IPais[]>([]);
+  const [provincias, setProvincias] = useState<IProvincia[]>([]);
+  const [idProvincia, setIdProvincia] = useState<number>(0);
+  const [localidades, setLocalidades] = useState<ILocalidad[]>([]);
+  const [idPais, setIdPais] = useState<number>(0);
 
   // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
+  const paisService = new PaisService(API_URL + "/pais");
 
   // -------------------- HANDLERS --------------------
+  const handlePaisChange = async (e: any) => {
+    const selectedPaisId = Number(e.target.value);
+    setDomicilio((prevState) => ({
+      ...prevState,
+      idLocalidad: 0,
+    }));
+
+    if (selectedPaisId !== 0) {
+      try {
+        const provincias = await fetchProvinciasByPais(selectedPaisId);
+        setProvincias(provincias);
+        setLocalidades([]);
+      } catch (error) {
+        console.error("Error al obtener las provincias:", error);
+      }
+    } else {
+      setProvincias([]);
+      setLocalidades([]);
+    }
+  };
+
+  const handleProvinciaChange = async (e: any) => {
+    const selectedProvinciaId = Number(e.target.value);
+    setDomicilio((prevState) => ({
+      ...prevState,
+      idLocalidad: 0,
+    }));
+
+    if (selectedProvinciaId !== 0) {
+      try {
+        const localidades = await fetchLocalidadesByProvincia(
+          selectedProvinciaId
+        );
+        setLocalidades(localidades);
+      } catch (error) {
+        console.error("Error al obtener las localidades:", error);
+      }
+    } else {
+      setLocalidades([]);
+    }
+  };
+
+  const handleLocalidadChange = (e: any) => {
+    const selectedLocalidadId = Number(e.target.value);
+    setDomicilio((prevState) => ({
+      ...prevState,
+      idLocalidad: selectedLocalidadId,
+    }));
+  };
+
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
       try {
@@ -74,14 +138,16 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     setHorarioApertura("00:00");
     setHorarioCierre("00:00");
     setEsCasaMatriz(false);
-    setIdDomicilio(0);
+    setDomicilio({
+      calle: "",
+      numero: 0,
+      cp: 0,
+      piso: 0,
+      nroDpto: 0,
+      idLocalidad: 0,
+    });
     setError("");
     handleClose();
-  };
-
-  const handleSaveDomicilio = (domicilio: any) => {
-    setIdDomicilio(domicilio.id); // Asigna el ID del domicilio guardado
-    setShowDomicilioModal(false);
   };
 
   // Determinar la acción del botón basado en las condiciones
@@ -98,6 +164,35 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   };
 
   // -------------------- FUNCIONES --------------------
+  const fetchPaises = async () => {
+    try {
+      const response = await paisService.getAll();
+      setPaises(response);
+    } catch (error) {
+      console.error("Error al obtener la lista de países:", error);
+    }
+  };
+
+  const fetchProvinciasByPais = async (paisId: number) => {
+    try {
+      const response = await fetch(`${API_URL}/provincia/findByPais/${paisId}`);
+      return response.json();
+    } catch (error) {
+      throw new Error("Error al obtener las provincias por país");
+    }
+  };
+
+  const fetchLocalidadesByProvincia = async (provinciaId: number) => {
+    try {
+      const response = await fetch(
+        `${API_URL}/localidad/findByProvincia/${provinciaId}`
+      );
+      return response.json();
+    } catch (error) {
+      throw new Error("Error al obtener las localidades por provincia");
+    }
+  };
+
   const empresaActual = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   );
@@ -134,10 +229,11 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       horarioApertura: horarioAperturaFormatted,
       horarioCierre: horarioCierreFormatted,
       esCasaMatriz,
-      idDomicilio,
+      domicilio,
       idEmpresa,
     };
 
+    console.log(sucursal)
     handleSave(sucursal);
     getSucursal();
     handleClose();
@@ -146,7 +242,14 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     setHorarioApertura("00:00");
     setHorarioCierre("00:00");
     setEsCasaMatriz(false);
-    setIdDomicilio(0);
+    setDomicilio({
+      calle: "",
+      numero: 0,
+      cp: 0,
+      piso: 0,
+      nroDpto: 0,
+      idLocalidad: 0,
+    });
     setError("");
   };
 
@@ -183,15 +286,16 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     if (elementActive && elementActive.element) {
-      const sucursal = elementActive.element as ISucursal;
+      const sucursal = elementActive.element as ISucursalPost;
       setNombre(sucursal.nombre);
       setHorarioApertura(sucursal.horarioApertura);
       setHorarioCierre(sucursal.horarioCierre);
       setEsCasaMatriz(sucursal.esCasaMatriz);
-      setIdDomicilio(sucursal.domicilio.id);
+      setDomicilio(sucursal.domicilio);
     }
 
     getSucursal();
+    fetchPaises();
   }, [elementActive]);
 
   // -------------------- RENDER --------------------
@@ -287,31 +391,151 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                   </>
                 )}
                 {activeStep === 1 && (
-                  <Form.Group controlId="formDomicilio" className="mb-3">
-                    {/* DOMICILIO */}
-                    <Form.Label>Domicilio</Form.Label>
-                    <div className="d-flex">
+                  <>
+                    {/* CAMPOS DE DOMICILIO */}
+                    <Form.Group controlId="formDomicilioCalle" className="mb-3">
+                      <Form.Label>Calle</Form.Label>
                       <Form.Control
                         type="text"
-                        value={
-                          idDomicilio
-                            ? `ID: ${idDomicilio}`
-                            : "Ningún domicilio seleccionado"
+                        value={domicilio.calle}
+                        onChange={(e) =>
+                          setDomicilio({ ...domicilio, calle: e.target.value })
                         }
-                        readOnly
                       />
-                      {!elementActive ? (
-                        <Button
-                          variant="contained"
-                          color="inherit"
-                          startIcon={<AddIcon />}
-                          onClick={() => setShowDomicilioModal(true)}
+                    </Form.Group>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <Form.Group
+                          controlId="formDomicilioNumero"
+                          className="mb-3"
                         >
-                          Añadir
-                        </Button>
-                      ) : null}
-                    </div>
-                  </Form.Group>
+                          <Form.Label>Número</Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={domicilio.numero}
+                            onChange={(e) =>
+                              setDomicilio({
+                                ...domicilio,
+                                numero: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </Form.Group>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Form.Group
+                          controlId="formDomicilioCp"
+                          className="mb-3"
+                        >
+                          <Form.Label>Código Postal</Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={domicilio.cp}
+                            onChange={(e) =>
+                              setDomicilio({
+                                ...domicilio,
+                                cp: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </Form.Group>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                      <Grid item xs={6}>
+                        <Form.Group
+                          controlId="formDomicilioPiso"
+                          className="mb-3"
+                        >
+                          <Form.Label>Piso</Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={domicilio.piso}
+                            onChange={(e) =>
+                              setDomicilio({
+                                ...domicilio,
+                                piso: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </Form.Group>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Form.Group
+                          controlId="formDomicilioNroDpto"
+                          className="mb-3"
+                        >
+                          <Form.Label>Número Depto.</Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={domicilio.nroDpto}
+                            onChange={(e) =>
+                              setDomicilio({
+                                ...domicilio,
+                                nroDpto: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </Form.Group>
+                      </Grid>
+                    </Grid>
+                    <Grid container spacing={2}>
+                      <Grid item xs={4}>
+                        {/* PAIS */}
+                        <Form.Group controlId="formPais" className="mb-3">
+                          <Form.Label>País</Form.Label>
+                          <Form.Control
+                            as="select"
+                            value={idPais}
+                            onChange={handlePaisChange}
+                          >
+                            <option value={0}>Seleccionar País</option>
+                            {paises.map((pais) => (
+                              <option key={pais.id} value={pais.id}>
+                                {pais.nombre}
+                              </option>
+                            ))}
+                          </Form.Control>
+                        </Form.Group>
+                      </Grid>
+                      <Grid item xs={4}>
+                        {/* PROVINCIA */}
+                        <Form.Group controlId="formProvincia" className="mb-3">
+                          <Form.Label>Provincia</Form.Label>
+                          <Form.Control
+                            as="select"
+                            value={idProvincia}
+                            onChange={handleProvinciaChange}
+                          >
+                            <option value={0}>Seleccionar Provincia</option>
+                            {provincias.map((provincia) => (
+                              <option key={provincia.id} value={provincia.id}>
+                                {provincia.nombre}
+                              </option>
+                            ))}
+                          </Form.Control>
+                        </Form.Group>
+                      </Grid>
+                      <Grid item xs={4}>
+                        {/* LOCALIDAD */}
+                        <Form.Group controlId="formLocalidad" className="mb-3">
+                          <Form.Label>Localidad</Form.Label>
+                          <Form.Control
+                            as="select"
+                            value={domicilio.idLocalidad}
+                            onChange={handleLocalidadChange}
+                          >
+                            <option value={0}>Seleccionar Localidad</option>
+                            {localidades.map((localidad) => (
+                              <option key={localidad.id} value={localidad.id}>
+                                {localidad.nombre}
+                              </option>
+                            ))}
+                          </Form.Control>
+                        </Form.Group>
+                      </Grid>
+                    </Grid>
+                  </>
                 )}
               </Form>
             </React.Fragment>
@@ -344,11 +568,6 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
           </Box>
         </Modal.Footer>
       </Modal>
-      <ModalDomicilio
-        show={showDomicilioModal}
-        handleClose={() => setShowDomicilioModal(false)}
-        handleSave={handleSaveDomicilio}
-      />
     </>
   );
 };
