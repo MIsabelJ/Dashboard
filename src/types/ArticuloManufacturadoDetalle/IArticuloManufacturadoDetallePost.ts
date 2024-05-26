@@ -1,4 +1,4 @@
-export interface IArticuloManufacturadoDetallePost{
-    cantidad:number
-    idArticuloInsumo: number 
+export interface IArticuloManufacturadoDetallePost {
+    cantidad: number
+    idArticuloInsumo: number
 }
