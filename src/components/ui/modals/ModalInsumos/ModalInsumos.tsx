@@ -15,7 +15,7 @@ import { ImagenArticuloService } from "../../../../services/ImagenArticuloServic
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 // ---------- ESTILOS ----------
-import { Modal, Form } from "react-bootstrap";
+import { Modal, Form, InputGroup } from "react-bootstrap";
 import {
   Autocomplete,
   AutocompleteRenderGroupParams,
@@ -27,13 +27,13 @@ import {
   Stepper,
   TextField,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+// import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
 const GroupHeader = styled("div")(({ theme }) => ({
-  position: "sticky",
+  position: "relative",
   top: "-8px",
   padding: "4px 10px",
   color: theme.palette.primary.main,
@@ -68,11 +68,25 @@ const initialValues: IArticuloInsumoPost = {
 
 const validationSchema = Yup.object({
   denominacion: Yup.string().required("Campo requerido"),
-  precioVenta: Yup.number().required("Campo requerido"),
-  precioCompra: Yup.number().required("Campo requerido"),
-  stockActual: Yup.number().required("Campo requerido"),
-  stockMaximo: Yup.number().required("Campo requerido"),
-  esParaElaborar: Yup.boolean(),
+  precioVenta: Yup.number()
+    .required("Campo requerido")
+    .min(0, "El precio de venta debe ser mayor o igual a 0."),
+  precioCompra: Yup.number()
+    .required("Campo requerido")
+    .min(0, "El precio de compra debe ser mayor o igual a 0."),
+  //stockMinimo: Yup.number().required("Campo requerido").min(1, "El stock minimo debe ser mayor que 0."),
+  stockActual: Yup.number()
+    .required("Campo requerido")
+    //.min(Yup.ref("stockMinimo"), "El stock actual debe ser mayor o igual al stock minimo.")
+    .min(1, "El stock actual debe ser mayor que 0.")
+    .max(
+      Yup.ref("stockMaximo"),
+      "El stock actual debe ser menor o igual al stock máximo."
+    ),
+  stockMaximo: Yup.number()
+    .required("Campo requerido")
+    .min(1, "El stock máximo debe ser mayor que 0."),
+  esParaElaborar: Yup.boolean().required("Campo requerido"),
   idUnidadMedida: Yup.number().required("Campo requerido"),
   idCategoria: Yup.number().required("Campo requerido"),
 });
@@ -138,7 +152,7 @@ export const ModalArticuloInsumo = ({
     API_URL + "/imagen-articulo"
   );
 
-  // -------------------- HANDLES --------------------
+  // -------------------- HANDLERS --------------------
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
@@ -310,44 +324,72 @@ export const ModalArticuloInsumo = ({
                         </Form.Control.Feedback>
                       </Form.Group>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           {/* PRECIO DE VENTA */}
                           <Form.Group controlId="precioVenta" className="mb-3">
                             <Form.Label>Precio de Venta</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el precio de venta"
-                              name="precioVenta"
-                              value={formik.values.precioVenta}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.precioVenta &&
-                                !!formik.errors.precioVenta
-                              }
-                            />
+                            <InputGroup>
+                              <InputGroup.Text>$</InputGroup.Text>
+                              <Form.Control
+                                type="number"
+                                placeholder="Ingrese el precio de venta"
+                                name="precioVenta"
+                                value={formik.values.precioVenta}
+                                onChange={formik.handleChange}
+                                isInvalid={
+                                  formik.touched.precioVenta &&
+                                  !!formik.errors.precioVenta
+                                }
+                                disabled={formik.values.esParaElaborar} // Deshabilita si es para elaborar
+                              />
+                            </InputGroup>
                             <Form.Control.Feedback type="invalid">
                               {formik.errors.precioVenta}
                             </Form.Control.Feedback>
                           </Form.Group>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           {/* PRECIO DE COMPRA */}
                           <Form.Group controlId="precioCompra" className="mb-3">
                             <Form.Label>Precio de Compra</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el precio de compra"
-                              name="precioCompra"
-                              value={formik.values.precioCompra}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.precioCompra &&
-                                !!formik.errors.precioCompra
-                              }
-                            />
+                            <InputGroup>
+                              <InputGroup.Text>$</InputGroup.Text>
+                              <Form.Control
+                                type="number"
+                                placeholder="Ingrese el precio de compra"
+                                name="precioCompra"
+                                value={formik.values.precioCompra}
+                                onChange={formik.handleChange}
+                                isInvalid={
+                                  formik.touched.precioCompra &&
+                                  !!formik.errors.precioCompra
+                                }
+                              />
+                            </InputGroup>
                             <Form.Control.Feedback type="invalid">
                               {formik.errors.precioCompra}
                             </Form.Control.Feedback>
+                          </Form.Group>
+                        </Grid>
+                        <Grid
+                          item
+                          xs={4}
+                          display="flex"
+                          alignItems="end"
+                          justifyContent="center"
+                        >
+                          {/* ES PARA ELABORAR */}
+                          <Form.Group
+                            controlId="esParaElaborar"
+                            className="mb-3"
+                          >
+                            <Form.Check
+                              type="checkbox"
+                              label="Es para Elaborar"
+                              name="esParaElaborar"
+                              checked={formik.values.esParaElaborar}
+                              onChange={formik.handleChange}
+                            />
                           </Form.Group>
                         </Grid>
                       </Grid>
@@ -356,7 +398,27 @@ export const ModalArticuloInsumo = ({
                   {activeStep === 1 && (
                     <>
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
+                          {/* STOCK MÍNIMO */}
+                          <Form.Group controlId="stockMinimo" className="mb-3">
+                            <Form.Label>Stock Mínimo</Form.Label>
+                            <Form.Control
+                              type="number"
+                              placeholder="Ingrese el stock mínimo"
+                              name="stockMínimo"
+                              // value={formik.values.stockMinimo}
+                              // onChange={formik.handleChange}
+                              // isInvalid={
+                              //   formik.touched.stockMinimo &&
+                              //   !!formik.errors.stockMinimo
+                              // }
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {/* {formik.errors.stockMinimo} */}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Grid>
+                        <Grid item xs={4}>
                           {/* STOCK ACTUAL */}
                           <Form.Group controlId="stockActual" className="mb-3">
                             <Form.Label>Stock Actual</Form.Label>
@@ -376,7 +438,7 @@ export const ModalArticuloInsumo = ({
                             </Form.Control.Feedback>
                           </Form.Group>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={4}>
                           {/* STOCK MAXIMO */}
                           <Form.Group controlId="stockMaximo" className="mb-3">
                             <Form.Label>Stock Máximo</Form.Label>
@@ -398,10 +460,13 @@ export const ModalArticuloInsumo = ({
                         </Grid>
                       </Grid>
                       {/* UNIDAD DE MEDIDA */}
-                      <Form.Group controlId="idUnidadMedida" className="mb-3">
-                        <Form.Label>Unidad de Medida</Form.Label>
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item xs={7}>
+                      <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={6}>
+                          <Form.Group
+                            controlId="idUnidadMedida"
+                            className="mb-3"
+                          >
+                            <Form.Label>Unidad de Medida</Form.Label>
                             <Autocomplete
                               disablePortal
                               id="combo-box-demo"
@@ -429,30 +494,12 @@ export const ModalArticuloInsumo = ({
                                 />
                               )}
                             />
-                          </Grid>
-                          <Grid
-                            item
-                            xs={5}
-                            display="flex"
-                            justifyContent="flex-end"
-                          >
-                            <Button
-                              onClick={() => {
-                                setShowUnidadMedidaModal(true);
-                              }}
-                              variant="contained"
-                              startIcon={<AddIcon />}
-                            >
-                              Crear Unidad
-                            </Button>
-                          </Grid>
+                            <Form.Control.Feedback type="invalid">
+                              {formik.errors.idUnidadMedida}
+                            </Form.Control.Feedback>
+                          </Form.Group>
                         </Grid>
-                        <Form.Control.Feedback type="invalid">
-                          {formik.errors.idUnidadMedida}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                      <Grid container spacing={2}>
-                        <Grid item xs={8}>
+                        <Grid item xs={6}>
                           {/* CATEGORIA */}
                           <Form.Group controlId="idCategoria" className="mb-3">
                             <Form.Label>Categoría</Form.Label>
@@ -478,7 +525,6 @@ export const ModalArticuloInsumo = ({
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
-                              sx={{ width: 300 }}
                               renderInput={(params) => (
                                 <TextField {...params} label="Categorías" />
                               )}
@@ -490,27 +536,6 @@ export const ModalArticuloInsumo = ({
                                   <GroupItems>{params.children}</GroupItems>
                                 </li>
                               )}
-                            />
-                          </Form.Group>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={4}
-                          display="flex"
-                          alignItems="end"
-                          justifyContent="center"
-                        >
-                          {/* ES PARA ELABORAR */}
-                          <Form.Group
-                            controlId="esParaElaborar"
-                            className="mb-3"
-                          >
-                            <Form.Check
-                              type="checkbox"
-                              label="Es para Elaborar"
-                              name="esParaElaborar"
-                              checked={formik.values.esParaElaborar}
-                              onChange={formik.handleChange}
                             />
                           </Form.Group>
                         </Grid>

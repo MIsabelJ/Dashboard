@@ -85,7 +85,6 @@ export const SeccionInsumos = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await insumoService.delete(id).then(() => {
-          // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getInsumo();
         });
       }

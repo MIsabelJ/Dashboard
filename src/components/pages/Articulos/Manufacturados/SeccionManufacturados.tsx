@@ -47,7 +47,7 @@ export const SeccionManufacturados = () => {
         <ul>
           {manufacturado.articuloManufacturadoDetalles.map((detalle, index) => (
             <li key={index}>
-              {detalle.articuloInsumo.denominacion}: {detalle.cantidad}
+              {detalle.articuloInsumo.denominacion}: {detalle.cantidad} {detalle.articuloInsumo.unidadMedida.denominacion}
             </li>
           ))}
         </ul>
@@ -71,13 +71,24 @@ export const SeccionManufacturados = () => {
         </Carousel>
       ),
     },
-    // { label: "Unidad de Medida", key: "unidadMedida" }, // Aplicar render para que no de problemas
-    // { label: "Categoría", key: "categoria" },
-    // {
-    //   label: "Acciones",
-    //   key: "actions",
-    // },
-    { label: "Estado", key: "eliminado" },
+    {
+      label: "Unidad de Medida",
+      key: "unidadMedida",
+      render: (manufacturado: IArticuloManufacturado) =>
+        manufacturado.unidadMedida.denominacion,
+    },
+    {
+      label: "Categoría",
+      key: "categoria",
+      render: (manufacturado: IArticuloManufacturado) =>
+        manufacturado.categoria.denominacion,
+    },
+    {
+      label: "Estado",
+      key: "eliminado",
+      render: (manufacturado: IArticuloManufacturado) =>
+        manufacturado.eliminado ? "Eliminado" : "Activo",
+    },
   ];
 
   const handleDelete = async (id: number) => {
@@ -93,7 +104,6 @@ export const SeccionManufacturados = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         await manufacturadoService.delete(id).then(() => {
-          // TODO: IMPLEMENTAR ELIMINAR LOGICO
           getManufacturado();
         });
       }

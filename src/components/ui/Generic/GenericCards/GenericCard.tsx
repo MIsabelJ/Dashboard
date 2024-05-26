@@ -1,27 +1,19 @@
-import { ReactNode } from "react";
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
-import { SwitchButton } from "../../ButtonsTable/Switch";
+// import { ReactNode } from "react";
+import { Button, Card, CardActions, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { ModalSucursal } from "../../modals/ModalSucursal/ModalSucursal";
+import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 
-interface IGenericAtribute<T> {
-  label: string;
-  key: string;
-  render?: (item: T) => ReactNode;
-}
+// interface IGenericAtribute<T> {
+//   label: string;
+//   key: string;
+//   render?: (item: T) => ReactNode;
+// }
 export interface ICardProps<T> {
   items: any[];
   handleClick: (id: number) => void;
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
+  denominacion: string;
 }
 
 export const GenericCards = <T extends { id: number }>({
@@ -29,6 +21,7 @@ export const GenericCards = <T extends { id: number }>({
   handleClick,
   handleDelete,
   setOpenModal,
+  denominacion,
 }: ICardProps<T>) => {
   if (items && items.length > 0) {
     return (
@@ -41,6 +34,40 @@ export const GenericCards = <T extends { id: number }>({
           gap: "16px",
         }}
       >
+        <Card
+          sx={{
+            width: "250px",
+            height: "280px",
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            backgroundColor: "#f5f5f5",
+            border: "2px dashed grey",
+            borderRadius: "10px",
+            boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
+            "&:hover": { boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)" },
+          }}
+          onClick={() => setOpenModal(true)}
+        >
+          <Typography
+            variant="h4"
+            component="h1"
+            style={{ cursor: "pointer", marginBottom: "3px", color: "grey"}}
+          >
+            Añadir
+          </Typography>
+          <Typography
+            variant="h6"
+            component="h5"
+            style={{ cursor: "pointer", marginBottom: "15px", color: "grey" }}
+          >
+            {denominacion}
+          </Typography>
+          <AddIcon sx={{ fontSize: "70px", color: "grey" }} color="action" />
+        </Card>
+
         {items.map((item) => (
           <>
             <Card
@@ -70,12 +97,12 @@ export const GenericCards = <T extends { id: number }>({
               <div style={{ marginBottom: "10px" }}>
                 {item.razonSocial && (
                   <Typography variant="body2" gutterBottom>
-                    Descripción: {item.razonSocial}
+                    Razón social: {item.razonSocial}
                   </Typography>
                 )}
                 {item.direccion && (
                   <Typography variant="body2" gutterBottom>
-                    Dirección: {item.direccion}
+                    Dirección: {item.direccion.calle} {item.direccion.numero}
                   </Typography>
                 )}
               </div>
@@ -98,23 +125,6 @@ export const GenericCards = <T extends { id: number }>({
             </Card>
           </>
         ))}
-        <Card
-          sx={{
-            width: "250px",
-            height: "280px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            borderRadius: "10px",
-            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
-            "&:hover": { boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)" },
-          }}
-          onClick={() => setOpenModal(true)}
-        >
-          <Typography variant="h5" component="h2" style={{ cursor: "pointer" }}>
-            Añadir +
-          </Typography>
-        </Card>
       </div>
     );
   } else {

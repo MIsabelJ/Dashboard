@@ -19,19 +19,33 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({
 }) => {
   const [nombre, setNombre] = useState<string>("");
   const [razonSocial, setRazonSocial] = useState<string>("");
-  const [cuil, setCuil] = useState<number>(0);
+  const [cuil, setCuil] = useState<string>("");
+  const [error, setError] = useState<string>("");
 
   const onSave = () => {
+    if (cuil.length !== 11) {
+      setError("El CUIL debe tener exactamente 11 dígitos");
+      return;
+    }
     const empresa: IEmpresaPost = {
       nombre: nombre,
       razonSocial: razonSocial,
-      cuil: cuil,
+      cuil: Number(cuil),
     };
     handleSave(empresa);
     handleClose();
     setNombre("");
     setRazonSocial("");
-    setCuil(0); // Reset form
+    setCuil("");
+    setError("");
+  };
+
+  const handleCloseModal = () => {
+    setNombre("");
+    setRazonSocial("");
+    setCuil("");
+    setError("");
+    handleClose();
   };
 
   return (
@@ -60,10 +74,19 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({
           <Form.Group controlId="formCuil" className="mb-3">
             <Form.Label>CUIL</Form.Label>
             <Form.Control
-              type="number"
+              type="text"
               value={cuil}
-              onChange={(e) => setCuil(Number(e.target.value))}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (value.length <= 11 && /^\d*$/.test(value)) {
+                  setCuil(value);
+                }
+              }}
+              isInvalid={!!error}
             />
+            <Form.Control.Feedback type="invalid">
+              {error}
+            </Form.Control.Feedback>
           </Form.Group>
         </Form>
       </Modal.Body>
@@ -75,7 +98,7 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({
             width: "100%",
           }}
         >
-          <Button variant="outlined" color="primary" onClick={handleClose}>
+          <Button variant="outlined" color="primary" onClick={handleCloseModal}>
             Cancelar
           </Button>
           <Button variant="contained" color="primary" onClick={onSave}>
@@ -86,65 +109,3 @@ export const ModalEmpresa: React.FC<EmpresaModalProps> = ({
     </Modal>
   );
 };
-// import * as Yup from "yup";
-// import { GenericModal } from "../GenericModal";
-// import { IEmpresa } from "../../../../types/Empresa/IEmpresa";
-// import { useAppSelector } from "../../../../hooks/redux";
-
-// interface IModalEmpresa {
-//     getEmpresa: () => void; // Función para obtener las empresas
-//     openModal: boolean;
-//     setOpenModal: (state: boolean) => void;
-// }
-
-// export const ModalEmpresa = ({ getEmpresa, openModal, setOpenModal }: IModalEmpresa) => {
-
-//     const elementActive = useAppSelector(
-//         (state) => state.tableReducer.elementActive
-//     );
-
-//     // Necesario para el modal genérico con insumos
-//     const initialValues: IEmpresa = elementActive?.element || {
-//         id: 0,
-//         nombre: '',
-//         razonSocial: '',
-//         cuil: 0,
-//         actions: '',
-//         eliminado: true,
-//     };
-
-//     //validación del formulario
-//     const validationSchema = Yup.object({
-//         nombre: Yup.string().required('Campo requerido'),
-//         razonSocial: Yup.string().required('Campo requerido'),
-//         cuil: Yup.number().required('Campo requerido'),
-//     }) as Yup.ObjectSchema<object>;
-
-//     // Traducción de los placeholders del formulario de insumos
-//     const translatedPlaceholder = {
-//         nombre: 'Nombre',
-//         razonSocial: 'Razon Social',
-//         cuil: 'Cuil',
-//     }
-
-//     // Englobamos todas las props referidas al formulario que vamos a pasarle al Modal genérico
-//     const formDetails = {
-//         validationSchema: validationSchema,
-//         initialValues: initialValues,
-//         translatedPlaceholder: translatedPlaceholder,
-//         formInputType: {
-//             nombre: 'text',
-//             razonSocial: 'text',
-//             cuil: 'number',
-//         },
-//     }
-//     return (
-//         <GenericModal<IEmpresa>
-//             openModal={openModal}
-//             setOpenModal={setOpenModal}
-//             modalTitle="Empresas"
-//             formDetails={formDetails}
-//             route="empresa"
-//             getItems={getEmpresa}/>
-//     )
-// }

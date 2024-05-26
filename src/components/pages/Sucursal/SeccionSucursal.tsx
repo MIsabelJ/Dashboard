@@ -17,32 +17,41 @@ const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
   // Recibo el ID del endpoint proveniente de la empresa
   const navigate = useNavigate();
-  const empresaActual = useAppSelector((state) => state.empresaReducer.empresaActual);
+  const empresaActual = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
+  );
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [redirectId, setRedirectId] = useState<number | null>(null);
 
-  const sucursalService = new SucursalService(API_URL +"/sucursal");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
 
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const dataFilter: ISucursal[] = dataCard.filter(
     (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
   );
 
+  // Obtener el nombre de la empresa
+  const nombreEmpresa =
+    dataFilter.length > 0 ? dataFilter[0].empresa.nombre : "";
 
   const dispatch = useAppDispatch();
-  const sucursalActive = useAppSelector((state) => state.sucursalReducer.sucursalActual);
+  const sucursalActive = useAppSelector(
+    (state) => state.sucursalReducer.sucursalActual
+  );
 
   useEffect(() => {
     if (redirectId !== null && sucursalActive === redirectId) {
-      console.log("Redireccionando a la subruta de la sucursal "+sucursalActive)
+      console.log(
+        "Redireccionando a la subruta de la sucursal " + sucursalActive
+      );
       navigate(`/inicio`);
       setRedirectId(null); // Reset redirect ID after navigation
     }
   }, [sucursalActive, redirectId, navigate]);
 
-  const handleClick = (id : number) => {
+  const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
     setRedirectId(id);
   };
@@ -100,7 +109,7 @@ const SeccionSucursal = () => {
           {/* Navbar */}
           <Toolbar>
             <Typography variant="h6" noWrap component="div">
-              Sucursales de Empresa
+              {`Sucursales de ${nombreEmpresa}`}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -115,6 +124,7 @@ const SeccionSucursal = () => {
               handleClick={handleClick}
               handleDelete={handleDelete}
               setOpenModal={setOpenModal}
+              denominacion="Sucursal"
             />
           )}
         </div>
@@ -125,7 +135,6 @@ const SeccionSucursal = () => {
         idEmpresa={Number(empresaActual)}
         handleSave={handleSave}
         getSucursal={getSucursal}
-        
       />
     </>
   );

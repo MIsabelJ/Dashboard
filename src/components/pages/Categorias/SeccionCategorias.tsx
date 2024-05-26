@@ -161,67 +161,83 @@ export function SeccionCategorias() {
   }, [dataTable, searchTerm]);
 
   return (
-    <div style={{ paddingTop: "30px" }}>
-      <Grid container>
-        <Grid item xs={11}>
-          <Search
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "flex-start",
+        height: "100%",
+        flexDirection: "column",
+        gap: "3vh",
+        marginTop: "3vh",
+      }}
+    >
+      {!loading && (
+        <>
+          <div
             style={{
-              flexGrow: 1,
-              // marginLeft: "1rem",
-              // marginRight: "1rem",
-              backgroundColor: "#f0f0f0",
+              width: "100%",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              padding: "1rem",
               marginBottom: "1rem",
             }}
           >
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              value={searchTerm}
-              onChange={handleSearch}
-              placeholder="Buscar Categoría..."
-              inputProps={{ "aria-label": "search" }}
-            />
-          </Search>
-        </Grid>
-        <Grid item xs={1} alignContent="flex-start" paddingLeft="1rem">
-          <IconButton
-            color="primary"
-            aria-label="add"
-            onClick={() => {
-              setOpenModal(true);
-            }}
-          >
-            <AddIcon />
-          </IconButton>
-        </Grid>
-      </Grid>
-      {!loading && (
-        <List
-          sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
-          component="nav"
-          aria-labelledby="nested-list-subheader"
-        >
-          {Categoria.length > 0 ? (
-            Categoria.filter((category) =>
-              category.denominacion
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            ).map((category) => (
-              <CategoryItem
-                key={category.id}
-                category={category}
-                padding={2}
-                handleUpdate={handleUpdate}
-                handleSave={handleSave}
-                addSubCategoria={addSubCategoria}
-                handleDelete={handleDelete}
+            <Search
+              style={{
+                flexGrow: 1,
+                marginLeft: "1rem",
+                marginRight: "1rem",
+                backgroundColor: "#f0f0f0",
+              }}
+            >
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Buscar Categoría..."
+                inputProps={{ "aria-label": "search" }}
               />
-            ))
-          ) : (
-            <div>No hay categorías creadas.</div>
-          )}
-        </List>
+            </Search>
+            <IconButton
+              color="primary"
+              aria-label="add"
+              onClick={() => {
+                setOpenModal(true);
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+          </div>
+          <List
+            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+          >
+            {Categoria.length > 0 ? (
+              Categoria.filter((category) =>
+                category.denominacion
+                  .toLowerCase()
+                  .includes(searchTerm.toLowerCase())
+              ).map((category) => (
+                <CategoryItem
+                  key={category.id}
+                  category={category}
+                  padding={2}
+                  handleUpdate={handleUpdate}
+                  handleSave={handleSave}
+                  addSubCategoria={addSubCategoria}
+                  handleDelete={handleDelete}
+                />
+              ))
+            ) : (
+              <div>No hay categorías creadas.</div>
+            )}
+          </List>
+        </>
       )}
       {loading && <Loader />}
       <CategoriaModal

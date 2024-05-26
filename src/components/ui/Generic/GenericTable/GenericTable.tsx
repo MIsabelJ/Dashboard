@@ -1,8 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useAppSelector } from "../../../../hooks/redux";
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
-import { SwitchButton } from "../../ButtonsTable/Switch";
-import "./StyleGenericTable.css"
+import "./StyleGenericTable.css";
 
 import {
   IconButton,
@@ -13,12 +12,16 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TableSortLabel,
 } from "@mui/material";
 import { styled, alpha } from "@mui/material/styles";
 import InputBase from "@mui/material/InputBase";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import { Table } from "react-bootstrap";
+
+// Definición del tipo Order
+type Order = "asc" | "desc";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -79,6 +82,8 @@ export const GenericTable = <T extends { id: number }>({
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [order, setOrder] = useState<Order>("asc");
+  const [orderBy, setOrderBy] = useState<string>("");
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -111,6 +116,15 @@ export const GenericTable = <T extends { id: number }>({
     );
     setRows(filteredRows);
   }, [dataTable, searchTerm]);
+
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: string
+  ) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
 
   return (
     <div
@@ -163,14 +177,24 @@ export const GenericTable = <T extends { id: number }>({
           <AddIcon />
         </IconButton>
       </div>
-      <Paper sx={{ width: "90%", overflow: "hidden" }}>
+      <Paper sx={{ width: "95%", overflow: "hidden" }}>
         <TableContainer sx={{ maxHeight: "70vh" }}>
           <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
                 {columns.map((column, i: number) => (
-                  <TableCell key={i} align={"center"}>
-                    {column.label}
+                  <TableCell
+                    key={i}
+                    align={"center"}
+                    sortDirection={orderBy === column.key ? order : false}
+                  >
+                    <TableSortLabel
+                      active={orderBy === column.key}
+                      direction={orderBy === column.key ? order : "asc"}
+                      onClick={(e) => handleRequestSort(e, column.key)}
+                    >
+                      {column.label}
+                    </TableSortLabel>
                   </TableCell>
                 ))}
               </TableRow>
@@ -189,23 +213,32 @@ export const GenericTable = <T extends { id: number }>({
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
                     return (
-                      <TableRow key={index} className={row.eliminado ? "filaDeshabilitada" : ""}>
+                      <TableRow
+                        key={index}
+                        className={row.eliminado ? "filaDeshabilitada" : ""}
+                      >
                         {columns.map((column, i) => {
                           if (column.key === "id") return null;
                           return (
-                              <TableCell key={i} align="center">
-                                {column.render
-                                  ? column.render(row)
-                                  : row[column.key]}
-                              </TableCell>
+                            <TableCell key={i} align="center">
+                              {column.render
+                                ? column.render(row)
+                                : row[column.key]}
+                            </TableCell>
                           );
                         })}
-
-                        <ButtonsTable
-                          el={row}
-                          handleDelete={handleDelete}
-                          setOpenModal={setOpenModal}
-                        />
+                        <div
+                          style={{
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <ButtonsTable
+                            el={row}
+                            handleDelete={handleDelete}
+                            setOpenModal={setOpenModal}
+                          />
+                        </div>
                       </TableRow>
                     );
                   })

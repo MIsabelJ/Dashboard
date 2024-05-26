@@ -21,7 +21,7 @@ import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
 import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
 // ---------- ESTILOS ----------
-import { Modal, Form } from "react-bootstrap";
+import { Modal, Form, InputGroup } from "react-bootstrap";
 import {
   Autocomplete,
   Box,
@@ -118,9 +118,13 @@ const initialValues: IArticuloManufacturadoPost = {
 
 export const validationSchema = Yup.object({
   // denominacion: Yup.string().required("Campo requerido"),
-  // precioVenta: Yup.number().required("Campo requerido"),
+  // precioVenta: Yup.number()
+  //   .required("Campo requerido")
+  //   .min(0, "El precio debe ser mayor o igual a 0."),
   // descripcion: Yup.string().required("Campo requerido"),
-  // tiempoEstimadoMinutos: Yup.number().required("Campo requerido"),
+  // tiempoEstimadoMinutos: Yup.number()
+  //   .required("Campo requerido")
+  //   .min(0, "El tiempo estimado debe ser mayor o igual a 0."),
   // preparacion: Yup.string().required("Campo requerido"),
   // articuloManufacturadoDetalles: Yup.array().required("Campo requerido"),
   // idUnidadMedida: Yup.number().required("Campo requerido"),
@@ -471,7 +475,6 @@ export const ModalArticuloManufacturado = ({
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
-                              sx={{ width: 300 }}
                               renderInput={(params) => (
                                 <TextField {...params} label="Categorías" />
                               )}
@@ -490,17 +493,20 @@ export const ModalArticuloManufacturado = ({
                           {/* PRECIO VENTA */}
                           <Form.Group controlId="precioVenta" className="mb-3">
                             <Form.Label>Precio de Venta</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el precio de venta"
-                              name="precioVenta"
-                              value={formik.values.precioVenta}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.precioVenta &&
-                                !!formik.errors.precioVenta
-                              }
-                            />
+                            <InputGroup>
+                              <InputGroup.Text>$</InputGroup.Text>
+                              <Form.Control
+                                type="number"
+                                placeholder="Ingrese el precio de venta"
+                                name="precioVenta"
+                                value={formik.values.precioVenta}
+                                onChange={formik.handleChange}
+                                isInvalid={
+                                  formik.touched.precioVenta &&
+                                  !!formik.errors.precioVenta
+                                }
+                              />
+                            </InputGroup>
                             <Form.Control.Feedback type="invalid">
                               {formik.errors.precioVenta}
                             </Form.Control.Feedback>
@@ -530,11 +536,14 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 1 && (
                     <>
-                      {/* UNIDAD DE MEDIDA */}
-                      <Form.Group controlId="idUnidadMedida" className="mb-3">
-                        <Form.Label>Unidad de Medida</Form.Label>
-                        <Grid container spacing={2} alignItems="center">
-                          <Grid item xs={7}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={6}>
+                          {/* UNIDAD DE MEDIDA */}
+                          <Form.Group
+                            controlId="idUnidadMedida"
+                            className="mb-3"
+                          >
+                            <Form.Label>Unidad de Medida</Form.Label>
                             <Autocomplete
                               disablePortal
                               id="combo-box-demo"
@@ -562,28 +571,37 @@ export const ModalArticuloManufacturado = ({
                                 />
                               )}
                             />
-                          </Grid>
-                          <Grid
-                            item
-                            xs={5}
-                            display="flex"
-                            justifyContent="flex-end"
-                          >
-                            <Button
-                              onClick={() => {
-                                setShowUnidadMedidaModal(true);
-                              }}
-                              variant="contained"
-                              startIcon={<AddIcon />}
-                            >
-                              Crear Unidad
-                            </Button>
-                          </Grid>
+                            <Form.Control.Feedback type="invalid">
+                              {formik.errors.idUnidadMedida}
+                            </Form.Control.Feedback>
+                          </Form.Group>
                         </Grid>
-                        <Form.Control.Feedback type="invalid">
-                          {formik.errors.idUnidadMedida}
-                        </Form.Control.Feedback>
-                      </Form.Group>
+                        <Grid item xs={6}>
+                          {/* TIEMPO DE ESTIMADO EN MINUTOS */}
+                          <Form.Group
+                            controlId="tiempoEstimadoMinutos"
+                            className="mb-3"
+                          >
+                            <Form.Label>
+                              Tiempo estimado de preparación (minutos)
+                            </Form.Label>
+                            <Form.Control
+                              type="number"
+                              placeholder="Ingrese el tiempo de preparación"
+                              name="tiempoEstimadoMinutos"
+                              value={formik.values.tiempoEstimadoMinutos}
+                              onChange={formik.handleChange}
+                              isInvalid={
+                                formik.touched.tiempoEstimadoMinutos &&
+                                !!formik.errors.tiempoEstimadoMinutos
+                              }
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {formik.errors.tiempoEstimadoMinutos}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Grid>
+                      </Grid>
                       {/* PREPARACION */}
                       <Form.Group controlId="preparacion" className="mb-3">
                         <Form.Label>Preparación</Form.Label>
@@ -601,29 +619,6 @@ export const ModalArticuloManufacturado = ({
                         />
                         <Form.Control.Feedback type="invalid">
                           {formik.errors.preparacion}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                      {/* TIEMPO DE ESTIMADO EN MINUTOS */}
-                      <Form.Group
-                        controlId="tiempoEstimadoMinutos"
-                        className="mb-3"
-                      >
-                        <Form.Label>
-                          Tiempo estimado de preparación (minutos)
-                        </Form.Label>
-                        <Form.Control
-                          type="number"
-                          placeholder="Ingrese el tiempo de preparación"
-                          name="tiempoEstimadoMinutos"
-                          value={formik.values.tiempoEstimadoMinutos}
-                          onChange={formik.handleChange}
-                          isInvalid={
-                            formik.touched.tiempoEstimadoMinutos &&
-                            !!formik.errors.tiempoEstimadoMinutos
-                          }
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formik.errors.tiempoEstimadoMinutos}
                         </Form.Control.Feedback>
                       </Form.Group>
                     </>
@@ -664,7 +659,7 @@ export const ModalArticuloManufacturado = ({
                             }}
                           >
                             <SearchIconWrapper>
-                              {/* <SearchIcon /> */}
+                              <SearchIcon />
                             </SearchIconWrapper>
                             <StyledInputBase
                               value={searchTerm}

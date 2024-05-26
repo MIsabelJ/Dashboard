@@ -111,6 +111,7 @@ export const SeccionEmpresa = () => {
               handleClick={handleClick}
               handleDelete={handleDelete}
               setOpenModal={setOpenModal}
+              denominacion="Empresa"
             />
           )}
         </div>
