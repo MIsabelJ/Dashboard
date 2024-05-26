@@ -12,6 +12,7 @@ import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ModalEmpresa } from "../../ui/modals/ModalEmpresa/ModalEmpresa";
 import { IEmpresaPost } from "../../../types/Empresa/IEmpresaPost";
 import { setCurrentEmpresa } from "../../../redux/slices/EmpresaReducer";
+import useLocalStorage from "../../../hooks/localstorage";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,6 +20,8 @@ export const SeccionEmpresa = () => {
   const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
   const navigate = useNavigate();
 
+  //manejo de datos en el localStorage
+  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
@@ -36,9 +39,10 @@ export const SeccionEmpresa = () => {
       setRedirectId(null); // Reset redirect ID after navigation
     }
   }, [empresaActive, redirectId, navigate]);
-  
+
   const handleClick = (id: number) => {
     dispatch(setCurrentEmpresa(id));
+    setIdEmpresaLocalStorage(id)
     setRedirectId(id);
   };
 

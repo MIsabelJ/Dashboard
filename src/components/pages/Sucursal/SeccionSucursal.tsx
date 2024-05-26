@@ -12,18 +12,22 @@ import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
 import { AppBar, Toolbar, Typography } from "@mui/material";
 import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
 import { setCurrentSucursal } from "../../../redux/slices/SucursalReducer";
+import useLocalStorage from "../../../hooks/localstorage";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const SeccionSucursal = () => {
+  const [loading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const [redirectId, setRedirectId] = useState<number | null>(null);
+  //manejo de datos en el localStorage
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
+
+
   // Recibo el ID del endpoint proveniente de la empresa
   const navigate = useNavigate();
   const empresaActual = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   );
-
-  const [loading, setLoading] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
-  const [redirectId, setRedirectId] = useState<number | null>(null);
 
   const sucursalService = new SucursalService(API_URL + "/sucursal");
 
@@ -53,6 +57,7 @@ const SeccionSucursal = () => {
 
   const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
+    setIdSucursalLocalStorage(id);
     setRedirectId(id);
   };
   const handleDelete = async (id: number) => {

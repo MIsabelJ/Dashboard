@@ -28,110 +28,69 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
   images,
   setIdImages,
 }) => {
-  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFiles(event.target.files);
+    if (event.target.files) {
+      const files = Array.from(event.target.files);
+      setSelectedFiles(files);
+    }
   };
 
-  const uploadFiles = async () => {
-    if (!selectedFiles) {
-      return Swal.fire(
-        "No hay imágenes seleccionadas",
-        "Selecciona al menos una imagen",
-        "warning"
-      );
-    }
+  // const uploadFiles = async () => {
+  //   if (!selectedFiles) {
+  //     return Swal.fire(
+  //       "No hay imágenes seleccionadas",
+  //       "Selecciona al menos una imagen",
+  //       "warning"
+  //     );
+  //   }
 
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append("uploads", file);
+  //   const formData = new FormData();
+  //   Array.from(selectedFiles).forEach((file) => {
+  //     formData.append("uploads", file);
+  //   });
+
+  //   Swal.fire({
+  //     title: "Subiendo imágenes...",
+  //     text: "Espere mientras se suben los archivos.",
+  //     allowOutsideClick: false,
+  //     didOpen: () => {
+  //       Swal.showLoading();
+  //     },
+  //   });
+
+  //   try {
+  //     const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     if (response.ok) {
+  //       swalAlert("Éxito", "Imágenes subidas correctamente", "success");
+  //       const data: IImagenArticulo[] = await response.json();
+  //       setIdImages((prevImages) => [...prevImages, ...data.map((image) => image.id)]);
+  //       await getImages();
+  //     } else {
+  //       swalAlert(
+  //         "Error",
+  //         "Algo falló al subir las imágenes, inténtalo de nuevo.",
+  //         "error"
+  //       );
+  //     }
+  //   } catch (error) {
+  //     swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
+  //     console.error("Error:", error);
+  //   }
+  //   setSelectedFiles(null);
+  // };
+
+  const handleDeleteImg = (index: number) => {
+    setSelectedFiles(prevFiles => {
+      const newFiles = [...prevFiles];
+      newFiles.splice(index, 1);
+      return newFiles;
     });
-
-    Swal.fire({
-      title: "Subiendo imágenes...",
-      text: "Espere mientras se suben los archivos.",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        swalAlert("Éxito", "Imágenes subidas correctamente", "success");
-        const data : IImagenArticulo[] = await response.json();
-        setIdImages((prevImages) => [...prevImages, ...data.map((image) => image.id)]);
-        await getImages();
-      } else {
-        swalAlert(
-          "Error",
-          "Algo falló al subir las imágenes, inténtalo de nuevo.",
-          "error"
-        );
-      }
-    } catch (error) {
-      swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
-      console.error("Error:", error);
-    }
-    setSelectedFiles(null);
-  };
-
-  const handleDeleteImg = async (uuid: string, url: string) => {
-    const publicId = extractPublicId(url);
-
-    if (publicId) {
-      const formdata = new FormData();
-      formdata.append("publicId", publicId);
-      formdata.append("uuid", uuid);
-
-      Swal.fire({
-        title: "Eliminando imagen...",
-        text: "Espere mientras se elimina la imagen.",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      try {
-        const response = await fetch(`${API_URL}/imagen-articulo/deleteImg`, {
-          method: "POST",
-          body: formdata,
-        });
-
-        Swal.close();
-
-        if (response.ok) {
-          swalAlert("Éxito", "Imagen eliminada correctamente", "success");
-          setIdImages((prevImages) => prevImages.filter((image) => image !== uuid));
-          await getImages();
-        } else {
-          swalAlert(
-            "Error",
-            "Algo falló al eliminar la imagen, inténtalo de nuevo.",
-            "error"
-          );
-        }
-      } catch (error) {
-        Swal.close();
-        swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
-        console.error("Error:", error);
-      }
-    }
-  };
-
-  const swalAlert = (
-    title: string,
-    content: string,
-    icon: "error" | "success"
-  ) => {
-    Swal.fire(title, content, icon);
   };
 
   return (
@@ -154,16 +113,9 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
             multiple: true,
           }}
         />
-        <Button
-          onClick={uploadFiles}
-          color="inherit"
-          style={{ alignSelf: "center", marginRight: 0 }}
-        >
-          Subir
-        </Button>
       </div>
-      <List dense={true}>
-        {images.map((image, index) => {
+      <List dense={true} id="list-item">
+        {selectedFiles && Array.from(selectedFiles).map((image, index) => {
           return (
             <ListItem
               key={index}
@@ -171,14 +123,14 @@ export const ImagenArticuloModal: React.FC<ImagenArticuloModalProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="delete"
-                  onClick={() => handleDeleteImg(image.id, image.url)}
+                  onClick={() => handleDeleteImg(index)}
                 >
                   <DeleteIcon />
                 </IconButton>
               }
             >
               <ListItemAvatar>
-                <Avatar alt={image.name} src={image.url} />
+                <Avatar alt={image.name} src={URL.createObjectURL(image)} />
               </ListItemAvatar>
               <ListItemText primary={image.name} />
             </ListItem>

@@ -459,9 +459,9 @@ export const ModalArticuloManufacturado = ({
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                      (categoria) =>
-                                        categoria.id === option.parent
-                                    )?.denominacion || ""
+                                    (categoria) =>
+                                      categoria.id === option.parent
+                                  )?.denominacion || ""
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}

@@ -3,15 +3,31 @@ import { useNavigate } from 'react-router-dom';
 
 import { Button, Form } from 'react-bootstrap';
 import './login.css';
+import useLocalStorage from '../../../hooks/localstorage';
+import { useAppDispatch } from '../../../hooks/redux';
+import { setCurrentEmpresa } from '../../../redux/slices/EmpresaReducer';
+import { setCurrentSucursal } from '../../../redux/slices/SucursalReducer';
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
+  //manejo de datos en el localStorage
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
+  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const handleLogin = () => {
-    
-    navigate('/empresa');
+    if (idEmpresaLocalStorage) {
+      dispatch(setCurrentEmpresa(idEmpresaLocalStorage));
+      if (idSucursalLocalStorage) {
+        dispatch(setCurrentSucursal(idSucursalLocalStorage))
+        return navigate('/inicio')
+      }
+      return navigate('/sucursal');
+    }
+    return navigate('/empresa');
   };
+
 
   return (
     <div className="containerLogin">
