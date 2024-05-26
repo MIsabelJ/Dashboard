@@ -40,7 +40,7 @@ export const SeccionInsumos = () => {
             <Carousel.Item key={index}>
               <img
                 className="d-block w-100"
-                src={imagen.url}
+                src={imagen.url} // Convert File object to string
                 alt={`Slide ${index}`}
                 style={{ maxWidth: "100px", maxHeight: "100px" }}
               />

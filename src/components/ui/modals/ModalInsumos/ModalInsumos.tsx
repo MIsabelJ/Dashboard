@@ -3,14 +3,12 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 // ---------- ARCHIVOS----------
 // INTERFACES
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 // SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
-import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
@@ -29,6 +27,8 @@ import {
 } from "@mui/material";
 // import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
+import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -54,7 +54,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  idImagenes: [],
+  imagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -111,8 +111,8 @@ export const ModalArticuloInsumo = ({
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
 
-  const [idImages, setIdImages] = useState<string[]>([]);
-  const [images, setImages] = useState<IImagenArticulo[]>([]);
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   //Abre el modal de unidad de medida
   const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
@@ -131,10 +131,13 @@ export const ModalArticuloInsumo = ({
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
+      const idImages = await handleSaveFiles(selectedFiles);
+      if (idImages === undefined) return;
+      console.log(idImages)
       const insumo: IArticuloInsumoPost = {
         ...values,
-        idImagenes: idImages,
+        idImagenes: idImages
       };
       console.log(insumo);
       handleSave(insumo);
@@ -148,15 +151,11 @@ export const ModalArticuloInsumo = ({
     API_URL + "/unidad-medida"
   );
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-  const imagenArticuloService = new ImagenArticuloService(
-    API_URL + "/imagen-articulo"
-  );
-
   // -------------------- HANDLERS --------------------
   const handleCloseModal = () => {
     formik.resetForm();
     setOpenModal(false);
-    setIdImages([]);
+    setSelectedFiles([]);
     setActiveStep(0); // Resetear el stepper al cerrar el modal
   };
 
@@ -174,6 +173,32 @@ export const ModalArticuloInsumo = ({
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
+  const handleSaveFiles = async (selectedFiles: File[]) => {
+
+    let idImages: string[] = [];
+    const formData = new FormData();
+    Array.from(selectedFiles).forEach((file) => {
+      formData.append("uploads", file);
+    });
+
+    try {
+      const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data: IImagenArticulo[] = await response.json();
+        idImages = data.map((image) => image.id);
+        return idImages;
+      }
+      return undefined;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+    //   setSelectedFiles(null);
   };
 
   // -------------------- MANEJO DE CATEGORÍAS --------------------
@@ -224,17 +249,6 @@ export const ModalArticuloInsumo = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
-  const getImages = async () => {
-    if (idImages.length > 0) {
-      const data: IImagenArticulo[] = await imagenArticuloService.getAllById(
-        idImages
-      );
-      console.log("Imagenes obtenidad del array de uuid");
-      console.log(data);
-      const imagesData = data.filter((image) => image !== null);
-      setImages(imagesData);
-    }
-  };
 
   //Funcion para agregar una nueva Unidad de Medida desde el modal
   const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
@@ -266,12 +280,6 @@ export const ModalArticuloInsumo = ({
     }));
     setOpcionesUnidadMedida(opciones);
   }, [unidadesMedida]);
-
-  useEffect(() => {
-    getImages();
-    console.log("idImages");
-    console.log(idImages);
-  }, [idImages]);
 
   // -------------------- RENDER --------------------
   return (
@@ -406,12 +414,12 @@ export const ModalArticuloInsumo = ({
                               type="number"
                               placeholder="Ingrese el stock mínimo"
                               name="stockMínimo"
-                              // value={formik.values.stockMinimo}
-                              // onChange={formik.handleChange}
-                              // isInvalid={
-                              //   formik.touched.stockMinimo &&
-                              //   !!formik.errors.stockMinimo
-                              // }
+                            // value={formik.values.stockMinimo}
+                            // onChange={formik.handleChange}
+                            // isInvalid={
+                            //   formik.touched.stockMinimo &&
+                            //   !!formik.errors.stockMinimo
+                            // }
                             />
                             <Form.Control.Feedback type="invalid">
                               {/* {formik.errors.stockMinimo} */}
@@ -509,9 +517,9 @@ export const ModalArticuloInsumo = ({
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                      (categoria) =>
-                                        categoria.id === option.parent
-                                    )?.denominacion || ""
+                                    (categoria) =>
+                                      categoria.id === option.parent
+                                  )?.denominacion || ""
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
@@ -551,9 +559,8 @@ export const ModalArticuloInsumo = ({
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
                       <ImagenArticuloModal
-                        images={images}
-                        getImages={getImages}
-                        setIdImages={setIdImages}
+                        selectedFiles={selectedFiles}
+                        setSelectedFiles={setSelectedFiles}
                       />
                     </>
                   )}
