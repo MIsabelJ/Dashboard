@@ -1,8 +1,10 @@
+import { IDomicilioPost } from "../Domicilio/IDomicilioPost"
+
 export interface ISucursalPost {
     nombre: string
     horarioApertura: string
     horarioCierre: string
     esCasaMatriz: boolean
-    idDomicilio: number
+    domicilio: IDomicilioPost
     idEmpresa: number
 }

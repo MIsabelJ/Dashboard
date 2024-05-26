@@ -1,10 +1,13 @@
+import { IArticuloManufacturadoDetalle } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle"
+import { IArticuloManufacturadoDetallePost } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost"
+
 export interface IArticuloManufacturadoPost{
     denominacion: string
     precioVenta: number
     descripcion: string
     tiempoEstimadoMinutos: number
     preparacion: string
-    idArticuloManufacturadoDetalles: number[]
+    articuloManufacturadoDetalles: IArticuloManufacturadoDetallePost[]
     idImagenes: string[]
     idUnidadMedida: number
     idCategoria: number
