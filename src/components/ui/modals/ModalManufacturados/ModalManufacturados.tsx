@@ -216,7 +216,7 @@ export const ModalArticuloManufacturado = ({
 
   const handleSaveDetalle = async (detalle: IArticuloManufacturadoDetallePost) => {
     setNewDetalles([...newDetalles, detalle]);
-    await getInsumosSeleccionados();
+    getInsumosSeleccionados();
     setShowDetallesModal(false);
   }
 
