@@ -4,8 +4,8 @@ import Swal from "sweetalert2";
 // ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../hooks/redux";
 import { CategoriaService } from "../../../services/CategoriaService";
-import { ICategoria } from "../../../types/Categoria/ICategoria";
-import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost";
+import { ICategoria } from "../../../types/categoria/ICategoria";
+import { ICategoriaPost } from "../../../types/categoria/ICategoriaPost.ts";
 import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
 import { CategoryItem } from "./CategoryItem";
 import { Loader } from "../../ui/Loader/Loader";
@@ -65,7 +65,8 @@ export function SeccionCategorias() {
   // Barra de búsqueda para categorías
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
-  const [Categoria, setCategoria] = useState<ICategoria[]>([]);
+  const [categoria, setCategoria] = useState<ICategoria[]>([]);
+  // const categoriasFiltradas: ICategoria[] = [];
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
 
@@ -94,20 +95,16 @@ export function SeccionCategorias() {
 
   const handleSave = async (categoria: ICategoriaPost) => {
     try {
-      const response = await categoriaService.post(categoria);
-      console.log("Respuesta de handleSave");
-      console.log(response);
+      await categoriaService.post(categoria);
       getCategoria();
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleUpdate = async (id: number, categoria: ICategoria) => {
+  const handleUpdate = async (id: number, categoria: ICategoriaPost) => {
     try {
-      const response = await categoriaService.put(id, categoria);
-      console.log("Respuesta de handleUpdate");
-      console.log(response);
+      await categoriaService.put(id, categoria);
       getCategoria();
     } catch (error) {
       console.error(error);
@@ -127,7 +124,7 @@ export function SeccionCategorias() {
   const getCategoria = async () => {
     try {
       const categoriaData = await categoriaService.getAll();
-      setCategoria(categoriaData);
+      setCategoria(formatCategorias(categoriaData));
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
     } finally {
@@ -140,16 +137,44 @@ export function SeccionCategorias() {
     subCategoria: ICategoriaPost
   ) => {
     try {
-      const response = await categoriaService.addSubCategoria(
+      await categoriaService.addSubCategoria(
         idCategoria,
         subCategoria
       );
-      console.log("Respuesta de addSubCategoria");
-      console.log(response);
       getCategoria();
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const formatCategorias = (categoria: ICategoria[]) => {
+    const categoriasData: ICategoria[] = [];
+    const subCategorias: ICategoria[] = [];
+
+    categoria.forEach((categoria) => {
+      if (categoria.subCategorias.length > 0) {
+        categoria.subCategorias.forEach((subCategoria) => {
+          subCategorias.push(subCategoria);
+        });
+      }
+    });
+    categoria.forEach((categoria) => {
+      if (
+        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
+      ) {
+        categoriasData.push(categoria);
+        if (categoria.subCategorias.length > 0) {
+          categoria.subCategorias.forEach((subCategoria) => {
+            categoriasData.find((categoria) => {
+              if (subCategoria.id === categoria.id) {
+                categoria.subCategorias.push(subCategoria);
+              }
+            })
+          });
+        }
+      }
+    });
+    return categoriasData;
   };
 
   // -------------------- EFFECTS --------------------
@@ -226,8 +251,8 @@ export function SeccionCategorias() {
             component="nav"
             aria-labelledby="nested-list-subheader"
           >
-            {Categoria.length > 0 ? (
-              Categoria.filter((category) =>
+            {categoria.length > 0 ? (
+              categoria.filter((category) =>
                 category.denominacion
                   .toLowerCase()
                   .includes(searchTerm.toLowerCase())

@@ -22,7 +22,7 @@ import "./category.css";
 interface CategoryItemProps {
   category: ICategoria;
   padding: number;
-  handleUpdate: (id: number, category: ICategoria) => void;
+  handleUpdate: (id: number, category: ICategoriaPost) => void;
   handleSave: (category: ICategoriaPost) => void;
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
   handleDelete: (id: number) => void;
@@ -40,11 +40,11 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
   const [openModal, setOpenModal] = React.useState(false);
-  
+
   // -------------------- FUNCIONES --------------------
   const handleClick = () => setOpen(!open);
 
-  
+
   return (
     <div>
       <ListItemButton sx={{ pl: padding }}>

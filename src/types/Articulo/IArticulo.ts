@@ -1,10 +1,10 @@
 import { IBaseEntity } from "../IBaseEntity"
-import { IImagenArticulo } from "../ImagenArticulo/IImagenArticulo"
+import { IImagen } from "../Imagen/IImagen"
 import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
 
 export interface IArticulo extends IBaseEntity {
     denominacion: string
     precioVenta: number
-    imagenes: IImagenArticulo[]
+    imagenes: IImagen[]
     unidadMedida: IUnidadMedida
 }

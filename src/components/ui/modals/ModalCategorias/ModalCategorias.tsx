@@ -4,7 +4,7 @@ import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { useAppSelector } from "../../../../hooks/redux";
 // ---------- ESTILOS ----------
-import { Modal, Form} from "react-bootstrap";
+import { Modal, Form } from "react-bootstrap";
 import { Button, Grid, InputBase, alpha, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -89,7 +89,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     const categoria: ICategoriaPost = {
       denominacion: denominacion,
       idSucursales: idSucursales,
-      idSubcategorias: idSubcategorias,
+      idSubCategorias: idSubcategorias,
     };
     handleSave(categoria);
     handleClose();

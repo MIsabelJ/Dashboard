@@ -11,7 +11,7 @@ import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
-import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+import { ModalImagen } from "../ModalImagen/ModalImagen";
 // ---------- ESTILOS ----------
 import { Modal, Form, InputGroup } from "react-bootstrap";
 import {
@@ -27,8 +27,7 @@ import {
 } from "@mui/material";
 // import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
-import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
+import { IImagen } from "../../../../types/Imagen/IImagen";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -190,7 +189,7 @@ export const ModalArticuloInsumo = ({
       });
 
       if (response.ok) {
-        const data: IImagenArticulo[] = await response.json();
+        const data: IImagen[] = await response.json();
         idImages = data.map((image) => image.id);
         return idImages;
       }
@@ -558,7 +557,7 @@ export const ModalArticuloInsumo = ({
                         className="mb-3"
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
-                      <ImagenArticuloModal
+                      <ModalImagen
                         selectedFiles={selectedFiles}
                         setSelectedFiles={setSelectedFiles}
                       />

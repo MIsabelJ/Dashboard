@@ -1,4 +1,4 @@
-import { IImagenArticuloPost } from "../ImagenArticulo/IImagenArticuloPost"
+import { IImagenArticuloPost } from "../Imagen/IImagenPost"
 
 export interface IArticuloInsumoPost {
     denominacion: string

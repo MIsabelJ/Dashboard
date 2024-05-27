@@ -1,5 +1,5 @@
 import { IArticuloManufacturadoDetallePost } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost"
-import { IImagenArticuloPost } from "../ImagenArticulo/IImagenArticuloPost"
+import { IImagenArticuloPost } from "../Imagen/IImagenPost"
 
 export interface IArticuloManufacturadoPost {
     denominacion: string

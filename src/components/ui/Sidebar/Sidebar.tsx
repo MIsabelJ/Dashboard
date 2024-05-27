@@ -188,7 +188,6 @@ export default function PersistentDrawerLeft({
 
   // Función para renderizar la sección correspondiente en función del estado actual
   const dashboardSection = (seccionActual: string) => {
-    console.log(seccionActual);
     switch (seccionActual) {
       case "Inicio":
         return <SeccionInicio />;
@@ -201,8 +200,8 @@ export default function PersistentDrawerLeft({
       case "Unidades de Medida":
         return <SeccionUnidadesMedida />;
       case "Promociones":
-         return <SeccionPromociones />;
-        //return <h1>Promociones</h1>;
+        return <SeccionPromociones />;
+      //return <h1>Promociones</h1>;
       case "Sucursales":
         return <SeccionSucursal />;
       case "Usuarios":

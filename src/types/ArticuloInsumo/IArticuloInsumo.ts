@@ -1,12 +1,12 @@
 import { ICategoria } from "../Categoria/ICategoria"
 import { IBaseEntity } from "../IBaseEntity"
-import { IImagenArticulo } from "../ImagenArticulo/IImagenArticulo"
+import { IImagen } from "../Imagen/IImagen"
 import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
 
 export interface IArticuloInsumo extends IBaseEntity {
     denominacion: string
     precioVenta: number
-    imagenes:IImagenArticulo[]
+    imagenes: IImagen[]
     precioCompra: number
     stockActual: number
     stockMaximo: number

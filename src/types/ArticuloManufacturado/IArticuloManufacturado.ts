@@ -1,7 +1,7 @@
 import { IArticuloManufacturadoDetalle } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetalle"
 import { ICategoria } from "../Categoria/ICategoria"
 import { IBaseEntity } from "../IBaseEntity"
-import { IImagenArticulo } from "../ImagenArticulo/IImagenArticulo"
+import { IImagen } from "../Imagen/IImagen"
 import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
 
 export interface IArticuloManufacturado extends IBaseEntity {
@@ -11,7 +11,7 @@ export interface IArticuloManufacturado extends IBaseEntity {
     tiempoEstimadoMinutos: number
     preparacion: string
     articuloManufacturadoDetalles: IArticuloManufacturadoDetalle[]
-    imagenes: IImagenArticulo[]
+    imagenes: IImagen[]
     unidadMedida: IUnidadMedida
     categoria: ICategoria
 }

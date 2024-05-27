@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { CategoriaModal } from "./ModalCategorias";
-import { Modal, Form} from "react-bootstrap";
+import { Modal, Form } from "react-bootstrap";
 import { Button } from "@mui/material";
 
 // ---------- INTERFAZ ----------
 interface ICategoriaModalProps {
   show: boolean;
   handleClose: () => void;
-  handleUpdate: (id: number, categoria: ICategoria) => void;
+  handleUpdate: (id: number, categoria: ICategoriaPost) => void;
   categoria: ICategoria;
   addSubCategoria: (id: number, subCategoria: ICategoriaPost) => void;
 }
@@ -36,12 +36,12 @@ export const ModalEditCategorias = ({
 
   // -------------------- FUNCIONES --------------------
   const onSave = () => {
-    const categoriaUpdate: ICategoria = {
-      id: categoria.id,
-      eliminado: categoria.eliminado,
+    const categoriaUpdate: ICategoriaPost = {
+      // id: categoria.id,
+      // eliminado: categoria.eliminado,
       denominacion: denominacion,
-      sucursales: idSucursales,
-      subCategorias: idSubcategorias,
+      idSucursales: idSucursales.map(sucursal => sucursal.id), // Map the array of ISucursal to an array of numbers
+      idSubCategorias: idSubcategorias.map(subcategoria => subcategoria.id),
     };
     handleUpdate(categoria.id, categoriaUpdate);
     handleClose();

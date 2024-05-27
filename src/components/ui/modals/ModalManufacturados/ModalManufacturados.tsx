@@ -14,7 +14,7 @@ import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
 // MODALS
 import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
-import { ImagenArticuloModal } from "../ModalImagenArticulo/ModalImagenArticulo";
+import { ModalImagen } from "../ModalImagen/ModalImagen";
 import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
 // ---------- ESTILOS ----------
 import { Modal, Form, InputGroup } from "react-bootstrap";
@@ -37,7 +37,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
 import SearchIcon from "@mui/icons-material/Search";
 import { alpha, darken, lighten, styled } from "@mui/material/styles";
-import { IImagenArticulo } from "../../../../types/ImagenArticulo/IImagenArticulo";
+import { IImagen } from "../../../../types/Imagen/IImagen";
 import { InsumoService } from "../../../../services/InsumoService";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 // import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
@@ -268,7 +268,7 @@ export const ModalArticuloManufacturado = ({
       });
 
       if (response.ok) {
-        const data: IImagenArticulo[] = await response.json();
+        const data: IImagen[] = await response.json();
         idImages = data.map((image) => image.id);
         return idImages;
       }
@@ -759,7 +759,7 @@ export const ModalArticuloManufacturado = ({
                       {/* IMAGENES */}
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
-                        <ImagenArticuloModal
+                        <ModalImagen
                           selectedFiles={selectedFiles}
                           setSelectedFiles={setSelectedFiles}
                         />
