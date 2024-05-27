@@ -210,9 +210,8 @@ export default function PersistentDrawerLeft({
         return <SeccionUnidadesMedida />;
       case "Promociones":
         return <SeccionPromociones />;
-      //return <h1>Promociones</h1>;
       case "Sucursales":
-        return <SeccionSucursal />;
+        return <SeccionSucursal setSucursalSelected={setSucursalSelected} />;
       case "Usuarios":
         // return <SeccionUsuarios />;
         return <h1>Usuarios</h1>;
@@ -251,6 +250,10 @@ export default function PersistentDrawerLeft({
     }
     getSucursales();
   }, [])
+
+  React.useEffect(() => {
+    if (idSucursalLocalStorage) setSucursalSelected(idSucursalLocalStorage)
+  }, [idSucursalLocalStorage])
 
   return (
     <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
