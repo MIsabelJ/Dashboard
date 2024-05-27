@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import './login.css';
 import { Button, Form } from 'react-bootstrap';
 import './login.css';
-import useLocalStorage from '../../../hooks/localstorage';
+import { useLocalStorage } from '../../../hooks/localstorage';
 import { useAppDispatch } from '../../../hooks/redux';
 import { setCurrentEmpresa } from '../../../redux/slices/EmpresaReducer';
 import { setCurrentSucursal } from '../../../redux/slices/SucursalReducer';
+import { EmpresaService } from '../../../services/EmpresaService';
+import { SucursalService } from '../../../services/SucursalService';
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
@@ -16,11 +18,28 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const handleLogin = () => {
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const empresaService = new EmpresaService(API_URL + '/empresa');
+  const sucursalService = new SucursalService(API_URL + '/sucursal');
+
+  const handleLogin = async () => {
     if (idEmpresaLocalStorage) {
-      dispatch(setCurrentEmpresa(idEmpresaLocalStorage));
+      try {
+        const response = await empresaService.getById(idEmpresaLocalStorage)
+        if (response == null) throw new DOMException()
+        dispatch(setCurrentEmpresa(idEmpresaLocalStorage));
+      } catch (err) {
+        return navigate('/empresa')
+      }
       if (idSucursalLocalStorage) {
-        dispatch(setCurrentSucursal(idSucursalLocalStorage))
+        try {
+          const response = await sucursalService.getById(idSucursalLocalStorage)
+          if (response == null) throw new DOMException()
+          dispatch(setCurrentSucursal(idSucursalLocalStorage))
+        } catch (err) {
+          return navigate('/sucursal')
+        }
         return navigate('/inicio')
       }
       return navigate('/sucursal');

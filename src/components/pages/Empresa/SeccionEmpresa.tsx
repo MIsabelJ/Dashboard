@@ -13,7 +13,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import useLocalStorage from "../../../hooks/localstorage";
+import { useLocalStorage } from "../../../hooks/localstorage";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -25,6 +25,8 @@ export const SeccionEmpresa = () => {
 
   //manejo de datos en el localStorage
   const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
+
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
@@ -47,6 +49,7 @@ export const SeccionEmpresa = () => {
   const handleClick = (id: number) => {
     dispatch(setCurrentEmpresa(id));
     setIdEmpresaLocalStorage(id)
+    setIdSucursalLocalStorage('')
     setRedirectId(id);
   };
 

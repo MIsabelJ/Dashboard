@@ -45,6 +45,9 @@ import {
 } from "@mui/material";
 import { useAppSelector } from "../../../hooks/redux";
 import { SeccionPromociones } from "../../pages/Promociones/SeccionPromociones";
+import { getFromLocalStorage, useLocalStorage } from "../../../hooks/localstorage";
+import { SucursalService } from "../../../services/SucursalService";
+import { ISucursal } from "../../../types/Sucursal/ISucursal";
 
 const drawerWidth = 240;
 
@@ -177,6 +180,10 @@ export default function PersistentDrawerLeft({
     [key: string]: boolean;
   }>({});
 
+  const [sucursalSelected, setSucursalSelected] = React.useState<string>("");
+  const [sucursales, setSucursales] = React.useState<ISucursal[]>();
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage("sucursalId", sucursalSelected)
+
   const handleSubMenuClick = (text: string) => {
     setOpenSubMenu((prevState) => ({
       ...prevState,
@@ -185,6 +192,8 @@ export default function PersistentDrawerLeft({
   };
 
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
 
   // Función para renderizar la sección correspondiente en función del estado actual
   const dashboardSection = (seccionActual: string) => {
@@ -228,6 +237,20 @@ export default function PersistentDrawerLeft({
   const handleDrawerClose = () => {
     setOpen(false);
   };
+
+  const handleChangeSucursal = (event: SelectChangeEvent<string | null>) => {
+    setIdSucursalLocalStorage(event.target.value);
+    if (event.target.value !== null) setSucursalSelected(event.target.value);
+  }
+
+  React.useEffect(() => {
+    const sucursalId = getFromLocalStorage("sucursalId")
+    if (sucursalId) setSucursalSelected(sucursalId)
+    const getSucursales = async () => {
+      setSucursales(await sucursalService.getAll()) //TODO: Crear método getSucursalByEmpresaId
+    }
+    getSucursales();
+  }, [])
 
   return (
     <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
@@ -296,18 +319,21 @@ export default function PersistentDrawerLeft({
           >
             <AccountCircle fontSize="large" />
           </IconButton>
-          {/* <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
             <InputLabel id="demo-select-small-label">Sucursal</InputLabel>
             <Select
               labelId="demo-select-small-label"
               id="demo-select-small"
-              value={branch}
+              value={sucursalSelected}
               label="Branch"
+              onChange={(event) => handleChangeSucursal(event)}
+              defaultValue={getFromLocalStorage("sucursalId")}
             >
-              <MenuItem value={"sucursal1"}>Sucursal 1</MenuItem> 
-              <MenuItem value={"sucursal2"}>Sucursal 2</MenuItem>
+              {sucursales && sucursales?.map((sucursal) => (
+                <MenuItem key={sucursal.id} value={sucursal.id}>{sucursal.nombre}</MenuItem>
+              ))}
             </Select>
-          </FormControl> */}
+          </FormControl>
         </div>
         <Divider />
         <List>
