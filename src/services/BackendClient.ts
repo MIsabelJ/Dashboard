@@ -64,6 +64,14 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<TG
       throw new Error(`Error al eliminar el elemento con ID ${id}`);
     }
   }
+  async postWithData(data: FormData): Promise<TG> {
+    const response = await fetch(`${this.baseUrl}`, {
+      method: "POST",
+      body: data,
+    });
+    const newData = await response.json();
+    return newData as TG;
+  }
 
   // // Método para dada de baja lógica de un elemento por su ID
   // async logicDelete(id: number): Promise<TP> {

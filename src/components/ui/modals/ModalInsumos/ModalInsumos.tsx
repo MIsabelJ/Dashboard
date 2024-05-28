@@ -120,9 +120,6 @@ export const ModalArticuloInsumo = ({
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
     { label: string; id: number }[]
   >([]);
-
-  const [values, setValues] = useState<IArticuloInsumo | IArticuloInsumoPost>()
-  const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
@@ -138,9 +135,7 @@ export const ModalArticuloInsumo = ({
         ...values,
         imagenes: selectedFiles
       };
-      console.log(insumo)
-      setValues(insumo);
-      setReadyToPersist(true);
+      handleSave(insumo);
     },
   });
 
@@ -153,28 +148,37 @@ export const ModalArticuloInsumo = ({
   const dispatch = useAppDispatch()
   // -------------------- HANDLERS --------------------
 
-  const handleSave = async () => {
+  const handleSave = async (insumo: IArticuloInsumoPost) => {
     if (selectedId) {
       try {
-        await insumoService.put(selectedId, values as IArticuloInsumoPost);
+        await insumoService.put(selectedId, insumo);
       } catch (error) {
         console.error(error);
       }
     } else {
       try {
-        const articuloInsumo: IArticuloInsumoPost = { ...values } as IArticuloInsumoPost;
-        await insumoService.post(articuloInsumo);
+        const formData = new FormData();
+        formData.append('denominacion', insumo.denominacion);
+        formData.append('precioVenta', String(insumo.precioVenta));
+        formData.append('precioCompra', String(insumo.precioCompra));
+        formData.append('stockActual', String(insumo.stockActual));
+        formData.append('stockMaximo', String(insumo.stockMaximo));
+        formData.append('esParaElaborar', String(insumo.esParaElaborar));
+        formData.append('idUnidadMedida', Number(insumo.idUnidadMedida).toString());
+        formData.append('idCategoria', Number(insumo.idCategoria).toString());
+        insumo.imagenes.forEach((imagen, index) => {
+          formData.append(`imagenes[${index}]`, imagen); 
+        });
+        await insumoService.postWithData(formData);
       } catch (error) {
         console.error(error);
       }
     }
     getAllInsumo();
     internalHandleClose();
-    setValues(undefined);
   };
 
   const internalHandleClose = () => {
-    setReadyToPersist(false);
     handleClose()
     formik.resetForm();
     setSelectedFiles([]);
@@ -287,15 +291,8 @@ export const ModalArticuloInsumo = ({
       //   setSelectedFiles(selectedFiles);
       // }
     } else {
-      setValues(initialValues);
     }
   }, [selectedId]);
-
-  useEffect(() => {
-    if (readyToPersist) {
-      handleSave();
-    }
-  }, [readyToPersist])
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
