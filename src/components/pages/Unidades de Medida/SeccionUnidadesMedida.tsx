@@ -18,6 +18,10 @@ export const SeccionUnidadesMedida = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
   // -------------------- SERVICES --------------------
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
@@ -47,14 +51,7 @@ export const SeccionUnidadesMedida = () => {
     });
   };
 
-  const handleSave = async (unidadMedida: IUnidadMedidaPost) => {
-    try {
-      await unidadMedidaService.post(unidadMedida);
-      getUnidadMedida();
-    } catch (error) {
-      console.error(error);
-    }
-  };
+
 
   // -------------------- FUNCIONES --------------------
   const dispatch = useAppDispatch();
@@ -80,6 +77,7 @@ export const SeccionUnidadesMedida = () => {
       ) : (
         <div style={{ height: "85vh" }}>
           <GenericTable<IUnidadMedida>
+            setSelectedId={setSelectedId}
             handleDelete={handleDelete}
             columns={ColumnsUnidadMedida}
             setOpenModal={setOpenModal}
@@ -87,9 +85,9 @@ export const SeccionUnidadesMedida = () => {
         </div>
       )}
       <UnidadMedidaModal
+        selectedId={selectedId}
         show={openModal}
-        addUnidadMedida={handleSave}
-        handleClose={() => setOpenModal(false)}
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
       />
     </>
   );

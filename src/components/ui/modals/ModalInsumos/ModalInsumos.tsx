@@ -28,6 +28,10 @@ import {
 // import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
 import { IImagen } from "../../../../types/Imagen/IImagen";
+import { InsumoService } from "../../../../services/InsumoService";
+import { useAppDispatch } from "../../../../hooks/redux";
+import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { setDataTable } from "../../../../redux/slices/TablaReducer";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -53,7 +57,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  imagenes: [],
+  idImagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -94,28 +98,22 @@ const steps = ["Información del Artículo", "Información Adicional", "Imágene
 
 // ---------- INTERFAZ ----------
 interface IArticuloInsumoModalProps {
-  getInsumos: () => void;
-  openModal: boolean;
-  setOpenModal: (open: boolean) => void;
-  handleSave: (insumo: IArticuloInsumoPost) => void;
+  show: boolean;
+  handleClose: () => void;
+  selectedId?: number;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalArticuloInsumo = ({
-  getInsumos,
-  openModal,
-  setOpenModal,
-  handleSave,
+  show,
+  handleClose,
+  selectedId
 }: IArticuloInsumoModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
 
-
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
-  //Abre el modal de unidad de medida
-  const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
-    useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
@@ -123,8 +121,11 @@ export const ModalArticuloInsumo = ({
     { label: string; id: number }[]
   >([]);
 
+  const [values, setValues] = useState<IArticuloInsumo | IArticuloInsumoPost>()
+  const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
+
 
   // -------------------- FORMIK --------------------
   const formik = useFormik({
@@ -133,15 +134,12 @@ export const ModalArticuloInsumo = ({
     onSubmit: async (values) => {
       const idImages = await handleSaveFiles(selectedFiles);
       if (idImages === undefined) return;
-      console.log(idImages)
       const insumo: IArticuloInsumoPost = {
         ...values,
         idImagenes: idImages
       };
-      console.log(insumo);
-      handleSave(insumo);
-      getInsumos();
-      handleCloseModal();
+      setValues(insumo);
+      setReadyToPersist(true);
     },
   });
 
@@ -149,19 +147,43 @@ export const ModalArticuloInsumo = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const dispatch = useAppDispatch()
   // -------------------- HANDLERS --------------------
-  const handleCloseModal = () => {
-    formik.resetForm();
-    setOpenModal(false);
-    setSelectedFiles([]);
-    setActiveStep(0); // Resetear el stepper al cerrar el modal
+
+  const handleSave = async () => {
+    if (selectedId) {
+      try {
+        await insumoService.put(selectedId, values as IArticuloInsumoPost);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const articuloInsumo: IArticuloInsumoPost = { ...values } as IArticuloInsumoPost;
+        await insumoService.post(articuloInsumo);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getAllInsumo();
+    internalHandleClose();
+    setValues(undefined);
   };
 
-  const handleNext = () => {
+  const internalHandleClose = () => {
+    setReadyToPersist(false);
+    handleClose()
+    formik.resetForm();
+    setSelectedFiles([]);
+    setActiveStep(0);
+  }
+
+  const handleNext = async () => {
     if (activeStep === steps.length - 1) {
       try {
-        formik.handleSubmit();
+        formik.handleSubmit()
       } catch (err) {
         console.log(err);
       }
@@ -199,6 +221,7 @@ export const ModalArticuloInsumo = ({
     }
     //   setSelectedFiles(null);
   };
+
 
   // -------------------- MANEJO DE CATEGORÍAS --------------------
   interface CategoriaData {
@@ -249,13 +272,44 @@ export const ModalArticuloInsumo = ({
 
   // -------------------- FUNCIONES --------------------
 
-  //Funcion para agregar una nueva Unidad de Medida desde el modal
-  const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
-    setUnidadesMedida([...unidadesMedida, unidadMedida]);
-    setShowUnidadMedidaModal(false);
+  const getAllInsumo = async () => {
+    await insumoService.getAll().then((insumoData) => {
+      dispatch(setDataTable(insumoData));
+    });
+  };
+
+  const getOneInsumo = async () => {
+    try {
+      if (selectedId) {
+        const articuloInsumo = await insumoService.getById(selectedId);
+        if (articuloInsumo) {
+          formik.setValues({
+            idImagenes: articuloInsumo.imagenes.map((image) => image.id),
+            idUnidadMedida: articuloInsumo.unidadMedida.id,
+            idCategoria: articuloInsumo.categoria.id,
+            ...articuloInsumo,
+          });
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // -------------------- EFFECTS --------------------
+  useEffect(() => {
+    if (selectedId) {
+      getOneInsumo();
+    } else {
+      setValues(initialValues);
+    }
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (readyToPersist) {
+      handleSave();
+    }
+  }, [readyToPersist])
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
@@ -283,9 +337,9 @@ export const ModalArticuloInsumo = ({
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={openModal} onHide={handleCloseModal} size="lg">
+      <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Artículo Insumo</Modal.Title>
+          <Modal.Title>{selectedId ? 'Editar' : 'Agregar'} Artículo Insumo</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
@@ -304,7 +358,7 @@ export const ModalArticuloInsumo = ({
               <React.Fragment>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
-                  <Button onClick={handleCloseModal}>Finalizar</Button>
+                  <Button onClick={internalHandleClose}>Finalizar</Button>
                 </Box>
               </React.Fragment>
             ) : (
@@ -413,7 +467,7 @@ export const ModalArticuloInsumo = ({
                               type="number"
                               placeholder="Ingrese el stock mínimo"
                               name="stockMínimo"
-                            // value={formik.values.stockMinimo}
+                              value={0}
                             // onChange={formik.handleChange}
                             // isInvalid={
                             //   formik.touched.stockMinimo &&
@@ -488,7 +542,7 @@ export const ModalArticuloInsumo = ({
                               onChange={(event, value) =>
                                 formik.setFieldValue(
                                   "idUnidadMedida",
-                                  value?.id || ""
+                                  value?.id
                                 )
                               }
                               isOptionEqualToValue={(option, value) =>
@@ -513,12 +567,12 @@ export const ModalArticuloInsumo = ({
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
+                              value={categoriasFiltradas.find((categoria) => categoria.id === formik.values.idCategoria) || null}
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                    (categoria) =>
-                                      categoria.id === option.parent
-                                  )?.denominacion || ""
+                                    (categoria) => categoria.id === option.parent
+                                  )?.denominacion || ''
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
@@ -526,9 +580,10 @@ export const ModalArticuloInsumo = ({
                               onChange={(event, value) => {
                                 formik.setFieldValue(
                                   "idCategoria",
-                                  value ? value.id : 0
-                                );
-                              }}
+                                  value?.id
+                                )
+                              }
+                              }
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
@@ -597,13 +652,11 @@ export const ModalArticuloInsumo = ({
           </Box>
         </Modal.Body>
       </Modal>
-      <UnidadMedidaModal
+      {/* <UnidadMedidaModal
+        selectedId={selectedId}
         show={showUnidadMedidaModal}
-        addUnidadMedida={addUnidadMedida}
-        handleClose={() => {
-          setShowUnidadMedidaModal(false);
-        }}
-      />
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+      /> */}
     </>
   );
 };

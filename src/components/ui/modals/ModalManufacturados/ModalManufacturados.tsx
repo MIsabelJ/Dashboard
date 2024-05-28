@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
-import { useAppSelector } from "../../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 // INTERFACES
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
@@ -40,6 +40,9 @@ import { alpha, darken, lighten, styled } from "@mui/material/styles";
 import { IImagen } from "../../../../types/Imagen/IImagen";
 import { InsumoService } from "../../../../services/InsumoService";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
+import { ManufacturadoService } from "../../../../services/ManufacturadoService";
+import { setDataTable } from "../../../../redux/slices/TablaReducer";
 // import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
 
 // ------------------------------ CÓDIGO ------------------------------
@@ -140,18 +143,16 @@ const steps = [
 
 // ---------- INTERFAZ ----------
 interface IManufacturadosModalProps {
-  handleSave: (detalle: IArticuloManufacturadoPost) => void;
-  getManufacturados: () => void;
-  openModal: boolean;
-  setOpenModal: (open: boolean) => void;
+  show: boolean;
+  handleClose: () => void;
+  selectedId?: number;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalArticuloManufacturado = ({
-  handleSave,
-  getManufacturados,
-  openModal,
-  setOpenModal,
+  show,
+  handleClose,
+  selectedId
 }: IManufacturadosModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
@@ -163,10 +164,6 @@ export const ModalArticuloManufacturado = ({
   const [newDetalles, setNewDetalles] = useState<IArticuloManufacturadoDetallePost[]>([]);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<{ articuloInsumo: IArticuloInsumo, cantidad: string }[]>([]);
 
-
-  //Abre el modal de unidad de medida
-  const [showUnidadMedidaModal, setShowUnidadMedidaModal] =
-    useState<boolean>(false);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
@@ -174,6 +171,9 @@ export const ModalArticuloManufacturado = ({
     { label: string; id: number }[]
   >([]);
 
+  const [values, setValues] = useState<IArticuloManufacturado | IArticuloManufacturadoPost>()
+  const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
+  //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
   // -------------------- FORMIK --------------------
@@ -188,13 +188,8 @@ export const ModalArticuloManufacturado = ({
         articuloManufacturadoDetalles: newDetalles,
         idImagenes: idImages,
       };
-      console.log("Imagenes para guardar");
-      console.log(selectedFiles);
-      console.log("Manufact");
-      console.log(manufacturado);
-      handleSave(manufacturado);
-      getManufacturados();
-      handleCloseModal();
+      setValues(manufacturado);
+      setReadyToPersist(true);
     },
   });
 
@@ -203,7 +198,9 @@ export const ModalArticuloManufacturado = ({
     API_URL + "/unidad-medida"
   );
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const manufacturadoService = new ManufacturadoService(API_URL + "/articulo-manufacturado");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const dispatch = useAppDispatch()
 
   // -------------------- HANDLERS --------------------
   // Barra de búsqueda para newDetalles manufacturados
@@ -227,19 +224,37 @@ export const ModalArticuloManufacturado = ({
     });
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
-    formik.resetForm();
-    setNewDetalles([]);
-    setArticuloSeleccionado([]);
-    setSelectedFiles([]);
-    setActiveStep(0); // Resetear el stepper al cerrar el modal
+  const handleSave = async () => {
+    if (selectedId) {
+      try {
+        await manufacturadoService.put(selectedId, values as IArticuloManufacturadoPost);
+      } catch (error) {
+        console.error(error);
+      }
+    } else {
+      try {
+        const articuloManufacturado: IArticuloManufacturadoPost = { ...values } as IArticuloManufacturadoPost;
+        await manufacturadoService.post(articuloManufacturado);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getAllManufacturado();
+    internalHandleClose();
+    setValues(undefined);
   };
+
+  const internalHandleClose = () => {
+    setReadyToPersist(false);
+    handleClose()
+    formik.resetForm();
+    setSelectedFiles([]);
+    setActiveStep(0);
+  }
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
       try {
-        console.log(formik.values);
         formik.handleSubmit();
       } catch (err) {
         console.log(err);
@@ -328,9 +343,43 @@ export const ModalArticuloManufacturado = ({
 
   // -------------------- FUNCIONES --------------------
 
-  const addUnidadMedida = (unidadMedida: IUnidadMedida) => {
-    setUnidadesMedida([...unidadesMedida, unidadMedida]);
-    setShowUnidadMedidaModal(false);
+  const getAllManufacturado = async () => {
+    await manufacturadoService.getAll().then((manufacturadoData) => {
+      dispatch(setDataTable(manufacturadoData));
+    });
+  };
+
+  const getOneManufacturado = async () => {
+    try {
+      if (selectedId) {
+        const articuloManufacturado = await manufacturadoService.getById(selectedId);
+        if (articuloManufacturado) {
+          const articuloManufacturadoDetallesPost: IArticuloManufacturadoDetallePost[] = articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
+            ...detalle,
+            idArticuloInsumo: detalle.articuloInsumo.id,
+          }));
+          formik.setValues({
+            ...articuloManufacturado,
+            idImagenes: articuloManufacturado.imagenes.map((image) => image.id),
+            idUnidadMedida: articuloManufacturado.unidadMedida.id,
+            idCategoria: articuloManufacturado.categoria.id,
+            articuloManufacturadoDetalles: articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
+              ...detalle,
+              idArticuloInsumo: detalle.articuloInsumo.id,
+            })),
+          });
+          setArticuloSeleccionado(
+            articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
+              ...detalle,
+              idArticuloInsumo: detalle.articuloInsumo.id,
+              cantidad: detalle.cantidad.toString(),
+            }))
+          );
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const getInsumosSeleccionados = async () => {
@@ -347,26 +396,30 @@ export const ModalArticuloManufacturado = ({
     setArticuloSeleccionado(insumos);
   };
 
-  const getUnidadesMedida = async () => {
-    const response = await unidadMedidaService.getAll();
-    setUnidadesMedida(response);
-
-  };
-
-  const getCategorias = async () => {
-    const response = await categoriaService.getAll();
-    setCategorias(response);
-  };
-
-  useEffect(() => {
-    getInsumosSeleccionados()
-  }, [newDetalles])
-
   // BARRA DE BÚSQUEDA
   // Obtener los datos de la tabla en su estado inicial (sin datos)
   const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
 
   // -------------------- EFFECTS --------------------
+
+  useEffect(() => {
+    getInsumosSeleccionados()
+  }, [newDetalles])
+
+  useEffect(() => {
+    if (selectedId) {
+      getOneManufacturado();
+    } else {
+      setValues(initialValues);
+    }
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (readyToPersist) {
+      handleSave();
+    }
+  }, [readyToPersist])
+
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
@@ -379,12 +432,21 @@ export const ModalArticuloManufacturado = ({
   }, [dataTable, searchTerm]);
 
 
-  //Trae las unidades de medida, newDetalles y categorías ya creadas
+  //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
+    const getUnidadesMedida = async () => {
+      const response = await unidadMedidaService.getAll();
+      setUnidadesMedida(response);
+    };
     getUnidadesMedida();
+    const getCategorias = async () => {
+      const response = await categoriaService.getAll();
+      setCategorias(response);
+    };
     getCategorias();
   }, []);
 
+  //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {
     const opciones = unidadesMedida.map((unidadMedida) => ({
       label: unidadMedida.denominacion,
@@ -396,7 +458,7 @@ export const ModalArticuloManufacturado = ({
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={openModal} onHide={handleCloseModal} size="lg">
+      <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Articulo Manufacturado</Modal.Title>
         </Modal.Header>
@@ -417,7 +479,7 @@ export const ModalArticuloManufacturado = ({
               <React.Fragment>
                 <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                   <Box sx={{ flex: "1 1 auto" }} />
-                  <Button onClick={handleCloseModal}>Finalizar</Button>
+                  <Button onClick={internalHandleClose}>Finalizar</Button>
                 </Box>
               </React.Fragment>
             ) : (
@@ -451,12 +513,12 @@ export const ModalArticuloManufacturado = ({
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
+                              value={categoriasFiltradas.find((categoria) => categoria.id === formik.values.idCategoria) || null}
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                    (categoria) =>
-                                      categoria.id === option.parent
-                                  )?.denominacion || ""
+                                    (categoria) => categoria.id === option.parent
+                                  )?.denominacion || ''
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
@@ -464,9 +526,10 @@ export const ModalArticuloManufacturado = ({
                               onChange={(event, value) => {
                                 formik.setFieldValue(
                                   "idCategoria",
-                                  value ? value.id : 0
-                                );
-                              }}
+                                  value?.id
+                                )
+                              }
+                              }
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
@@ -801,11 +864,11 @@ export const ModalArticuloManufacturado = ({
         </Modal.Body>
       </Modal>
       {/* MODALS */}
-      <UnidadMedidaModal
-        show={showUnidadMedidaModal}
-        handleClose={() => setShowUnidadMedidaModal(false)}
-        addUnidadMedida={addUnidadMedida}
-      />
+      {/* <UnidadMedidaModal
+        selectedId={selectedId}
+        show={openModal}
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+      /> */}
       <ManufacturadosDetalleModal
         handleSave={handleSaveDetalle}
         openModal={showDetallesModal}

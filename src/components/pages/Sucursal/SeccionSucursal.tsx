@@ -20,7 +20,7 @@ import { EmpresaService } from "../../../services/EmpresaService";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
-const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucursalSelected: React.Dispatch<React.SetStateAction<number | null>> }) => {
+const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucursalSelected: React.Dispatch<React.SetStateAction<string>> }) => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [redirectId, setRedirectId] = useState<number | null>(null);

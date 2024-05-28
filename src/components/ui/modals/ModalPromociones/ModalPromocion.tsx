@@ -14,12 +14,15 @@ import * as Yup from "yup";
 import { IImagen } from '../../../../types/Imagen/IImagen';
 import { IArticulo } from '../../../../types/Articulo/IArticulo';
 import { ArticuloService } from '../../../../services/ArticuloService';
+import { IPromocion } from '../../../../types/Promocion/IPromocion';
+import { useAppDispatch } from '../../../../hooks/redux';
+import { setDataTable } from '../../../../redux/slices/TablaReducer';
+import { PromocionService } from '../../../../services/PromocionService';
 //---------------- INTERFAZ ----------------
 interface IPromocionModalProps {
-    handleSave: (detalle: IPromocionPost) => void;
-    getPromociones: () => void;
-    openModal: boolean;
-    setOpenModal: (open: boolean) => void;
+    show: boolean;
+    handleClose: () => void;
+    selectedId?: number;
 }
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -45,10 +48,9 @@ const steps = [
 ]
 
 const ModalPromocion = ({
-    handleSave,
-    getPromociones,
-    openModal,
-    setOpenModal
+    show,
+    handleClose,
+    selectedId
 }: IPromocionModalProps) => {
     // -------------------- STATES --------------------
     const [activeStep, setActiveStep] = useState(0);
@@ -71,6 +73,9 @@ const ModalPromocion = ({
         { label: string; id: number }[]
     >([]);
 
+    const [values, setValues] = useState<IPromocion | IPromocionPost>()
+    const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
+
     const [detallePromocion, setDetallePromocion] = useState<IPromocionDetallePost[]>([]);
 
     // -------------------- FORMIK --------------------
@@ -90,10 +95,8 @@ const ModalPromocion = ({
                 idImagenes: idImages,
                 promocionDetalles: detallePromocion
             };
-            console.log(promocion)
-            handleSave(promocion);
-            getPromociones();
-            setOpenModal(false);
+            setValues(promocion);
+            setReadyToPersist(true);
         }
 
 
@@ -104,7 +107,37 @@ const ModalPromocion = ({
 
     const sucursalService = new SucursalService(API_URL + "/sucursal");
     const articuloService = new ArticuloService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
+    const promocionService = new PromocionService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
+    const dispatch = useAppDispatch()
     // -------------------- HANDLERS --------------------
+
+    const handleSave = async () => {
+        if (selectedId) {
+            try {
+                await promocionService.put(selectedId, values as IPromocionPost);
+            } catch (error) {
+                console.error(error);
+            }
+        } else {
+            try {
+                const promocion: IPromocionPost = { ...values } as IPromocionPost;
+                await promocionService.post(promocion);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        getAllPromocion();
+        internalHandleClose();
+        setValues(undefined);
+    };
+
+    const internalHandleClose = () => {
+        setReadyToPersist(false);
+        handleClose()
+        formik.resetForm();
+        setSelectedFiles([]);
+        setActiveStep(0);
+    }
 
     const handleNext = () => {
         if (activeStep === steps.length - 1) {
@@ -122,14 +155,6 @@ const ModalPromocion = ({
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleCloseModal = () => {
-        formik.resetForm();
-        setSelectedFiles([]);
-        setDetallePromocion([]);
-        setActiveStep(0);
-        setOpenModal(false);
-    }
-
     const handleSaveFiles = async (selectedFiles: File[]) => {
 
         let idImages: string[] = [];
@@ -139,7 +164,7 @@ const ModalPromocion = ({
         });
 
         try {
-            const response = await fetch(`${API_URL}/imagen-promocion/uploads`, {
+            const response = await fetch(`${API_URL}/imagen-promocion/uploads`, {//TODO: asegurarse de que la ruta esté disponible
                 method: "POST",
                 body: formData,
             });
@@ -165,17 +190,48 @@ const ModalPromocion = ({
 
     // -------------------- FUNCIONES --------------------
 
-    const getCategorias = async () => {
-        const response = await sucursalService.getAll();
-        setSucursales(response);
+    const getAllPromocion = async () => {
+        await promocionService.getAll().then((promocionData) => {
+            dispatch(setDataTable(promocionData));
+        });
     };
 
-    const getSucursales = async () => {
-        const response = await sucursalService.getAll();
-        setSucursales(response);
+    const getOnePromocion = async () => {
+        try {
+            if (selectedId) {
+                const promocion = await promocionService.getById(selectedId);
+                if (promocion) {
+                    formik.setValues({
+                        ...promocion,
+                        idImagenes: promocion.imagenes.map((imagen) => imagen.id),
+                        idSucursales: promocion.sucursales.map((sucursal) => sucursal.id),
+                        promocionDetalles: promocion.promocionDetalles.map((detalle) => ({
+                            cantidad: detalle.cantidad,
+                            idArticulo: detalle.articulo.id,
+                        })),
+                    });
+                }
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     // -------------------- EFFECTS --------------------
+
+    useEffect(() => {
+        if (selectedId) {
+            getOnePromocion();
+        } else {
+            setValues(initialValues); //TODO: hay que settear initial values
+        }
+    }, [selectedId]);
+
+    useEffect(() => {
+        if (readyToPersist) {
+            handleSave();
+        }
+    }, [readyToPersist])
 
     //Da formato a las sucursales para el dropdown de MUI
     useEffect(() => {
@@ -209,7 +265,7 @@ const ModalPromocion = ({
     }, []);
 
     return (
-        <Modal show={openModal} onHide={handleCloseModal} size="lg">
+        <Modal show={show} onHide={internalHandleClose} size="lg">
             <Box sx={{ padding: '20px', backgroundColor: '#fff', margin: '20px auto', maxWidth: '800px' }}>
                 <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((label) => (

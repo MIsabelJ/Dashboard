@@ -22,8 +22,12 @@ export const SeccionInsumos = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
   // -------------------- SERVICES --------------------
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
   // Necesario para establecer las columnas de la tabla genérica
@@ -88,26 +92,18 @@ export const SeccionInsumos = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        await insumoService.delete(id).then(() => {
-          getInsumo();
+        await insumoService.delete(id).then(async () => {
+          await insumoService.getAll().then((insumoData) => {
+            dispatch(setDataTable(insumoData));
+          });
         });
       }
     });
   };
 
-  const handleSave = async (insumo: IArticuloInsumoPost) => {
-    try {
-      await insumoService.post(insumo);
-      getInsumo();
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   // -------------------- FUNCIONES --------------------
-  const dispatch = useAppDispatch();
 
-  const getInsumo = async () => {
+  const getAllInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
       dispatch(setDataTable(insumoData));
       setLoading(false);
@@ -117,7 +113,7 @@ export const SeccionInsumos = () => {
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     setLoading(true);
-    getInsumo();
+    getAllInsumo()
   }, []);
 
   // -------------------- RENDER --------------------
@@ -128,6 +124,7 @@ export const SeccionInsumos = () => {
       ) : (
         <div style={{ height: "85vh" }}>
           <GenericTable<IArticuloInsumo>
+            setSelectedId={setSelectedId}
             handleDelete={handleDelete}
             columns={ColumnsInsumo}
             setOpenModal={setOpenModal}
@@ -135,10 +132,9 @@ export const SeccionInsumos = () => {
         </div>
       )}
       <ModalArticuloInsumo
-        getInsumos={getInsumo}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        handleSave={handleSave}
+        selectedId={selectedId}
+        show={openModal}
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
       />
     </>
   );

@@ -77,6 +77,7 @@ export interface ITableProps<T> {
   columns: ITableColumn<T>[];
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
+  setSelectedId: (state: number) => void
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -84,6 +85,7 @@ export const GenericTable = <T extends { id: number }>({
   columns,
   handleDelete,
   setOpenModal,
+  setSelectedId
 }: ITableProps<T>) => {
   // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
@@ -246,6 +248,7 @@ export const GenericTable = <T extends { id: number }>({
                         >
                           <ButtonsTable
                             el={row}
+                            setSelectedId={setSelectedId}
                             handleDelete={handleDelete}
                             setOpenModal={setOpenModal}
                           />

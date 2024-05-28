@@ -17,8 +17,12 @@ export const SeccionPromociones = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
   // -------------------- SERVICES --------------------
   const promocionService = new PromocionService(API_URL + "/promocion");
+  const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
   const ColumnsPromocion = [
@@ -68,7 +72,6 @@ export const SeccionPromociones = () => {
   };
 
   // -------------------- FUNCIONES --------------------
-  const dispatch = useAppDispatch();
 
   const getPromocion = async () => {
     await promocionService.getAll().then((promocionData) => {
@@ -90,6 +93,7 @@ export const SeccionPromociones = () => {
       ) : (
         <div style={{ height: "85vh" }}>
           <GenericTable<IPromocion>
+            setSelectedId={setSelectedId}
             handleDelete={handleDelete}
             columns={ColumnsPromocion}
             setOpenModal={setOpenModal}
@@ -97,11 +101,10 @@ export const SeccionPromociones = () => {
         </div>
       )}
       <ModalPromocion
-        handleSave={handleSave}
-        getPromociones={getPromocion}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        />
+        selectedId={selectedId}
+        show={openModal}
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+      />
     </>
   );
 };

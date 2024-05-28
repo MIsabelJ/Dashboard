@@ -22,6 +22,9 @@ export const SeccionManufacturados = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
   // -------------------- SERVICES --------------------
   const manufacturadoService = new ManufacturadoService(
     API_URL + "/articulo-manufacturado"
@@ -87,14 +90,6 @@ export const SeccionManufacturados = () => {
   ];
 
   // -------------------- HANDLERS --------------------
-  const handleSave = async (manufacturado: IArticuloManufacturadoPost) => {
-    try {
-      await manufacturadoService.post(manufacturado);
-      getManufacturado();
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -120,7 +115,6 @@ export const SeccionManufacturados = () => {
 
   const getManufacturado = async () => {
     await manufacturadoService.getAll().then((manufacturadoData) => {
-      // console.log(manufacturadoData)
       dispatch(setDataTable(manufacturadoData));
       setLoading(false);
     });
@@ -142,6 +136,7 @@ export const SeccionManufacturados = () => {
       ) : (
         <div style={{ height: "85vh" }}>
           <GenericTable<IArticuloManufacturado>
+            setSelectedId={setSelectedId}
             handleDelete={handleDelete}
             columns={ColumnsManufacturado}
             setOpenModal={setOpenModal}
@@ -149,10 +144,9 @@ export const SeccionManufacturados = () => {
         </div>
       )}
       <ModalArticuloManufacturado
-        handleSave={handleSave}
-        getManufacturados={getManufacturado}
-        openModal={openModal}
-        setOpenModal={setOpenModal}
+        selectedId={selectedId}
+        show={openModal}
+        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
       />
     </>
   );
