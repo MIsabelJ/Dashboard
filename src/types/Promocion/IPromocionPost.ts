@@ -10,6 +10,6 @@ export interface IPromocionPost {
   precioPromocional: number;
   tipoPromocion: string;
   promocionDetalles: IPromocionDetallePost[];
-  idImagenes: string[];
+  imagenes: File[];
   idSucursales: number[];
 }

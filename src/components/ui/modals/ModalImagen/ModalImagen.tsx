@@ -21,11 +21,13 @@ import {
 interface ImagenArticuloModalProps {
   selectedFiles: File[];
   setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  previousImages: string[];
+  setPreviousImages: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
-  selectedFiles, setSelectedFiles
+  selectedFiles, setSelectedFiles, previousImages, setPreviousImages
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -135,7 +137,10 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
           >
             Elegir archivos
           </Button>
-          <p style={{ margin: 0 }}>{selectedFiles?.length ?? 0 > 0 ? `${selectedFiles?.length} archivos seleccionados` : "Sin archivos seleccionados"}</p>
+          {previousImages
+            ? <p style={{ margin: 0 }}>{selectedFiles?.length ?? 0 > 0 ? `${selectedFiles?.length} archivos seleccionados` : "Sin archivos seleccionados"}</p>
+            : <p style={{ margin: 0 }}>{previousImages?.length ?? 0 > 0 ? `${previousImages?.length} archivos seleccionados` : "Sin archivos seleccionados"}</p>
+          }
         </div>
         <TextField
           id="outlined-basic"
@@ -150,25 +155,47 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
         />
       </div >
       <List dense={true} id="list-item">
-        {selectedFiles?.map((file, index) => (
-          <ListItem
-            key={index}
-            secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => handleDeleteImg(index)}
-              >
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemAvatar>
-              <Avatar alt={file.name} src={URL.createObjectURL(file)} />
-            </ListItemAvatar>
-            <ListItemText primary={file.name} />
-          </ListItem>
-        ))}
+        {previousImages && previousImages.length > 0 ? (
+          previousImages.map((image, index) => (
+            <ListItem
+              key={index}
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => handleDeleteImg(index)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemAvatar>
+                <Avatar src={image} />
+              </ListItemAvatar>
+              <ListItemText primary={image} />
+            </ListItem>
+          ))
+        ) : (
+          selectedFiles?.map((file, index) => (
+            <ListItem
+              key={index}
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => handleDeleteImg(index)}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              }
+            >
+              <ListItemAvatar>
+                <Avatar alt={file.name} src={URL.createObjectURL(file)} />
+              </ListItemAvatar>
+              <ListItemText primary={file.name} />
+            </ListItem>
+          ))
+        )}
       </List>
     </>
   );
