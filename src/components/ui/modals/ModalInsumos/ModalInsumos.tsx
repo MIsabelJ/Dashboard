@@ -57,7 +57,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const initialValues: IArticuloInsumoPost = {
   denominacion: "",
   precioVenta: 0,
-  idImagenes: [],
+  imagenes: [],
   precioCompra: 0,
   stockActual: 0,
   stockMaximo: 0,
@@ -132,12 +132,13 @@ export const ModalArticuloInsumo = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const idImages = await handleSaveFiles(selectedFiles);
-      if (idImages === undefined) return;
+      // values.imagenes = selectedFiles
+      console.log(values)
       const insumo: IArticuloInsumoPost = {
         ...values,
-        idImagenes: idImages
+        imagenes: selectedFiles
       };
+      console.log(insumo)
       setValues(insumo);
       setReadyToPersist(true);
     },
@@ -194,32 +195,6 @@ export const ModalArticuloInsumo = ({
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSaveFiles = async (selectedFiles: File[]) => {
-
-    let idImages: string[] = [];
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append("uploads", file);
-    });
-
-    try {
-      const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data: IImagen[] = await response.json();
-        idImages = data.map((image) => image.id);
-        return idImages;
-      }
-      return undefined;
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    //   setSelectedFiles(null);
   };
 
 
@@ -284,7 +259,7 @@ export const ModalArticuloInsumo = ({
         const articuloInsumo = await insumoService.getById(selectedId);
         if (articuloInsumo) {
           formik.setValues({
-            idImagenes: articuloInsumo.imagenes.map((image) => image.id),
+            imagenes: articuloInsumo.imagenes.map((image) => image.id),
             idUnidadMedida: articuloInsumo.unidadMedida.id,
             idCategoria: articuloInsumo.categoria.id,
             ...articuloInsumo,
@@ -296,10 +271,21 @@ export const ModalArticuloInsumo = ({
     }
   };
 
+  async function urlToFile(url: string, filename: string, mimeType: string): Promise<File> {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new File([blob], filename, { type: mimeType });
+  }
+
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     if (selectedId) {
       getOneInsumo();
+      // if (values != undefined) {
+      //   const selectedFiles = values.imagenes.map((imagenes) => urlToFile(imagenes.url, imagenes.filename, imagenes.mimetype));
+
+      //   setSelectedFiles(selectedFiles);
+      // }
     } else {
       setValues(initialValues);
     }
@@ -608,7 +594,6 @@ export const ModalArticuloInsumo = ({
                     <>
                       {/* IMAGENES */}
                       <Form.Group
-                        controlId="idImagenes"
                         className="mb-3"
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>

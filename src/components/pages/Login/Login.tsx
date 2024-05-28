@@ -12,41 +12,11 @@ import { SucursalService } from '../../../services/SucursalService';
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
-  //manejo de datos en el localStorage
-  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
-  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
-
-  const API_URL = import.meta.env.VITE_API_URL;
-
-  const empresaService = new EmpresaService(API_URL + '/empresa');
-  const sucursalService = new SucursalService(API_URL + '/sucursal');
 
   const handleLogin = async () => {
-    if (idEmpresaLocalStorage) {
-      try {
-        const response = await empresaService.getById(idEmpresaLocalStorage)
-        if (response == null) throw new DOMException()
-        dispatch(setCurrentEmpresa(idEmpresaLocalStorage));
-      } catch (err) {
-        return navigate('/empresa')
-      }
-      if (idSucursalLocalStorage) {
-        try {
-          const response = await sucursalService.getById(idSucursalLocalStorage)
-          if (response == null) throw new DOMException()
-          dispatch(setCurrentSucursal(idSucursalLocalStorage))
-        } catch (err) {
-          return navigate('/sucursal')
-        }
-        return navigate('/inicio')
-      }
-      return navigate('/sucursal');
-    }
-    return navigate('/empresa');
+    navigate('/empresa')
   };
-
 
   return (
     <div className="containerLogin">

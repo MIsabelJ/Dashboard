@@ -24,8 +24,8 @@ export const SeccionEmpresa = () => {
   const navigate = useNavigate();
 
   //manejo de datos en el localStorage
-  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', '');
-  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
+  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', "0");
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', "0");
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -40,7 +40,6 @@ export const SeccionEmpresa = () => {
 
   useEffect(() => {
     if (redirectId !== null && empresaActive === redirectId) {
-      console.log("Redireccionando a la subruta de la empresa " + empresaActive);
       navigate(`/sucursal`);
       setRedirectId(null); // Reset redirect ID after navigation
     }
@@ -49,7 +48,7 @@ export const SeccionEmpresa = () => {
   const handleClick = (id: number) => {
     dispatch(setCurrentEmpresa(id));
     setIdEmpresaLocalStorage(id)
-    setIdSucursalLocalStorage('')
+    setIdSucursalLocalStorage('0')
     setRedirectId(id);
   };
 
