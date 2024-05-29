@@ -189,7 +189,6 @@ export const ModalArticuloManufacturado = ({
         imagenes: await imagenService.upload(images)
       };
       handleSave(manufacturado);
-      
     },
   });
 

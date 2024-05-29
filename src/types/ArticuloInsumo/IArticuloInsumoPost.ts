@@ -1,8 +1,9 @@
+import { IImagen } from "../Imagen/IImagen"
 
 export interface IArticuloInsumoPost {
     denominacion: string
     precioVenta: number
-    imagenes: File[]
+    imagenes: IImagen[]
     precioCompra: number
     stockActual: number
     stockMaximo: number

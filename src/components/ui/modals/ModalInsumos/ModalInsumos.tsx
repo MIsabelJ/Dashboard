@@ -32,6 +32,7 @@ import { InsumoService } from "../../../../services/InsumoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
+import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -130,11 +131,10 @@ export const ModalArticuloInsumo = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      // values.imagenes = selectedFiles
       console.log(values)
       const insumo: IArticuloInsumoPost = {
         ...values,
-        imagenes: selectedFiles
+        imagenes: await imagenService.upload(selectedFiles)
       };
       handleSave(insumo);
     },
@@ -144,6 +144,7 @@ export const ModalArticuloInsumo = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const imagenService = new ImagenArticuloService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
   const dispatch = useAppDispatch()
@@ -158,19 +159,7 @@ export const ModalArticuloInsumo = ({
       }
     } else {
       try {
-        const formData = new FormData();
-        formData.append('denominacion', insumo.denominacion);
-        formData.append('precioVenta', String(insumo.precioVenta));
-        formData.append('precioCompra', String(insumo.precioCompra));
-        formData.append('stockActual', String(insumo.stockActual));
-        formData.append('stockMaximo', String(insumo.stockMaximo));
-        formData.append('esParaElaborar', String(insumo.esParaElaborar));
-        formData.append('idUnidadMedida', Number(insumo.idUnidadMedida).toString());
-        formData.append('idCategoria', Number(insumo.idCategoria).toString());
-        insumo.imagenes.forEach((imagen, index) => {
-          formData.append(`imagenes[${index}]`, imagen);
-        });
-        await insumoService.postWithData(formData);
+        await insumoService.post(insumo);
       } catch (error) {
         console.error(error);
       }
@@ -441,7 +430,7 @@ export const ModalArticuloInsumo = ({
                               placeholder="Ingrese el stock mínimo"
                               name="stockMínimo"
                               value={0}
-                            // onChange={formik.handleChange}
+                            onChange={formik.handleChange}
                             // isInvalid={
                             //   formik.touched.stockMinimo &&
                             //   !!formik.errors.stockMinimo
