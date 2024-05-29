@@ -113,6 +113,7 @@ export const ModalArticuloInsumo = ({
   const [activeStep, setActiveStep] = useState(0);
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previousImages, setPreviousImages] = useState<string[]>([]);
 
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
@@ -167,7 +168,7 @@ export const ModalArticuloInsumo = ({
         formData.append('idUnidadMedida', Number(insumo.idUnidadMedida).toString());
         formData.append('idCategoria', Number(insumo.idCategoria).toString());
         insumo.imagenes.forEach((imagen, index) => {
-          formData.append(`imagenes[${index}]`, imagen); 
+          formData.append(`imagenes[${index}]`, imagen);
         });
         await insumoService.postWithData(formData);
       } catch (error) {
@@ -262,6 +263,7 @@ export const ModalArticuloInsumo = ({
       if (selectedId) {
         const articuloInsumo = await insumoService.getById(selectedId);
         if (articuloInsumo) {
+          setPreviousImages(articuloInsumo.imagenes.map((imagen) => imagen.url));
           formik.setValues({
             imagenes: articuloInsumo.imagenes.map((image) => image.id),
             idUnidadMedida: articuloInsumo.unidadMedida.id,
@@ -275,22 +277,10 @@ export const ModalArticuloInsumo = ({
     }
   };
 
-  async function urlToFile(url: string, filename: string, mimeType: string): Promise<File> {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new File([blob], filename, { type: mimeType });
-  }
-
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     if (selectedId) {
       getOneInsumo();
-      // if (values != undefined) {
-      //   const selectedFiles = values.imagenes.map((imagenes) => urlToFile(imagenes.url, imagenes.filename, imagenes.mimetype));
-
-      //   setSelectedFiles(selectedFiles);
-      // }
-    } else {
     }
   }, [selectedId]);
 
@@ -595,9 +585,10 @@ export const ModalArticuloInsumo = ({
                       ></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
                       <ModalImagen
-                        selectedFiles={selectedFiles}
+                        previousImages={previousImages}
+                        setPreviousImages={setPreviousImages}
                         setSelectedFiles={setSelectedFiles}
-                      />
+                        selectedFiles={selectedFiles} />
                     </>
                   )}
                   <Box

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { IPromocionPost } from '../../../../types/Promocion/IPromocionPost';
 import { IPromocionDetallePost } from '../../../../types/PromocionDetalle/IPromocionDetallePost';
 import { useFormik } from 'formik';
-import { ImagenPromocionService } from '../../../../services/ImagenPromocionService';
 import { SucursalService } from '../../../../services/SucursalService';
 import { ISucursal } from '../../../../types/Sucursal/ISucursal';
 import { Modal } from 'react-bootstrap';
@@ -36,7 +35,7 @@ const initialValues: IPromocionPost = {
     precioPromocional: 0,
     tipoPromocion: "",
     promocionDetalles: [],
-    idImagenes: [],
+    imagenes: [],
     idSucursales: [],
     descripcionDescuento: ""
 };
@@ -59,6 +58,7 @@ const ModalPromocion = ({
     const [rows, setRows] = useState<any[]>([]);
 
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [previousImages, setPreviousImages] = useState<string[]>([]);
 
     //Guarda los valores de todas las sucursales que existen y que vayan a añadirse con el useEffect
     const [sucursales, setSucursales] = useState<ISucursal[]>([]);
@@ -74,7 +74,6 @@ const ModalPromocion = ({
     >([]);
 
     const [values, setValues] = useState<IPromocion | IPromocionPost>()
-    const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
 
     const [detallePromocion, setDetallePromocion] = useState<IPromocionDetallePost[]>([]);
 
@@ -88,18 +87,14 @@ const ModalPromocion = ({
         initialValues: initialValues,
         validationSchema: validationSchema,
         onSubmit: async (values) => {
-            const idImages = await handleSaveFiles(selectedFiles);
-            if (idImages === undefined) return;
             const promocion: IPromocionPost = {
                 ...values,
-                idImagenes: idImages,
+                imagenes: selectedFiles,
                 promocionDetalles: detallePromocion
             };
-            setValues(promocion);
-            setReadyToPersist(true);
+            console.log(promocion)
+            handleSave(promocion)
         }
-
-
     })
 
     // -------------------- SERVICE --------------------
@@ -107,20 +102,19 @@ const ModalPromocion = ({
 
     const sucursalService = new SucursalService(API_URL + "/sucursal");
     const articuloService = new ArticuloService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
-    const promocionService = new PromocionService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
+    const promocionService = new PromocionService(API_URL + "/promocion"); //TODO: asegurarse de que sea la ruta correcta
     const dispatch = useAppDispatch()
     // -------------------- HANDLERS --------------------
 
-    const handleSave = async () => {
+    const handleSave = async (promocion: IPromocionPost) => {
         if (selectedId) {
             try {
-                await promocionService.put(selectedId, values as IPromocionPost);
+                await promocionService.put(selectedId, promocion);
             } catch (error) {
                 console.error(error);
             }
         } else {
             try {
-                const promocion: IPromocionPost = { ...values } as IPromocionPost;
                 await promocionService.post(promocion);
             } catch (error) {
                 console.error(error);
@@ -128,11 +122,10 @@ const ModalPromocion = ({
         }
         getAllPromocion();
         internalHandleClose();
-        setValues(undefined);
+        formik.resetForm()
     };
 
     const internalHandleClose = () => {
-        setReadyToPersist(false);
         handleClose()
         formik.resetForm();
         setSelectedFiles([]);
@@ -155,37 +148,11 @@ const ModalPromocion = ({
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleSaveFiles = async (selectedFiles: File[]) => {
-
-        let idImages: string[] = [];
-        const formData = new FormData();
-        Array.from(selectedFiles).forEach((file) => {
-            formData.append("uploads", file);
-        });
-
-        try {
-            const response = await fetch(`${API_URL}/imagen-promocion/uploads`, {//TODO: asegurarse de que la ruta esté disponible
-                method: "POST",
-                body: formData,
-            });
-
-            if (response.ok) {
-                const data: IImagen[] = await response.json();
-                idImages = data.map((image) => image.id);
-                return idImages;
-            }
-            return undefined;
-        } catch (error) {
-            console.error("Error:", error);
-        }
-    };
-
     const handleSucursalChange = (value: { label: string; id: number }[]) => {
         formik.setFieldValue(
             "idSucursales",
             value.map((option) => option?.id) || []
         )
-        console.log(formik.values.idSucursales)
     }
 
     // -------------------- FUNCIONES --------------------
@@ -201,9 +168,10 @@ const ModalPromocion = ({
             if (selectedId) {
                 const promocion = await promocionService.getById(selectedId);
                 if (promocion) {
+                    setPreviousImages(promocion.imagenes.map((imagen) => imagen.url));
                     formik.setValues({
                         ...promocion,
-                        idImagenes: promocion.imagenes.map((imagen) => imagen.id),
+                        imagenes: promocion.imagenes.map((imagen) => imagen.id),
                         idSucursales: promocion.sucursales.map((sucursal) => sucursal.id),
                         promocionDetalles: promocion.promocionDetalles.map((detalle) => ({
                             cantidad: detalle.cantidad,
@@ -223,15 +191,10 @@ const ModalPromocion = ({
         if (selectedId) {
             getOnePromocion();
         } else {
-            setValues(initialValues); //TODO: hay que settear initial values
+            setValues(initialValues); //TODO: hay que poner valores al initial values
         }
     }, [selectedId]);
 
-    useEffect(() => {
-        if (readyToPersist) {
-            handleSave();
-        }
-    }, [readyToPersist])
 
     //Da formato a las sucursales para el dropdown de MUI
     useEffect(() => {
@@ -241,14 +204,14 @@ const ModalPromocion = ({
         }));
         setOpcionesSucursal(opciones);
     }, [sucursales]);
-    //Da formato a los articulos para el dropdown de MUI TODO: Descomentar el useEffect de abajo cuando exista el service de articulos
-    // useEffect(() => {
-    //     const opciones = articulos.map((articulos) => ({
-    //         label: articulos.denominacion,
-    //         id: articulos.id,
-    //     }));
-    //     setOpcionesArticulos(opciones);
-    // }, [articulos]);
+    //Da formato a los articulos para el dropdown de MUI
+    useEffect(() => {
+        const opciones = articulos.map((articulos) => ({
+            label: articulos.denominacion,
+            id: articulos.id,
+        }));
+        setOpcionesArticulos(opciones);
+    }, [articulos]);
 
     //Trae las sucursales y los articulos de la base de datos
     useEffect(() => {
@@ -363,6 +326,20 @@ const ModalPromocion = ({
                                 error={formik.touched.tipoPromocion && Boolean(formik.errors.tipoPromocion)}
                                 helperText={formik.touched.tipoPromocion && formik.errors.tipoPromocion}
                             />
+                            <TextField
+                                fullWidth
+                                margin="normal"
+                                label="Descripcion del descuento"
+                                name="descripcionDescuento"
+                                value={formik.values.descripcionDescuento}
+                                onChange={formik.handleChange}
+                                error={formik.touched.descripcionDescuento && Boolean(formik.errors.descripcionDescuento)}
+                                helperText={formik.touched.descripcionDescuento && formik.errors.descripcionDescuento}
+                            />
+                        </Box>
+                    )}
+                    {activeStep === 2 && (
+                        <>
                             {detallePromocion.map((detalle, index) => (
                                 <Grid container spacing={2} key={index} alignItems="center">
                                     <Grid item xs={5}>
@@ -379,42 +356,22 @@ const ModalPromocion = ({
                                                 setDetallePromocion(newDetalles);
                                                 formik.setFieldValue('promocionDetalles', newDetalles);
                                             }}
-                                            error={Boolean(formik.errors.promocionDetalles?.[index]?.cantidad)}
-                                            helperText={formik.errors.promocionDetalles?.[index]?.cantidad}
                                         />
                                     </Grid>
                                     <Grid item xs={5}>
                                         <FormControl fullWidth margin="normal">
-                                            {/* <Select
-                                                label="Artículo"
-                                                name={`promocionDetalles[${index}].idArticulo`}
-                                                value={detalle.idArticulo}
-                                                onChange={(e) => {
-                                                    const newDetalles = [...detallePromocion];
-                                                    newDetalles[index].idArticulo = parseInt(e.target.value, 10);
-                                                    setDetallePromocion(newDetalles);
-                                                    formik.setFieldValue('promocionDetalles', newDetalles);
-                                                }}
-                                                displayEmpty
-                                            >
-                                                <MenuItem value="" disabled>Seleccionar artículo</MenuItem>
-                                                <MenuItem value={1}>Artículo 1</MenuItem>
-                                                <MenuItem value={2}>Artículo 2</MenuItem>
-                                            </Select> */}
                                             <Autocomplete
                                                 disablePortal
                                                 id="combo-box-demo"
                                                 options={opcionesArticulos}
                                                 sx={{ width: "100%" }}
-                                                onChange={(event, value) =>
-                                                    formik.setFieldValue(
-                                                        "promocionDetalles",
-                                                        value?.id || ""
-                                                    )
-                                                }
-                                                isOptionEqualToValue={(option, value) =>
-                                                    option.id === value.id
-                                                }
+                                                onChange={(event, value) => {
+                                                    const newDetalles = [...detallePromocion];
+                                                    newDetalles[index].idArticulo = value ? value.id : 0;
+                                                    setDetallePromocion(newDetalles);
+                                                    formik.setFieldValue('promocionDetalles', newDetalles);
+                                                }}
+                                                isOptionEqualToValue={(option, value) => option.id === value.id}
                                                 renderInput={(params) => (
                                                     <TextField
                                                         {...params}
@@ -422,7 +379,6 @@ const ModalPromocion = ({
                                                     />
                                                 )}
                                             />
-
                                         </FormControl>
                                     </Grid>
                                     <Grid item xs={2}>
@@ -440,39 +396,44 @@ const ModalPromocion = ({
                             >
                                 Agregar Detalle
                             </Button>
-                        </Box>
+                            <Box>
+                                <FormControl fullWidth margin="normal">
+                                    <FormLabel component="legend">Sucursales</FormLabel>
+                                    <Autocomplete
+                                        multiple
+                                        id="tags-outlined"
+                                        options={opcionesSucursal}
+                                        getOptionLabel={(option) => option?.label || ''}
+                                        filterSelectedOptions
+                                        sx={{ width: "100%" }}
+                                        isOptionEqualToValue={(option, value) =>
+                                            option?.id === value?.id
+                                        }
+                                        onChange={(event, value) =>
+                                            handleSucursalChange(value)
+                                        }
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label="Sucursales"
+                                                placeholder="Seleccione sucursales"
+                                            />
+                                        )}
+                                    />
+                                </FormControl>
+
+                            </Box>
+                        </>
                     )}
-                    {activeStep === 2 && (
-                        <Box>
-                            <ModalImagen setSelectedFiles={setSelectedFiles} selectedFiles={selectedFiles} />
-                        </Box>
-                    )}
+
                     {activeStep === 3 && (
                         <Box>
-                            <FormControl fullWidth margin="normal">
-                                <FormLabel component="legend">Sucursales</FormLabel>
-                                <Autocomplete
-                                    multiple
-                                    id="tags-outlined"
-                                    options={opcionesSucursal}
-                                    getOptionLabel={(option) => option?.label || ''}
-                                    filterSelectedOptions
-                                    sx={{ width: "100%" }}
-                                    isOptionEqualToValue={(option, value) =>
-                                        option?.id === value?.id
-                                    }
-                                    onChange={(event, value) =>
-                                        handleSucursalChange(value)
-                                    }
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label="Sucursales"
-                                            placeholder="Seleccione sucursales"
-                                        />
-                                    )}
-                                />
-                            </FormControl>
+                            <ModalImagen
+                                previousImages={previousImages}
+                                setPreviousImages={setPreviousImages}
+                                setSelectedFiles={setSelectedFiles}
+                                selectedFiles={selectedFiles}
+                            />
                         </Box>
                     )}
                     <Box
