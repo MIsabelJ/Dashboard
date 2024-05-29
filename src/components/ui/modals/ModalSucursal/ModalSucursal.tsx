@@ -65,6 +65,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     const selectedPaisId = Number(e.target.value);
     setDomicilio((prevState) => ({
       ...prevState,
+      idPais: selectedPaisId,
+      idProvincia: 0,
       idLocalidad: 0,
     }));
 
@@ -86,6 +88,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     const selectedProvinciaId = Number(e.target.value);
     setDomicilio((prevState) => ({
       ...prevState,
+      idProvincia: selectedProvinciaId,
       idLocalidad: 0,
     }));
 
@@ -486,7 +489,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                           <Form.Label>País</Form.Label>
                           <Form.Control
                             as="select"
-                            value={idPais}
+                            value={domicilio.idPais}
                             onChange={handlePaisChange}
                           >
                             <option value={0}>Seleccionar País</option>
@@ -504,7 +507,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                           <Form.Label>Provincia</Form.Label>
                           <Form.Control
                             as="select"
-                            value={idProvincia}
+                            value={domicilio.idProvincia}
                             onChange={handleProvinciaChange}
                           >
                             <option value={0}>Seleccionar Provincia</option>
@@ -524,6 +527,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                             as="select"
                             value={domicilio.idLocalidad}
                             onChange={handleLocalidadChange}
+
                           >
                             <option value={0}>Seleccionar Localidad</option>
                             {localidades.map((localidad) => (

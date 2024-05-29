@@ -37,7 +37,7 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
   const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
     setIdSucursalLocalStorage(id);
-    setSucursalSelected(id)
+    setSucursalSelected(id.toString())
     setRedirectId(id);
   };
   const handleDelete = async (id: number) => {
@@ -110,6 +110,7 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
     if (redirectId !== null && sucursalActive === redirectId) {
       navigate(`/inicio`);
       setRedirectId(null); // Reset redirect ID after navigation
+      getSucursal();
     }
   }, [sucursalActive, redirectId, navigate]);
 
