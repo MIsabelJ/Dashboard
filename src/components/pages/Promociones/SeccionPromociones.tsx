@@ -1,6 +1,5 @@
-import { Label } from "@mui/icons-material";
+
 import { PromocionService } from "../../../services/PromocionService";
-import { IPromocionPost } from "../../../types/Promocion/IPromocionPost";
 import Swal from "sweetalert2";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
 import { useAppDispatch } from "../../../hooks/redux";
@@ -9,6 +8,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { IPromocion } from "../../../types/Promocion/IPromocion";
 import ModalPromocion from "../../ui/modals/ModalPromociones/ModalPromocion";
+import { Carousel } from "react-bootstrap";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,8 +27,23 @@ export const SeccionPromociones = () => {
   // -------------------- COLUMNAS --------------------
   const ColumnsPromocion = [
     { label: "Denominación", key: "denominacion" },
-    { label: "Descripción", key: "descripcion" },
-    { label: "Porcentaje de Descuento", key: "porcentajeDescuento" },
+    { label: "Descripción", key: "descripcionDescuento" },
+    {
+      label: "Imágenes", key: "imagenes", render: (promocion: IPromocion) => (
+        <Carousel>
+          {promocion.imagenes.map((imagen, index) => (
+            <Carousel.Item key={index}>
+              <img
+                className="d-block w-100"
+                src={imagen.url} // Convert File object to string
+                alt={`Slide ${index}`}
+                style={{ maxWidth: "100px", maxHeight: "100px" }}
+              />
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      ),
+    },
     { label: "Fecha de Inicio", key: "fechaDesde" },
     { label: "Fecha de Fin", key: "fechaHasta" },
     { label: "Hora de Inicio", key: "horaDesde" },
@@ -43,14 +58,6 @@ export const SeccionPromociones = () => {
   ];
 
   // -------------------- HANDLERS --------------------
-  const handleSave = async (promocion: IPromocionPost) => {
-    try {
-      await promocionService.post(promocion);
-      getPromocion();
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleDelete = async (id: number) => {
     Swal.fire({

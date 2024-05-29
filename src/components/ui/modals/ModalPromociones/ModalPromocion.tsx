@@ -17,6 +17,7 @@ import { IPromocion } from '../../../../types/Promocion/IPromocion';
 import { useAppDispatch } from '../../../../hooks/redux';
 import { setDataTable } from '../../../../redux/slices/TablaReducer';
 import { PromocionService } from '../../../../services/PromocionService';
+import { ImagenService } from '../../../../services/ImagenService';
 //---------------- INTERFAZ ----------------
 interface IPromocionModalProps {
     show: boolean;
@@ -89,7 +90,7 @@ const ModalPromocion = ({
         onSubmit: async (values) => {
             const promocion: IPromocionPost = {
                 ...values,
-                imagenes: selectedFiles,
+                imagenes: await imagenService.upload(selectedFiles),
                 promocionDetalles: detallePromocion
             };
             console.log(promocion)
@@ -98,8 +99,8 @@ const ModalPromocion = ({
     })
 
     // -------------------- SERVICE --------------------
-    // const imagenService = new ImagenPromocionService(API_URL + "/imagen-promocion");
 
+    const imagenService = new ImagenService(API_URL + "/imagen-promocion");
     const sucursalService = new SucursalService(API_URL + "/sucursal");
     const articuloService = new ArticuloService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
     const promocionService = new PromocionService(API_URL + "/promocion"); //TODO: asegurarse de que sea la ruta correcta
@@ -229,6 +230,9 @@ const ModalPromocion = ({
 
     return (
         <Modal show={show} onHide={internalHandleClose} size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title>{selectedId ? 'Editar' : 'Agregar'} Artículo Insumo</Modal.Title>
+            </Modal.Header>
             <Box sx={{ padding: '20px', backgroundColor: '#fff', margin: '20px auto', maxWidth: '800px' }}>
                 <Stepper activeStep={activeStep} alternativeLabel>
                     {steps.map((label) => (

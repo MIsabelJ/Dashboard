@@ -43,8 +43,8 @@ import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsum
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
-// import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
+import { ImagenService } from "../../../../services/ImagenService";
+// import { IImagenPost } from "../../../../types/ImagenArticulo/IImagenPost";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -196,7 +196,7 @@ export const ModalArticuloManufacturado = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
-  const imagenService = new ImagenArticuloService(API_URL + "/imagen-articulo");
+  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const manufacturadoService = new ManufacturadoService(API_URL + "/articulo-manufacturado");
   const categoriaService = new CategoriaService(API_URL + "/categoria");

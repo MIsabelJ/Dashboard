@@ -1,3 +1,3 @@
-export interface IImagenArticuloPost {
+export interface IImagenPost {
     file: File
 }

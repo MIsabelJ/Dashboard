@@ -32,7 +32,7 @@ import { InsumoService } from "../../../../services/InsumoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
+import { ImagenService } from "../../../../services/ImagenService";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -144,7 +144,7 @@ export const ModalArticuloInsumo = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
-  const imagenService = new ImagenArticuloService(API_URL + "/imagen-articulo");
+  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
   const dispatch = useAppDispatch()
@@ -430,7 +430,7 @@ export const ModalArticuloInsumo = ({
                               placeholder="Ingrese el stock mínimo"
                               name="stockMínimo"
                               value={0}
-                            onChange={formik.handleChange}
+                              onChange={formik.handleChange}
                             // isInvalid={
                             //   formik.touched.stockMinimo &&
                             //   !!formik.errors.stockMinimo

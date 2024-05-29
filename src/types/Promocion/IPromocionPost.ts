@@ -1,3 +1,4 @@
+import { IImagen } from "../Imagen/IImagen";
 import { IPromocionDetallePost } from "../PromocionDetalle/IPromocionDetallePost";
 
 export interface IPromocionPost {
@@ -10,6 +11,6 @@ export interface IPromocionPost {
   precioPromocional: number;
   tipoPromocion: string;
   promocionDetalles: IPromocionDetallePost[];
-  imagenes: File[];
+  imagenes: IImagen[];
   idSucursales: number[];
 }
