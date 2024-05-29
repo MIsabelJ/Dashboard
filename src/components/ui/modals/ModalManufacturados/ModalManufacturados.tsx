@@ -43,6 +43,7 @@ import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsum
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
+import { ImagenArticuloService } from "../../../../services/ImagenArticuloService";
 // import { IImagenArticuloPost } from "../../../../types/ImagenArticulo/IImagenArticuloPost";
 
 // ------------------------------ CÓDIGO ------------------------------
@@ -114,7 +115,7 @@ const initialValues: IArticuloManufacturadoPost = {
   tiempoEstimadoMinutos: 0,
   preparacion: "",
   articuloManufacturadoDetalles: [],
-  idImagenes: [],
+  imagenes: [],
   idUnidadMedida: 0,
   idCategoria: 0,
 };
@@ -181,15 +182,14 @@ export const ModalArticuloManufacturado = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const idImages = await handleSaveFiles(selectedFiles);
-      if (idImages === undefined) return;
+      const images = selectedFiles;
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
         articuloManufacturadoDetalles: newDetalles,
-        idImagenes: idImages,
+        imagenes: await imagenService.upload(images)
       };
-      setValues(manufacturado);
-      setReadyToPersist(true);
+      handleSave(manufacturado);
+      
     },
   });
 
@@ -197,6 +197,7 @@ export const ModalArticuloManufacturado = ({
   const unidadMedidaService = new UnidadMedidaService(
     API_URL + "/unidad-medida"
   );
+  const imagenService = new ImagenArticuloService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const manufacturadoService = new ManufacturadoService(API_URL + "/articulo-manufacturado");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
@@ -224,17 +225,16 @@ export const ModalArticuloManufacturado = ({
     });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (manufacturado: IArticuloManufacturadoPost) => {
     if (selectedId) {
       try {
-        await manufacturadoService.put(selectedId, values as IArticuloManufacturadoPost);
+        await manufacturadoService.put(selectedId, manufacturado);
       } catch (error) {
         console.error(error);
       }
     } else {
       try {
-        const articuloManufacturado: IArticuloManufacturadoPost = { ...values } as IArticuloManufacturadoPost;
-        await manufacturadoService.post(articuloManufacturado);
+        await manufacturadoService.post(manufacturado);
       } catch (error) {
         console.error(error);
       }
@@ -360,7 +360,7 @@ export const ModalArticuloManufacturado = ({
           }));
           formik.setValues({
             ...articuloManufacturado,
-            idImagenes: articuloManufacturado.imagenes.map((image) => image.id),
+            imagenes: articuloManufacturado.imagenes.map((image) => image.id),
             idUnidadMedida: articuloManufacturado.unidadMedida.id,
             idCategoria: articuloManufacturado.categoria.id,
             articuloManufacturadoDetalles: articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
@@ -414,11 +414,6 @@ export const ModalArticuloManufacturado = ({
     }
   }, [selectedId]);
 
-  useEffect(() => {
-    if (readyToPersist) {
-      handleSave();
-    }
-  }, [readyToPersist])
 
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla

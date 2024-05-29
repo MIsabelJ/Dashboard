@@ -1,5 +1,5 @@
 export interface IImagen {
-  id: string;
+  id?: string;
   name: string;
   url: string
 }

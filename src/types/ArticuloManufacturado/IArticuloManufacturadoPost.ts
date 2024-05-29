@@ -1,4 +1,5 @@
 import { IArticuloManufacturadoDetallePost } from "../ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost"
+import { IImagen } from "../Imagen/IImagen"
 import { IImagenArticuloPost } from "../Imagen/IImagenPost"
 
 export interface IArticuloManufacturadoPost {
@@ -8,7 +9,7 @@ export interface IArticuloManufacturadoPost {
     tiempoEstimadoMinutos: number
     preparacion: string
     articuloManufacturadoDetalles: IArticuloManufacturadoDetallePost[]
-    idImagenes: string[]
+    imagenes: IImagen[]
     idUnidadMedida: number
     idCategoria: number
 }
