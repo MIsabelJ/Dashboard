@@ -18,6 +18,7 @@ import { useAppDispatch } from '../../../../hooks/redux';
 import { setDataTable } from '../../../../redux/slices/TablaReducer';
 import { PromocionService } from '../../../../services/PromocionService';
 import { ImagenService } from '../../../../services/ImagenService';
+import Swal from 'sweetalert2';
 //---------------- INTERFAZ ----------------
 interface IPromocionModalProps {
     show: boolean;
@@ -88,6 +89,14 @@ const ModalPromocion = ({
         initialValues: initialValues,
         validationSchema: validationSchema,
         onSubmit: async (values) => {
+            Swal.fire({
+                title: "Cargando Datos de la Promoción",
+                text: "Espere mientras se suben los archivos.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             const promocion: IPromocionPost = {
                 ...values,
                 imagenes: await imagenService.upload(selectedFiles),
@@ -122,6 +131,7 @@ const ModalPromocion = ({
             }
         }
         getAllPromocion();
+        swalAlert("Éxito", "Datos subidos correctamente", "success");
         internalHandleClose();
         formik.resetForm()
     };
@@ -157,6 +167,14 @@ const ModalPromocion = ({
     }
 
     // -------------------- FUNCIONES --------------------
+
+    const swalAlert = (
+        title: string,
+        content: string,
+        icon: "error" | "success"
+    ) => {
+        Swal.fire(title, content, icon);
+    };
 
     const getAllPromocion = async () => {
         await promocionService.getAll().then((promocionData) => {

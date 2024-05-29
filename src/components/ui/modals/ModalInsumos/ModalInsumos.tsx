@@ -33,6 +33,7 @@ import { useAppDispatch } from "../../../../hooks/redux";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ImagenService } from "../../../../services/ImagenService";
+import Swal from "sweetalert2";
 
 // ------------------------------ CÓDIGO ------------------------------
 // ESTILOS del item de cabecera en el combo de CATEGORÍA
@@ -132,6 +133,15 @@ export const ModalArticuloInsumo = ({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       console.log(values)
+      // Mostrar un mensaje de carga mientras se suben los archivos
+      Swal.fire({
+        title: "Cargando Datos del Insumo",
+        text: "Espere mientras se suben los archivos.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
       const insumo: IArticuloInsumoPost = {
         ...values,
         imagenes: await imagenService.upload(selectedFiles)
@@ -165,6 +175,7 @@ export const ModalArticuloInsumo = ({
       }
     }
     getAllInsumo();
+    swalAlert("Éxito", "Datos subidos correctamente", "success");
     internalHandleClose();
   };
 
@@ -240,6 +251,14 @@ export const ModalArticuloInsumo = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
+
+  const swalAlert = (
+    title: string,
+    content: string,
+    icon: "error" | "success"
+  ) => {
+    Swal.fire(title, content, icon);
+  };
 
   const getAllInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {

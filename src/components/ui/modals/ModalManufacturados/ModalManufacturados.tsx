@@ -44,6 +44,7 @@ import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ImagenService } from "../../../../services/ImagenService";
+import Swal from "sweetalert2";
 // import { IImagenPost } from "../../../../types/ImagenArticulo/IImagenPost";
 
 // ------------------------------ CÓDIGO ------------------------------
@@ -183,6 +184,14 @@ export const ModalArticuloManufacturado = ({
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       const images = selectedFiles;
+      Swal.fire({
+        title: "Cargando Datos del Artículo Manufacturado",
+        text: "Espere mientras se suben los archivos.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
         articuloManufacturadoDetalles: newDetalles,
@@ -239,8 +248,8 @@ export const ModalArticuloManufacturado = ({
       }
     }
     getAllManufacturado();
+    swalAlert("Éxito", "Datos subidos correctamente", "success");
     internalHandleClose();
-    setValues(undefined);
   };
 
   const internalHandleClose = () => {
@@ -341,6 +350,14 @@ export const ModalArticuloManufacturado = ({
   const categoriasFiltradas = formatCategorias();
 
   // -------------------- FUNCIONES --------------------
+
+  const swalAlert = (
+    title: string,
+    content: string,
+    icon: "error" | "success"
+  ) => {
+    Swal.fire(title, content, icon);
+  };
 
   const getAllManufacturado = async () => {
     await manufacturadoService.getAll().then((manufacturadoData) => {
