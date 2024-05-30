@@ -1,3 +1,4 @@
+import { extractPublicId } from "cloudinary-build-url";
 import { IImagen } from "../types/Imagen/IImagen";
 import { IImagenPost } from "../types/Imagen/IImagenPost";
 import { BackendClient } from "./BackendClient";
@@ -48,6 +49,25 @@ export class ImagenService extends BackendClient<IImagen, IImagenPost, IImagenPo
 
             const data = await response.json();
             return data as IImagen[];
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+            throw error;
+        }
+    }
+    async deleteImg(uuid: string, url: string): Promise<void> {
+        try {
+            const publicId = extractPublicId(url);
+            const formData = new FormData();
+            formData.append('publicId', publicId);
+            formData.append('uuid', uuid);
+
+            const response = await fetch(`${this.baseUrl}/deleteImg`, {
+                method: "POST",
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
         } catch (error) {
             console.error('There was a problem with the fetch operation:', error);
             throw error;

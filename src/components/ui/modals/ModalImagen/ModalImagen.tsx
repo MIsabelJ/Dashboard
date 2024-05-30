@@ -16,88 +16,71 @@ import {
   TextField,
   radioClasses,
 } from "@mui/material";
+import { ImagenService } from "../../../../services/ImagenService";
 
 // ---------- INTERFAZ ----------
 interface ImagenArticuloModalProps {
   selectedFiles: File[];
   setSelectedFiles: React.Dispatch<React.SetStateAction<File[]>>;
-  previousImages: string[];
-  setPreviousImages: React.Dispatch<React.SetStateAction<string[]>>;
+  previousImages: IImagen[];
+  baseUrl: string;
+  setPreviousImages: React.Dispatch<React.SetStateAction<IImagen[]>>
 }
+const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
-  selectedFiles, setSelectedFiles, previousImages, setPreviousImages
+  selectedFiles, setSelectedFiles, previousImages, baseUrl, setPreviousImages
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
-  // --------------------SWAL --------------------
-  // const swalAlert = (
-  //   title: string,
-  //   content: string,
-  //   icon: "error" | "success"
-  // ) => {
-  //   Swal.fire(title, content, icon);
-  // };
+  const imagenService = new ImagenService(API_URL +"/"+ baseUrl);
 
   // -------------------- HANDLERS --------------------
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
       const files = Array.from(event.target.files);
-      setSelectedFiles(files);
+      setSelectedFiles(selectedFiles ? [...selectedFiles, ...files] : files);
     }
   };
 
-  const handleDeleteImg = (index: number) => {
+  const handleDeleteLocalImg = (index: number) => {
     setSelectedFiles(prevFiles => {
       const newFiles = prevFiles ? [...prevFiles] : [];
       newFiles.splice(index, 1); // Elimina el archivo en el índice dado
       return newFiles;
     });
-    // const publicId = extractPublicId(url);
-
-    // if (publicId) {
-    //   const formdata = new FormData();
-    //   formdata.append("publicId", publicId);
-    //   formdata.append("uuid", uuid);
-
-    //   Swal.fire({
-    //     title: "Eliminando imagen...",
-    //     text: "Espere mientras se elimina la imagen.",
-    //     allowOutsideClick: false,
-    //     didOpen: () => {
-    //       Swal.showLoading();
-    //     },
-    //   });
-
-    //   try {
-    //     const response = await fetch(`${API_URL}/imagen-articulo/deleteImg`, {
-    //       method: "POST",
-    //       body: formdata,
-    //     });
-
-    //     Swal.close();
-
-    //     if (response.ok) {
-    //       swalAlert("Éxito", "Imagen eliminada correctamente", "success");
-    //       setIdImages((prevImages) =>
-    //         prevImages.filter((image) => image !== uuid)
-    //       );
-    //       await getImages();
-    //     } else {
-    //       swalAlert(
-    //         "Error",
-    //         "Algo falló al eliminar la imagen, inténtalo de nuevo.",
-    //         "error"
-    //       );
-    //     }
-    //   } catch (error) {
-    //     Swal.close();
-    //     swalAlert("Error", "Algo falló, contacta al desarrollador.", "error");
-    //     console.error("Error:", error);
-    //   }
-    // }
   };
+
+  const handleDeleteImg = async (imagen : IImagen, index: number) => {
+    if(imagen.id){
+      Swal.fire({
+        title: "Eliminando imagen...",
+        text: "Espere mientras se elimina la imagen.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        const url = imagen.url;
+        const uuid = imagen.id;
+        await imagenService.deleteImg(uuid,url );
+        setPreviousImages(prevFiles => {
+          const newFiles = prevFiles ? [...prevFiles] : [];
+          newFiles.splice(index, 1);
+          Swal.close();
+          return newFiles;
+        });
+      } catch (error) {
+        Swal.close();
+        console.error("Error:", error);
+      }
+    }
+    
+  };
+
 
   // -------------------- RENDER --------------------
   return (
@@ -137,7 +120,7 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
           >
             Elegir archivos
           </Button>
-          {previousImages
+          {previousImages && previousImages.length > 0
             ? <p style={{ margin: 0 }}>{selectedFiles?.length ?? 0 > 0 ? `${selectedFiles?.length} archivos seleccionados` : "Sin archivos seleccionados"}</p>
             : <p style={{ margin: 0 }}>{previousImages?.length ?? 0 > 0 ? `${previousImages?.length} archivos seleccionados` : "Sin archivos seleccionados"}</p>
           }
@@ -155,7 +138,7 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
         />
       </div >
       <List dense={true} id="list-item">
-        {previousImages && previousImages.length > 0 ? (
+        {previousImages && previousImages.length > 0 && (
           previousImages.map((image, index) => (
             <ListItem
               key={index}
@@ -163,27 +146,28 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
                 <IconButton
                   edge="end"
                   aria-label="delete"
-                  onClick={() => handleDeleteImg(index)}
+                  onClick={() => handleDeleteImg(image, index)}
                 >
                   <DeleteIcon />
                 </IconButton>
               }
             >
               <ListItemAvatar>
-                <Avatar src={image} />
+                <Avatar src={image.url} />
               </ListItemAvatar>
-              <ListItemText primary={image} />
+              <ListItemText primary={image.name} />
             </ListItem>
           ))
-        ) : (
-          selectedFiles?.map((file, index) => (
+        )}
+        {selectedFiles?.map((file, index) => (
             <ListItem
+              style={{ color: "#2e7d32", borderRadius: "50px" }}
               key={index}
               secondaryAction={
                 <IconButton
                   edge="end"
                   aria-label="delete"
-                  onClick={() => handleDeleteImg(index)}
+                  onClick={() => handleDeleteLocalImg(index)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -194,8 +178,7 @@ export const ModalImagen: React.FC<ImagenArticuloModalProps> = ({
               </ListItemAvatar>
               <ListItemText primary={file.name} />
             </ListItem>
-          ))
-        )}
+          ))}
       </List>
     </>
   );

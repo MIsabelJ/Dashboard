@@ -10,7 +10,6 @@ import { ICategoria } from "../../../../types/Categoria/ICategoria";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
 // MODALS
-import { UnidadMedidaModal } from "../ModalUnidadMedida/ModalUnidadMedida";
 import { ModalImagen } from "../ModalImagen/ModalImagen";
 // ---------- ESTILOS ----------
 import { Modal, Form, InputGroup } from "react-bootstrap";
@@ -109,13 +108,13 @@ interface IArticuloInsumoModalProps {
 export const ModalArticuloInsumo = ({
   show,
   handleClose,
-  selectedId
+  selectedId,
 }: IArticuloInsumoModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previousImages, setPreviousImages] = useState<string[]>([]);
+  const [previousImages, setPreviousImages] = useState<IImagen[]>([]);
 
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
@@ -126,13 +125,11 @@ export const ModalArticuloInsumo = ({
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
-
   // -------------------- FORMIK --------------------
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      console.log(values)
       // Mostrar un mensaje de carga mientras se suben los archivos
       Swal.fire({
         title: "Cargando Datos del Insumo",
@@ -140,12 +137,17 @@ export const ModalArticuloInsumo = ({
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
+      let actualImages: IImagen[] = [];
+      if (selectedFiles.length > 0) {
+        actualImages = await imagenService.upload(selectedFiles)
+      }
       const insumo: IArticuloInsumoPost = {
         ...values,
-        imagenes: await imagenService.upload(selectedFiles)
+        imagenes: [...previousImages, ...actualImages],
       };
+      insumo.imagenes;
       handleSave(insumo);
     },
   });
@@ -157,7 +159,7 @@ export const ModalArticuloInsumo = ({
   const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
   const handleSave = async (insumo: IArticuloInsumoPost) => {
@@ -180,16 +182,17 @@ export const ModalArticuloInsumo = ({
   };
 
   const internalHandleClose = () => {
-    handleClose()
+    handleClose();
     formik.resetForm();
     setSelectedFiles([]);
+    setPreviousImages([]);
     setActiveStep(0);
-  }
+  };
 
   const handleNext = async () => {
     if (activeStep === steps.length - 1) {
       try {
-        formik.handleSubmit()
+        formik.handleSubmit();
       } catch (err) {
         console.log(err);
       }
@@ -201,7 +204,6 @@ export const ModalArticuloInsumo = ({
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
-
 
   // -------------------- MANEJO DE CATEGORÍAS --------------------
   interface CategoriaData {
@@ -266,19 +268,22 @@ export const ModalArticuloInsumo = ({
     });
   };
 
-  const getOneInsumo = async () => {
+  const getOneInsumo = async (id: number) => {
     try {
-      if (selectedId) {
-        const articuloInsumo = await insumoService.getById(selectedId);
-        if (articuloInsumo) {
-          setPreviousImages(articuloInsumo.imagenes.map((imagen) => imagen.url));
-          formik.setValues({
-            imagenes: articuloInsumo.imagenes.map((image) => image.id),
-            idUnidadMedida: articuloInsumo.unidadMedida.id,
-            idCategoria: articuloInsumo.categoria.id,
-            ...articuloInsumo,
-          });
-        }
+      const articuloInsumo = await insumoService.getById(id);
+      if (articuloInsumo) {
+        setPreviousImages(articuloInsumo.imagenes);
+        formik.setValues({
+          denominacion: articuloInsumo.denominacion,
+          precioVenta: articuloInsumo.precioVenta,
+          imagenes: articuloInsumo.imagenes,
+          precioCompra: articuloInsumo.precioCompra,
+          stockActual: articuloInsumo.stockActual,
+          stockMaximo: articuloInsumo.stockMaximo,
+          esParaElaborar: articuloInsumo.esParaElaborar,
+          idUnidadMedida: articuloInsumo.unidadMedida.id,
+          idCategoria: articuloInsumo.categoria.id, 
+        });
       }
     } catch (error) {
       console.error(error);
@@ -288,9 +293,10 @@ export const ModalArticuloInsumo = ({
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     if (selectedId) {
-      getOneInsumo();
+      getOneInsumo(selectedId);
     }
   }, [selectedId]);
+
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
@@ -320,7 +326,9 @@ export const ModalArticuloInsumo = ({
     <>
       <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{selectedId ? 'Editar' : 'Agregar'} Artículo Insumo</Modal.Title>
+          <Modal.Title>
+            {selectedId ? "Editar" : "Agregar"} Artículo Insumo
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
@@ -450,10 +458,10 @@ export const ModalArticuloInsumo = ({
                               name="stockMínimo"
                               value={0}
                               onChange={formik.handleChange}
-                            // isInvalid={
-                            //   formik.touched.stockMinimo &&
-                            //   !!formik.errors.stockMinimo
-                            // }
+                              // isInvalid={
+                              //   formik.touched.stockMinimo &&
+                              //   !!formik.errors.stockMinimo
+                              // }
                             />
                             <Form.Control.Feedback type="invalid">
                               {/* {formik.errors.stockMinimo} */}
@@ -548,23 +556,25 @@ export const ModalArticuloInsumo = ({
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
-                              value={categoriasFiltradas.find((categoria) => categoria.id === formik.values.idCategoria) || null}
+                              value={
+                                categoriasFiltradas.find(
+                                  (categoria) =>
+                                    categoria.id === formik.values.idCategoria
+                                ) || null
+                              }
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                    (categoria) => categoria.id === option.parent
-                                  )?.denominacion || ''
+                                      (categoria) =>
+                                        categoria.id === option.parent
+                                    )?.denominacion || ""
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                formik.setFieldValue(
-                                  "idCategoria",
-                                  value?.id
-                                )
-                              }
-                              }
+                                formik.setFieldValue("idCategoria", value?.id);
+                              }}
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
@@ -588,15 +598,15 @@ export const ModalArticuloInsumo = ({
                   {activeStep === 2 && (
                     <>
                       {/* IMAGENES */}
-                      <Form.Group
-                        className="mb-3"
-                      ></Form.Group>
+                      <Form.Group className="mb-3"></Form.Group>
                       <Form.Label>Imágenes</Form.Label>
                       <ModalImagen
                         previousImages={previousImages}
-                        setPreviousImages={setPreviousImages}
                         setSelectedFiles={setSelectedFiles}
-                        selectedFiles={selectedFiles} />
+                        selectedFiles={selectedFiles}
+                        baseUrl="imagen-articulo"
+                        setPreviousImages={setPreviousImages}
+                      />
                     </>
                   )}
                   <Box
