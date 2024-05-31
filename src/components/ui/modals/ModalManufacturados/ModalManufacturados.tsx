@@ -154,7 +154,7 @@ interface IManufacturadosModalProps {
 export const ModalArticuloManufacturado = ({
   show,
   handleClose,
-  selectedId
+  selectedId,
 }: IManufacturadosModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
@@ -162,10 +162,14 @@ export const ModalArticuloManufacturado = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previousImages, setPreviousImages] = useState<IImagen[]>([]);
   const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
-  const [newDetalles, setNewDetalles] = useState<IArticuloManufacturadoDetallePost[]>([]);
-  const [articuloSeleccionado, setArticuloSeleccionado] = useState<{ articuloInsumo: IArticuloInsumo, cantidad: string }[]>([]);
-
+  const [newDetalles, setNewDetalles] = useState<
+    IArticuloManufacturadoDetallePost[]
+  >([]);
+  const [articuloSeleccionado, setArticuloSeleccionado] = useState<
+    { articuloInsumo: IArticuloInsumo; cantidad: string }[]
+  >([]);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
@@ -173,8 +177,10 @@ export const ModalArticuloManufacturado = ({
     { label: string; id: number }[]
   >([]);
 
-  const [values, setValues] = useState<IArticuloManufacturado | IArticuloManufacturadoPost>()
-  const [readyToPersist, setReadyToPersist] = useState<boolean>(false)
+  const [values, setValues] = useState<
+    IArticuloManufacturado | IArticuloManufacturadoPost
+  >();
+  const [readyToPersist, setReadyToPersist] = useState<boolean>(false);
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
@@ -183,19 +189,22 @@ export const ModalArticuloManufacturado = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const images = selectedFiles;
       Swal.fire({
         title: "Cargando Datos del Artículo Manufacturado",
         text: "Espere mientras se suben los archivos.",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
+      let actualImages: IImagen[] = [];
+      if (selectedFiles.length > 0) {
+        actualImages = await imagenService.upload(selectedFiles);
+      }
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
         articuloManufacturadoDetalles: newDetalles,
-        imagenes: await imagenService.upload(images)
+        imagenes: [...previousImages, ...actualImages],
       };
       handleSave(manufacturado);
     },
@@ -207,9 +216,11 @@ export const ModalArticuloManufacturado = ({
   );
   const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-  const manufacturadoService = new ManufacturadoService(API_URL + "/articulo-manufacturado");
+  const manufacturadoService = new ManufacturadoService(
+    API_URL + "/articulo-manufacturado"
+  );
   const categoriaService = new CategoriaService(API_URL + "/categoria");
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   // -------------------- HANDLERS --------------------
   // Barra de búsqueda para newDetalles manufacturados
@@ -217,12 +228,13 @@ export const ModalArticuloManufacturado = ({
     setSearchTerm(event.target.value);
   };
 
-
-  const handleSaveDetalle = async (detalle: IArticuloManufacturadoDetallePost) => {
+  const handleSaveDetalle = async (
+    detalle: IArticuloManufacturadoDetallePost
+  ) => {
     setNewDetalles([...newDetalles, detalle]);
     getInsumosSeleccionados();
     setShowDetallesModal(false);
-  }
+  };
 
   const handleDeleteDetalle = async (index: number) => {
     setArticuloSeleccionado((prev) => {
@@ -254,11 +266,12 @@ export const ModalArticuloManufacturado = ({
 
   const internalHandleClose = () => {
     setReadyToPersist(false);
-    handleClose()
+    handleClose();
     formik.resetForm();
     setSelectedFiles([]);
+    setPreviousImages([]);
     setActiveStep(0);
-  }
+  };
 
   const handleNext = () => {
     if (activeStep === steps.length - 1) {
@@ -274,32 +287,6 @@ export const ModalArticuloManufacturado = ({
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleSaveFiles = async (selectedFiles: File[]) => {
-
-    let idImages: string[] = [];
-    const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => {
-      formData.append("uploads", file);
-    });
-
-    try {
-      const response = await fetch(`${API_URL}/imagen-articulo/uploads`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data: IImagen[] = await response.json();
-        idImages = data.map((image) => image.id);
-        return idImages;
-      }
-      return undefined;
-    } catch (error) {
-      console.error("Error:", error);
-    }
-    //   setSelectedFiles(null);
   };
 
   // -------------------- MANEJO DE CATEGORÍAS --------------------
@@ -365,33 +352,31 @@ export const ModalArticuloManufacturado = ({
     });
   };
 
-  const getOneManufacturado = async () => {
+  const getOneManufacturado = async (id: number) => {
     try {
-      if (selectedId) {
-        const articuloManufacturado = await manufacturadoService.getById(selectedId);
-        if (articuloManufacturado) {
-          const articuloManufacturadoDetallesPost: IArticuloManufacturadoDetallePost[] = articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
-            ...detalle,
-            idArticuloInsumo: detalle.articuloInsumo.id,
-          }));
-          formik.setValues({
-            ...articuloManufacturado,
-            imagenes: articuloManufacturado.imagenes.map((image) => image.id),
-            idUnidadMedida: articuloManufacturado.unidadMedida.id,
-            idCategoria: articuloManufacturado.categoria.id,
-            articuloManufacturadoDetalles: articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
-              ...detalle,
+      const articuloManufacturado = await manufacturadoService.getById(id);
+      if (articuloManufacturado) {
+        setPreviousImages(articuloManufacturado.imagenes);
+        const detallesPost: IArticuloManufacturadoDetallePost[] =
+          articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => {
+            return {
+              id: detalle.id,
+              cantidad: detalle.cantidad,
               idArticuloInsumo: detalle.articuloInsumo.id,
-            })),
+            };
           });
-          setArticuloSeleccionado(
-            articuloManufacturado.articuloManufacturadoDetalles.map((detalle) => ({
-              ...detalle,
-              idArticuloInsumo: detalle.articuloInsumo.id,
-              cantidad: detalle.cantidad.toString(),
-            }))
-          );
-        }
+        setNewDetalles(detallesPost);
+        formik.setValues({
+          denominacion: articuloManufacturado.denominacion,
+          precioVenta: articuloManufacturado.precioVenta,
+          descripcion: articuloManufacturado.descripcion,
+          tiempoEstimadoMinutos: articuloManufacturado.tiempoEstimadoMinutos,
+          preparacion: articuloManufacturado.preparacion,
+          articuloManufacturadoDetalles: detallesPost,
+          imagenes: articuloManufacturado.imagenes,
+          idUnidadMedida: articuloManufacturado.unidadMedida.id,
+          idCategoria: articuloManufacturado.categoria.id,
+        });
       }
     } catch (error) {
       console.error(error);
@@ -399,12 +384,15 @@ export const ModalArticuloManufacturado = ({
   };
 
   const getInsumosSeleccionados = async () => {
-    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: string; }[] = [];
+    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: string }[] = [];
 
     const fetchInsumos = newDetalles.map(async (detalle) => {
       const response = await insumoService.getById(detalle.idArticuloInsumo);
       if (response) {
-        insumos.push({ articuloInsumo: response, cantidad: detalle.cantidad.toString() });
+        insumos.push({
+          articuloInsumo: response,
+          cantidad: detalle.cantidad.toString(),
+        });
       }
     });
 
@@ -419,17 +407,16 @@ export const ModalArticuloManufacturado = ({
   // -------------------- EFFECTS --------------------
 
   useEffect(() => {
-    getInsumosSeleccionados()
-  }, [newDetalles])
+    getInsumosSeleccionados();
+  }, [newDetalles]);
 
   useEffect(() => {
     if (selectedId) {
-      getOneManufacturado();
+      getOneManufacturado(selectedId);
     } else {
       setValues(initialValues);
     }
   }, [selectedId]);
-
 
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
@@ -441,7 +428,6 @@ export const ModalArticuloManufacturado = ({
     );
     setRows(filteredRows);
   }, [dataTable, searchTerm]);
-
 
   //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
@@ -524,23 +510,25 @@ export const ModalArticuloManufacturado = ({
                             <Autocomplete
                               id="idCategoria"
                               options={categoriasFiltradas}
-                              value={categoriasFiltradas.find((categoria) => categoria.id === formik.values.idCategoria) || null}
+                              value={
+                                categoriasFiltradas.find(
+                                  (categoria) =>
+                                    categoria.id === formik.values.idCategoria
+                                ) || null
+                              }
                               groupBy={(option) =>
                                 option.parent
                                   ? categoriasFiltradas.find(
-                                    (categoria) => categoria.id === option.parent
-                                  )?.denominacion || ''
+                                      (categoria) =>
+                                        categoria.id === option.parent
+                                    )?.denominacion || ""
                                   : option.denominacion
                               }
                               getOptionLabel={(option) => option.denominacion}
                               getOptionKey={(option) => option.id}
                               onChange={(event, value) => {
-                                formik.setFieldValue(
-                                  "idCategoria",
-                                  value?.id
-                                )
-                              }
-                              }
+                                formik.setFieldValue("idCategoria", value?.id);
+                              }}
                               isOptionEqualToValue={(option, value) =>
                                 option.id === value.id
                               }
@@ -774,7 +762,8 @@ export const ModalArticuloManufacturado = ({
                                             label="Insumo"
                                             variant="outlined"
                                             value={
-                                              detalle.articuloInsumo.denominacion
+                                              detalle.articuloInsumo
+                                                .denominacion
                                             }
                                             disabled
                                             fullWidth
@@ -796,7 +785,8 @@ export const ModalArticuloManufacturado = ({
                                             label="Unidad de Medida"
                                             variant="outlined"
                                             value={
-                                              detalle.articuloInsumo.unidadMedida.denominacion
+                                              detalle.articuloInsumo
+                                                .unidadMedida.denominacion
                                             }
                                             disabled
                                             fullWidth
@@ -834,8 +824,11 @@ export const ModalArticuloManufacturado = ({
                       <Form.Group controlId="idImagenes" className="mb-3">
                         <Form.Label>Imágenes</Form.Label>
                         <ModalImagen
+                          previousImages={previousImages}
+                          setPreviousImages={setPreviousImages}
                           selectedFiles={selectedFiles}
                           setSelectedFiles={setSelectedFiles}
+                          baseUrl="imagen-articulo"
                         />
                       </Form.Group>
                     </>
