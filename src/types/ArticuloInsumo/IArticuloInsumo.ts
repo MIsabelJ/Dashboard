@@ -8,6 +8,7 @@ export interface IArticuloInsumo extends IBaseEntity {
     precioVenta: number
     imagenes: IImagen[]
     precioCompra: number
+    stockMinimo: number
     stockActual: number
     stockMaximo: number
     esParaElaborar: boolean
