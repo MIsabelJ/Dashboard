@@ -48,6 +48,7 @@ import { SeccionPromociones } from "../../pages/Promociones/SeccionPromociones";
 import { getFromLocalStorage, useLocalStorage } from "../../../hooks/localstorage";
 import { SucursalService } from "../../../services/SucursalService";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
+import { EmpresaService } from "../../../services/EmpresaService";
 
 const drawerWidth = 240;
 
@@ -193,7 +194,7 @@ export default function PersistentDrawerLeft({
 
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-  const sucursalService = new SucursalService(API_URL + "/sucursal");
+  const empresaService = new EmpresaService(API_URL + "/empresa");
 
   // Función para renderizar la sección correspondiente en función del estado actual
   const dashboardSection = (seccionActual: string) => {
@@ -210,8 +211,8 @@ export default function PersistentDrawerLeft({
         return <SeccionUnidadesMedida />;
       case "Promociones":
         return <SeccionPromociones />;
-      case "Sucursales":
-        return <SeccionSucursal setSucursalSelected={setSucursalSelected} />;
+      // case "Sucursales":
+      //   return <SeccionSucursal />;
       case "Usuarios":
         // return <SeccionUsuarios />;
         return <h1>Usuarios</h1>;
@@ -221,6 +222,9 @@ export default function PersistentDrawerLeft({
   // Estado y manejo de la selección de sucursal (menú desplegable)
   const sucursalActive = useAppSelector(
     (state) => state.sucursalReducer.sucursalActual
+  );
+  const empresaActive = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
   );
   const [branch, setBranch] = React.useState(sucursalActive);
 
@@ -246,7 +250,7 @@ export default function PersistentDrawerLeft({
     const sucursalId = getFromLocalStorage("sucursalId")
     if (sucursalId) setSucursalSelected(sucursalId)
     const getSucursales = async () => {
-      setSucursales(await sucursalService.getAll()) //TODO: Crear método getSucursalByEmpresaId
+      setSucursales(await empresaService.getSucursalesByEmpresaId(Number(getFromLocalStorage("empresaId"))))
     }
     getSucursales();
   }, [])
@@ -327,13 +331,13 @@ export default function PersistentDrawerLeft({
             <Select
               labelId="demo-select-small-label"
               id="demo-select-small"
-              value={sucursalSelected}
+              value={Number(sucursalSelected)}
               label="Branch"
               onChange={(event) => handleChangeSucursal(event)}
-              defaultValue={getFromLocalStorage("sucursalId")}
+            // defaultValue={sucursales && sucursales.findIndex((sucursal) => sucursal.id === Number(sucursalSelected))}
             >
-              {sucursales && sucursales?.map((sucursal) => (
-                <MenuItem key={sucursal.id} value={sucursal.id}>{sucursal.nombre}</MenuItem>
+              {sucursales && sucursales?.map((sucursal, index) => (
+                <MenuItem key={index} value={sucursal.id}>{sucursal.nombre}</MenuItem>
               ))}
             </Select>
           </FormControl>

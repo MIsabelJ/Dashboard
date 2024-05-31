@@ -12,7 +12,7 @@ function App() {
       <Routes>
         <Route index path="/login" element={<Login />} />
         <Route path="/empresa" element={<SeccionEmpresa />} />
-        {/* <Route path="/sucursal" element={<SeccionSucursal />} /> */}
+        <Route path="/sucursal" element={<SeccionSucursal />} />
         <Route path="/inicio" element={
           <Box sx={{ display: 'flex' }}>
             <PersistentDrawerLeft sectionName="Inicio" />
@@ -43,12 +43,12 @@ function App() {
           </Box>
         }
         />
-        <Route path="/sucursal" element={
+        {/* <Route path="/sucursal" element={
           <Box sx={{ display: 'flex' }}>
             <PersistentDrawerLeft sectionName="Sucursales" />
           </Box>
         }
-        />
+        /> */}
         <Route path="/usuario" element={
           <Box sx={{ display: 'flex' }}>
             <PersistentDrawerLeft sectionName="Usuarios" />

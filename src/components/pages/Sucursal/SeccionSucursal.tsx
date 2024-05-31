@@ -20,14 +20,13 @@ import { EmpresaService } from "../../../services/EmpresaService";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
-const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucursalSelected: React.Dispatch<React.SetStateAction<string>> }) => {
+const SeccionSucursal = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [redirectId, setRedirectId] = useState<number | null>(null);
   //manejo de datos en el localStorage
   const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
   const [empresaNombre, setEmpresaNombre] = useState('');
-
 
   // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
@@ -37,7 +36,6 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
   const handleClick = (id: number) => {
     dispatch(setCurrentSucursal(id));
     setIdSucursalLocalStorage(id);
-    setSucursalSelected(id.toString())
     setRedirectId(id);
   };
   const handleDelete = async (id: number) => {
@@ -53,7 +51,7 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
     }).then(async (result) => {
       if (result.isConfirmed) {
         await sucursalService.delete(id).then(() => {
-          getSucursal();
+          getSucursales();
         });
       }
     });
@@ -61,15 +59,14 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
 
   const handleSubmit = async (sucursal: any) => {
     await sucursalService.put(sucursal.id, sucursal).then(() => {
-      getSucursal();
+      getSucursales();
     });
   };
 
   const handleSave = async (sucursal: ISucursalPost) => {
     try {
-      const response = await sucursalService.post(sucursal);
-      console.log(response);
-      getSucursal();
+      await sucursalService.post(sucursal);
+      getSucursales();
     } catch (error) {
       console.error(error);
     }
@@ -83,23 +80,21 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
     (state) => state.empresaReducer.empresaActual
   );
 
-  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
-  );
-
+  const dataCard: ISucursal = useAppSelector((state) => state.tableReducer.dataTable);
   const dispatch = useAppDispatch();
 
   const sucursalActive = useAppSelector(
     (state) => state.sucursalReducer.sucursalActual
   );
 
+  const idEmpresa = localStorage.getItem('empresaId');
   const empresaActive = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   )
 
-  const getSucursal = async () => {
-    await sucursalService.getAll().then((sucursalData) => {
+  const getSucursales = async () => {
+    const id = empresaActive == 0 ? Number(idEmpresa) : empresaActive;
+    await empresaService.getSucursalesByEmpresaId(id).then((sucursalData) => {
       dispatch(setDataTable(sucursalData));
       setLoading(false);
     });
@@ -110,20 +105,24 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
     if (redirectId !== null && sucursalActive === redirectId) {
       navigate(`/inicio`);
       setRedirectId(null); // Reset redirect ID after navigation
-      getSucursal();
+      getSucursales();
     }
   }, [sucursalActive, redirectId, navigate]);
 
 
   // Obtener el nombre de la empresa
   useEffect(() => {
+
+    const id = empresaActive == 0 ? Number(idEmpresa) : empresaActive;
+    if (id == null || id == 0) navigate('/empresa');
     const getNombreEmpresa = async () => {
-      const empresa = await empresaService.getById(empresaActive)
+      //obtengo el id de empresa que está en localstorage
+      const empresa = await empresaService.getById(id)
       if (empresa) setEmpresaNombre(empresa.nombre)
     }
     getNombreEmpresa();
     setLoading(true);
-    getSucursal();
+    getSucursales();
   }, []);
 
   // -------------------- RENDER --------------------
@@ -144,7 +143,7 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
             <Loader />
           ) : (
             <GenericCards<ISucursal>
-              items={dataFilter}
+              items={dataCard}
               handleClick={handleClick}
               handleDelete={handleDelete}
               setOpenModal={setOpenModal}
@@ -158,7 +157,7 @@ const SeccionSucursal = ({ setSucursalSelected: setSucursalSelected }: { setSucu
         handleClose={() => setOpenModal(false)}
         idEmpresa={Number(empresaActual)}
         handleSave={handleSave}
-        getSucursal={getSucursal}
+        getSucursal={getSucursales}
       />
     </>
   );

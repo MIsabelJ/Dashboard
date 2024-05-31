@@ -7,6 +7,7 @@ import { useAppSelector } from "../../../../hooks/redux";
 import { Modal, Form } from "react-bootstrap";
 import { Button, Grid, InputBase, alpha, styled } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { EmpresaService } from "../../../../services/EmpresaService";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -69,21 +70,21 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [denominacion, setDenominacion] = useState<string>("");
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
+  const [existingSucursales, setExistingSucursales] = useState<ISucursal[]>([]);
 
   // Barra de búsqueda para sucursales
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
 
-  const empresaActual = useAppSelector(
+  const empresaActive = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   );
+  // -------------------- SERVICIOS --------------------
+
+  const API_URL = import.meta.env.VITE_API_URL as string;
+  const empresaService = new EmpresaService(API_URL + "/empresa");
 
   // -------------------- FUNCIONES --------------------
-  const dataCard = useAppSelector((state) => state.tableReducer.dataTable);
-  const dataFilter: ISucursal[] = dataCard.filter(
-    (item: ISucursal) => item.empresa && item.empresa.id === empresaActual
-  );
-  const existingSucursales: ISucursal[] = dataFilter;
 
   const onSave = () => {
     const categoria: ICategoriaPost = {
@@ -150,6 +151,14 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     );
     setRows(filteredRows);
   }, [dataTable, searchTerm]);
+
+  useEffect(() => {
+    const getSucursales = async (idEmpresa) => {
+      const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
+      setExistingSucursales(response);
+    }
+    getSucursales(empresaActive);
+  })
 
   // -------------------- RENDER --------------------
   return (

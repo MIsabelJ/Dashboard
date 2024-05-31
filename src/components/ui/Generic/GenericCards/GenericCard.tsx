@@ -4,7 +4,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 // -------------------- INTERFAZ --------------------
 export interface ICardProps<T> {
-  items: any[];
+  items: T[];
   handleClick: (id: number) => void;
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
