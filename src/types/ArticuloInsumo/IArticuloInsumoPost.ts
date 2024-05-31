@@ -5,6 +5,7 @@ export interface IArticuloInsumoPost {
     precioVenta: number
     imagenes: IImagen[]
     precioCompra: number
+    stockMinimo: number
     stockActual: number
     stockMaximo: number
     esParaElaborar: boolean

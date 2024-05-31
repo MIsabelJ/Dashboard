@@ -53,6 +53,7 @@ export const SeccionInsumos = () => {
         </Carousel>
       ),
     },
+    { label: "Stock Mínimo", key: "stockMinimo" },
     { label: "Stock Actual", key: "stockActual" },
     { label: "Stock Máximo", key: "stockMaximo" },
     {

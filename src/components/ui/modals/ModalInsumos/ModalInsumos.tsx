@@ -60,6 +60,7 @@ const initialValues: IArticuloInsumoPost = {
   precioVenta: 0,
   imagenes: [],
   precioCompra: 0,
+  stockMinimo: 0,
   stockActual: 0,
   stockMaximo: 0,
   esParaElaborar: true,
@@ -78,11 +79,15 @@ const validationSchema = Yup.object({
   precioCompra: Yup.number()
     .required("Campo requerido")
     .min(0, "El precio de compra debe ser mayor o igual a 0."),
-  //stockMinimo: Yup.number().required("Campo requerido").min(1, "El stock minimo debe ser mayor que 0."),
+  stockMinimo: Yup.number()
+    .required("Campo requerido")
+    .min(1, "El stock minimo debe ser mayor que 0."),
   stockActual: Yup.number()
     .required("Campo requerido")
-    //.min(Yup.ref("stockMinimo"), "El stock actual debe ser mayor o igual al stock minimo.")
-    .min(1, "El stock actual debe ser mayor que 0.")
+    .min(
+      Yup.ref("stockMinimo"),
+      "El stock actual debe ser mayor o igual al stock mínimo."
+    )
     .max(
       Yup.ref("stockMaximo"),
       "El stock actual debe ser menor o igual al stock máximo."
@@ -141,7 +146,7 @@ export const ModalArticuloInsumo = ({
       });
       let actualImages: IImagen[] = [];
       if (selectedFiles.length > 0) {
-        actualImages = await imagenService.upload(selectedFiles)
+        actualImages = await imagenService.upload(selectedFiles);
       }
       const insumo: IArticuloInsumoPost = {
         ...values,
@@ -278,11 +283,12 @@ export const ModalArticuloInsumo = ({
           precioVenta: articuloInsumo.precioVenta,
           imagenes: articuloInsumo.imagenes,
           precioCompra: articuloInsumo.precioCompra,
+          stockMinimo: articuloInsumo.stockMinimo,
           stockActual: articuloInsumo.stockActual,
           stockMaximo: articuloInsumo.stockMaximo,
           esParaElaborar: articuloInsumo.esParaElaborar,
           idUnidadMedida: articuloInsumo.unidadMedida.id,
-          idCategoria: articuloInsumo.categoria.id, 
+          idCategoria: articuloInsumo.categoria.id,
         });
       }
     } catch (error) {
@@ -296,7 +302,6 @@ export const ModalArticuloInsumo = ({
       getOneInsumo(selectedId);
     }
   }, [selectedId]);
-
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
@@ -455,16 +460,16 @@ export const ModalArticuloInsumo = ({
                             <Form.Control
                               type="number"
                               placeholder="Ingrese el stock mínimo"
-                              name="stockMínimo"
-                              value={0}
+                              name="stockMinimo"
+                              value={formik.values.stockMinimo}
                               onChange={formik.handleChange}
-                              // isInvalid={
-                              //   formik.touched.stockMinimo &&
-                              //   !!formik.errors.stockMinimo
-                              // }
+                              isInvalid={
+                                formik.touched.stockMinimo &&
+                                !!formik.errors.stockMinimo
+                              }
                             />
                             <Form.Control.Feedback type="invalid">
-                              {/* {formik.errors.stockMinimo} */}
+                              {formik.errors.stockMinimo}
                             </Form.Control.Feedback>
                           </Form.Group>
                         </Grid>
