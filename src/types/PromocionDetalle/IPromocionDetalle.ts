@@ -3,5 +3,5 @@ import { IBaseEntity } from "../IBaseEntity";
 
 export interface IPromocionDetalle extends IBaseEntity {
     cantidad: number
-    articulo: IArticulo // TODO: Ver cómo resolverlo
+    articulo: IArticulo
 }

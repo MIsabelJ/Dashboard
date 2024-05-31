@@ -1,0 +1,18 @@
+.seccion-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    height: 100%;
+    flex-direction: column;
+    gap: 3vh;
+    margin-top: 3vh;
+}
+
+.seccion-busqueda {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}

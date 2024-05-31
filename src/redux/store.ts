@@ -1,4 +1,3 @@
-
 import { configureStore } from "@reduxjs/toolkit";
 import TableReducer from "./slices/TablaReducer";
 import SucursalReducer from "./slices/SucursalReducer";
@@ -8,7 +7,7 @@ export const store = configureStore({
   reducer: {
     tableReducer: TableReducer,
     sucursalReducer: SucursalReducer,
-    empresaReducer: EmpresaReducer
+    empresaReducer: EmpresaReducer,
   },
 });
 

@@ -1,6 +1,7 @@
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import { Button, Card, CardActions, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import "./GenericCard.css"
 
 // -------------------- INTERFAZ --------------------
 export interface ICardProps<T> {
@@ -22,43 +23,19 @@ export const GenericCards = <T extends { id: number }>({
   // -------------------- RENDER --------------------
   if (items && items.length > 0) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          padding: "24px",
-          gap: "16px",
-        }}
-      >
-        <Card
-          sx={{
-            width: "250px",
-            height: "280px",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            backgroundColor: "#f5f5f5",
-            border: "2px dashed grey",
-            borderRadius: "10px",
-            boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
-            "&:hover": { boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)" },
-          }}
-          onClick={() => setOpenModal(true)}
-        >
+      <div className="generic-cards-container">
+        <Card className="generic-card" onClick={() => setOpenModal(true)}>
           <Typography
             variant="h4"
             component="h1"
-            style={{ cursor: "pointer", marginBottom: "3px", color: "grey" }}
+            className="generic-card-title"
           >
             Añadir
           </Typography>
           <Typography
             variant="h6"
             component="h5"
-            style={{ cursor: "pointer", marginBottom: "15px", color: "grey" }}
+            className="generic-card-subtitle"
           >
             {denominacion}
           </Typography>
@@ -69,22 +46,9 @@ export const GenericCards = <T extends { id: number }>({
           <>
             <Card
               key={item.id}
-              sx={{
-                width: "250px",
-                height: "280px",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "16px",
-                borderRadius: "10px",
-                boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
-                "&:hover": {
-                  boxShadow: "0 8px 16px rgba(0, 0, 0, 0.5)",
-                },
-                opacity: item.eliminado ? 0.5 : 1.0,
-                cursor: item.eliminado ? "not-allowed" : "pointer",
-              }}
+              className={`item-card ${
+                item.eliminado ? "item-card-disabled" : "item-card-enabled"
+              }`}
             >
               <div style={{ textAlign: "center" }}>
                 <Typography variant="h5" component="h2" gutterBottom>
@@ -103,13 +67,7 @@ export const GenericCards = <T extends { id: number }>({
                   </Typography>
                 )}
               </div>
-              <CardActions
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                }}
-              >
+              <CardActions className="item-card-actions">
                 <Button size="small" onClick={() => handleClick(item.id)}>
                   Ver más
                 </Button>
@@ -126,43 +84,19 @@ export const GenericCards = <T extends { id: number }>({
     );
   } else {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          padding: "24px",
-          gap: "16px",
-        }}
-      >
-        <Card
-          sx={{
-            width: "250px",
-            height: "280px",
-            padding: "16px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-start",
-            alignItems: "center",
-            backgroundColor: "#f5f5f5",
-            border: "2px dashed grey",
-            borderRadius: "10px",
-            boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
-            "&:hover": { boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)" },
-          }}
-          onClick={() => setOpenModal(true)}
-        >
+      <div className="empty-state-container">
+        <Card className="generic-card" onClick={() => setOpenModal(true)}>
           <Typography
             variant="h4"
             component="h1"
-            style={{ cursor: "pointer", marginBottom: "3px", color: "grey" }}
+            className="generic-card-title"
           >
             Añadir
           </Typography>
           <Typography
             variant="h6"
             component="h5"
-            style={{ cursor: "pointer", marginBottom: "15px", color: "grey" }}
+            className="generic-card-subtitle"
           >
             {denominacion}
           </Typography>

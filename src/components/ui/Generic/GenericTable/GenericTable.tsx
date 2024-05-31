@@ -2,12 +2,12 @@ import { ReactNode, useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../../hooks/redux";
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
+import SearchBar from "../../SearchBar/SearchBar";
 // ---------- ESTILOS ----------
-import "./StyleGenericTable.css";
+import "./GenericTable.css";
 import { Table } from "react-bootstrap";
 import {
   IconButton,
-  InputBase,
   Paper,
   TableBody,
   TableCell,
@@ -15,57 +15,10 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel,
 } from "@mui/material";
-import { styled, alpha } from "@mui/material/styles";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 
 // ------------------------------ CÓDIGO ------------------------------
-// Definición del tipo Order
-type Order = "asc" | "desc";
-
-// ESTILOS de BARRA DE BÚSQUEDA
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(1),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    [theme.breakpoints.up("sm")]: {
-      width: "12ch",
-      "&:focus": {
-        width: "20ch",
-      },
-    },
-  },
-}));
-
 // -------------------- INTERFAZ --------------------
 interface ITableColumn<T> {
   label: string;
@@ -77,7 +30,7 @@ export interface ITableProps<T> {
   columns: ITableColumn<T>[];
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
-  setSelectedId: (state: number) => void
+  setSelectedId: (state: number) => void;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -85,15 +38,13 @@ export const GenericTable = <T extends { id: number }>({
   columns,
   handleDelete,
   setOpenModal,
-  setSelectedId
+  setSelectedId,
 }: ITableProps<T>) => {
   // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
-  const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] = useState<string>("");
 
   // -------------------- HANDLERS --------------------
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,15 +64,6 @@ export const GenericTable = <T extends { id: number }>({
     setPage(0);
   };
 
-  const handleRequestSort = (
-    event: React.MouseEvent<unknown>,
-    property: string
-  ) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
-
   // -------------------- FUNCIONES --------------------
   //Obtener los datos de la tabla en su estado inicial (sin datos)
   const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
@@ -139,47 +81,15 @@ export const GenericTable = <T extends { id: number }>({
 
   // -------------------- RENDER --------------------
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        height: "100%",
-        flexDirection: "column",
-        gap: "3vh",
-        marginTop: "3vh",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          padding: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
+    <div className="genericTable-container">
+      <div className="genericTable-header">
         {/* BARRA DE BÚSQUEDA */}
-        <Search
-          style={{
-            flexGrow: 1,
-            marginLeft: "1rem",
-            marginRight: "1rem",
-            backgroundColor: "#f0f0f0",
-          }}
-        >
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            value={searchTerm}
-            onChange={handleSearch}
-            placeholder="Buscar..."
-            inputProps={{ "aria-label": "search" }}
-          />
-        </Search>
+        <SearchBar
+          value={searchTerm}
+          onChange={handleSearch}
+          placeholder="Buscar..."
+        />
+        {/* BOTÓN DE AGREGAR */}
         <IconButton
           color="primary"
           aria-label="add"
@@ -196,18 +106,8 @@ export const GenericTable = <T extends { id: number }>({
             <TableHead>
               <TableRow>
                 {columns.map((column, i: number) => (
-                  <TableCell
-                    key={i}
-                    align={"center"}
-                    sortDirection={orderBy === column.key ? order : false}
-                  >
-                    <TableSortLabel
-                      active={orderBy === column.key}
-                      direction={orderBy === column.key ? order : "asc"}
-                      onClick={(e) => handleRequestSort(e, column.key)}
-                    >
-                      {column.label}
-                    </TableSortLabel>
+                  <TableCell key={i} align={"center"}>
+                    {column.label}
                   </TableCell>
                 ))}
               </TableRow>
@@ -240,12 +140,7 @@ export const GenericTable = <T extends { id: number }>({
                             </TableCell>
                           );
                         })}
-                        <div
-                          style={{
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
+                        <div className="genericTable-buttons-container">
                           <ButtonsTable
                             el={row}
                             setSelectedId={setSelectedId}

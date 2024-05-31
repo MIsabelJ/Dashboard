@@ -4,59 +4,18 @@ import Swal from "sweetalert2";
 // ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../hooks/redux";
 import { CategoriaService } from "../../../services/CategoriaService";
-import { ICategoria } from "../../../types/categoria/ICategoria";
-import { ICategoriaPost } from "../../../types/categoria/ICategoriaPost.ts";
+import { ICategoria } from "../../../types/Categoria/ICategoria";
+import { ICategoriaPost } from "../../../types/Categoria/ICategoriaPost.ts";
 import { CategoriaModal } from "../../ui/modals/ModalCategorias/ModalCategorias";
 import { CategoryItem } from "./CategoryItem";
 import { Loader } from "../../ui/Loader/Loader";
+import SearchBar from "../../ui/SearchBar/SearchBar.tsx";
 // ---------- ESTILOS ----------
-import { IconButton, InputBase, List, alpha, styled } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
+import { IconButton, List } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import "./SeccionCategorias.css"
 
 // ------------------------------ CÓDIGO ------------------------------
-// BARRA DE BÚSQUEDA DE SUCURSALES
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: 0, //theme.spacing(1),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    minWidth: "200px",
-    [theme.breakpoints.up("sm")]: {
-      width: "20ch",
-      "&:focus": {
-        width: "30ch",
-      },
-    },
-  },
-}));
-
 const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -137,10 +96,7 @@ export function SeccionCategorias() {
     subCategoria: ICategoriaPost
   ) => {
     try {
-      await categoriaService.addSubCategoria(
-        idCategoria,
-        subCategoria
-      );
+      await categoriaService.addSubCategoria(idCategoria, subCategoria);
       getCategoria();
     } catch (error) {
       console.error(error);
@@ -169,7 +125,7 @@ export function SeccionCategorias() {
               if (subCategoria.id === categoria.id) {
                 categoria.subCategorias.push(subCategoria);
               }
-            })
+            });
           });
         }
       }
@@ -195,47 +151,15 @@ export function SeccionCategorias() {
 
   // -------------------- RENDER --------------------
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "flex-start",
-        height: "100%",
-        flexDirection: "column",
-        gap: "3vh",
-        marginTop: "3vh",
-      }}
-    >
+    <div className="seccion-container">
       {!loading && (
         <>
-          <div
-            style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              padding: "1rem",
-              marginBottom: "1rem",
-            }}
-          >
-            <Search
-              style={{
-                flexGrow: 1,
-                marginLeft: "1rem",
-                marginRight: "1rem",
-                backgroundColor: "#f0f0f0",
-              }}
-            >
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Buscar Categoría..."
-                inputProps={{ "aria-label": "search" }}
-              />
-            </Search>
+          <div className="seccion-busqueda">
+            <SearchBar
+              value={searchTerm}
+              onChange={handleSearch}
+              placeholder="Buscar Categoría..."
+            />
             <IconButton
               color="primary"
               aria-label="add"
@@ -252,21 +176,23 @@ export function SeccionCategorias() {
             aria-labelledby="nested-list-subheader"
           >
             {categoria.length > 0 ? (
-              categoria.filter((category) =>
-                category.denominacion
-                  .toLowerCase()
-                  .includes(searchTerm.toLowerCase())
-              ).map((category) => (
-                <CategoryItem
-                  key={category.id}
-                  category={category}
-                  padding={2}
-                  handleUpdate={handleUpdate}
-                  handleSave={handleSave}
-                  addSubCategoria={addSubCategoria}
-                  handleDelete={handleDelete}
-                />
-              ))
+              categoria
+                .filter((category) =>
+                  category.denominacion
+                    .toLowerCase()
+                    .includes(searchTerm.toLowerCase())
+                )
+                .map((category) => (
+                  <CategoryItem
+                    key={category.id}
+                    category={category}
+                    padding={2}
+                    handleUpdate={handleUpdate}
+                    handleSave={handleSave}
+                    addSubCategoria={addSubCategoria}
+                    handleDelete={handleDelete}
+                  />
+                ))
             ) : (
               <div>No hay categorías creadas.</div>
             )}

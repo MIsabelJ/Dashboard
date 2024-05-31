@@ -24,12 +24,10 @@ import {
   Stepper,
   TextField,
 } from "@mui/material";
-// import AddIcon from "@mui/icons-material/Add";
 import { darken, lighten, styled } from "@mui/material/styles";
 import { IImagen } from "../../../../types/Imagen/IImagen";
 import { InsumoService } from "../../../../services/InsumoService";
 import { useAppDispatch } from "../../../../hooks/redux";
-import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ImagenService } from "../../../../services/ImagenService";
 import Swal from "sweetalert2";
@@ -380,6 +378,29 @@ export const ModalArticuloInsumo = ({
                       </Form.Group>
                       <Grid container spacing={2}>
                         <Grid item xs={4}>
+                          {/* PRECIO DE COMPRA */}
+                          <Form.Group controlId="precioCompra" className="mb-3">
+                            <Form.Label>Precio de Compra</Form.Label>
+                            <InputGroup>
+                              <InputGroup.Text>$</InputGroup.Text>
+                              <Form.Control
+                                type="number"
+                                placeholder="Ingrese el precio de compra"
+                                name="precioCompra"
+                                value={formik.values.precioCompra}
+                                onChange={formik.handleChange}
+                                isInvalid={
+                                  formik.touched.precioCompra &&
+                                  !!formik.errors.precioCompra
+                                }
+                              />
+                            </InputGroup>
+                            <Form.Control.Feedback type="invalid">
+                              {formik.errors.precioCompra}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Grid>
+                        <Grid item xs={4}>
                           {/* PRECIO DE VENTA */}
                           <Form.Group controlId="precioVenta" className="mb-3">
                             <Form.Label>Precio de Venta</Form.Label>
@@ -400,29 +421,6 @@ export const ModalArticuloInsumo = ({
                             </InputGroup>
                             <Form.Control.Feedback type="invalid">
                               {formik.errors.precioVenta}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid item xs={4}>
-                          {/* PRECIO DE COMPRA */}
-                          <Form.Group controlId="precioCompra" className="mb-3">
-                            <Form.Label>Precio de Compra</Form.Label>
-                            <InputGroup>
-                              <InputGroup.Text>$</InputGroup.Text>
-                              <Form.Control
-                                type="number"
-                                placeholder="Ingrese el precio de compra"
-                                name="precioCompra"
-                                value={formik.values.precioCompra}
-                                onChange={formik.handleChange}
-                                isInvalid={
-                                  formik.touched.precioCompra &&
-                                  !!formik.errors.precioCompra
-                                }
-                              />
-                            </InputGroup>
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.precioCompra}
                             </Form.Control.Feedback>
                           </Form.Group>
                         </Grid>
@@ -648,11 +646,6 @@ export const ModalArticuloInsumo = ({
           </Box>
         </Modal.Body>
       </Modal>
-      {/* <UnidadMedidaModal
-        selectedId={selectedId}
-        show={showUnidadMedidaModal}
-        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
-      /> */}
     </>
   );
 };

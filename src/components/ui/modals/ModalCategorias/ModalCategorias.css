@@ -1,0 +1,14 @@
+.sucursales-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  border: 1px solid #dee2e6;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f8f9fa;
+}
+
+.sucursales-grid .mb-3 {
+  max-height: 150px;
+  overflow-y: auto;
+}

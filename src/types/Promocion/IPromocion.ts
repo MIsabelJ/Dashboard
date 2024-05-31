@@ -1,7 +1,7 @@
 import { IBaseEntity } from "../IBaseEntity";
 import { ISucursal } from "../Sucursal/ISucursal";
 import { IPromocionDetalle } from "../PromocionDetalle/IPromocionDetalle";
-import { IImagenPromocion } from "../ImagenPromocion/IImagenPromocion";
+import { IImagen } from "../Imagen/IImagen"
 
 export interface IPromocion extends IBaseEntity {
     denominacion: string
@@ -13,6 +13,6 @@ export interface IPromocion extends IBaseEntity {
     precioPromocional: number
     tipoPromocion: string
     promocionDetalles: IPromocionDetalle[]
-    imagenes: IImagenPromocion[]
+    imagenes: IImagen[]
     sucursales: ISucursal[]
 }

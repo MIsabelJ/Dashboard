@@ -2,56 +2,15 @@ import React, { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
-import { useAppSelector } from "../../../../hooks/redux";
-// ---------- ESTILOS ----------
-import { Modal, Form } from "react-bootstrap";
-import { Button, Grid, InputBase, alpha, styled } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import { EmpresaService } from "../../../../services/EmpresaService";
+import { useAppSelector } from "../../../../hooks/redux";
+import SearchBar from "../../SearchBar/SearchBar";
+// ---------- ESTILOS ----------
+import "./ModalCategorias.css";
+import { Modal, Form } from "react-bootstrap";
+import { Button, Grid } from "@mui/material";
 
 // ------------------------------ CÓDIGO ------------------------------
-
-// BARRA DE BÚSQUEDA DE SUCURSALES
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: 0, //theme.spacing(1),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    minWidth: "200px",
-    [theme.breakpoints.up("sm")]: {
-      width: "20ch",
-      "&:focus": {
-        width: "30ch",
-      },
-    },
-  },
-}));
 
 // ---------- INTERFAZ ----------
 interface CategoriaModalProps {
@@ -115,20 +74,8 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     // }
   };
 
-  const handleAddSubcategoria = (id: number) => {
-    if (!idSubcategorias.includes(id)) {
-      setIdSubcategorias([...idSubcategorias, id]);
-    }
-  };
-
   const handleRemoveSucursal = (id: number) => {
     setIdSucursales(idSucursales.filter((sucursalId) => sucursalId !== id));
-  };
-
-  const handleRemoveSubcategoria = (id: number) => {
-    setIdSubcategorias(
-      idSubcategorias.filter((subcategoriaId) => subcategoriaId !== id)
-    );
   };
 
   // Para seleccionar todas las sucursales
@@ -156,9 +103,9 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     const getSucursales = async (idEmpresa) => {
       const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
       setExistingSucursales(response);
-    }
+    };
     getSucursales(empresaActive);
-  })
+  });
 
   // -------------------- RENDER --------------------
   return (
@@ -181,27 +128,17 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
               <Form.Label className="mr-2">Sucursales</Form.Label>
               <Grid container spacing={2} justifyContent="space-between">
                 <Grid item xs={9}>
-                  <Search
-                    style={{
-                      flexGrow: 1,
-                      // marginLeft: "1rem",
-                      // marginRight: "1rem",
-                      backgroundColor: "#f0f0f0",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    <SearchIconWrapper>
-                      <SearchIcon />
-                    </SearchIconWrapper>
-                    <StyledInputBase
-                      value={searchTerm}
-                      onChange={handleSearch}
-                      placeholder="Buscar Sucursal..."
-                      inputProps={{ "aria-label": "search" }}
-                    />
-                  </Search>
+                  <SearchBar
+                    value={searchTerm}
+                    onChange={handleSearch}
+                    placeholder="Buscar Sucursal..."
+                  />
                 </Grid>
-                <Grid item xs={3} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <Grid
+                  item
+                  xs={3}
+                  style={{ display: "flex", justifyContent: "flex-start" }}
+                >
                   <Form.Check
                     type="checkbox"
                     id="checkbox-all"
@@ -211,18 +148,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                   />
                 </Grid>
               </Grid>
-              <div
-                className="sucursales-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(4, 1fr)",
-                  gap: "10px",
-                  border: "1px solid #dee2e6",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  backgroundColor: "#f8f9fa",
-                }}
-              >
+              <div className="sucursales-grid">
                 {existingSucursales
                   .filter((sucursal) =>
                     sucursal.nombre
@@ -251,24 +177,6 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                     </div>
                   ))}
               </div>
-              {/* <div style={{ flex: "1 1 45%", minWidth: "200px" }}>
-                  <ListGroup>
-                    {idSucursales.map((id) => (
-                      <ListGroup.Item
-                        key={id}
-                        className="d-flex justify-content-between align-items-center"
-                      >
-                        <span>
-                          {
-                            existingSucursales.find(
-                              (sucursal) => sucursal.id === id
-                            )?.nombre
-                          }
-                        </span>
-                      </ListGroup.Item>
-                    ))}
-                  </ListGroup>
-                </div> */}
             </Form.Group>
           </Form>
         </Modal.Body>

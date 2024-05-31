@@ -1,0 +1,43 @@
+/* Estilos del contenedor principal del modal */
+.modal-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  padding: 0.4rem;
+}
+
+/* Estilos del botón "Elegir archivos" */
+.choose-files-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  width: 380px;
+  padding: 0.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.23);
+  border-radius: 4px;
+  user-select: none;
+  cursor: pointer;
+}
+
+.choose-files-container:hover {
+  border: 1px solid rgba(0, 0, 0, 0.6);
+}
+
+.choose-files-container p {
+  margin: 0;
+}
+
+.choose-files-button {
+  border: 1px solid rgba(0, 0, 0, 0.60);
+  padding: .2rem .4rem;
+  border-radius: 4px;
+  margin: 0;
+}
+
+/* Estilos de los elementos de la lista de archivos seleccionados */
+.files-list-item {
+  color: #2e7d32;
+  border-radius: 50px;
+}

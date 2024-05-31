@@ -1,20 +1,22 @@
 import { AbstractBackendClient } from "./AbstractBackendClient";
 
-export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<TG, TP, TE> {
+export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
+  TG,
+  TP,
+  TE
+> {
   constructor(baseUrl: string) {
     super(baseUrl);
   }
 
   async getAll(): Promise<TG[]> {
-    const response = await fetch(`${this.baseUrl}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "no-cors",
-        },
-      }
-    );
+    const response = await fetch(`${this.baseUrl}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "no-cors",
+      },
+    });
     const data = await response.json();
     return data as TG[];
   }
@@ -41,7 +43,7 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<TG
   }
 
   async put(id: number, data: TE): Promise<TG> {
-    console.log(this.baseUrl)
+    console.log(this.baseUrl);
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "PUT",
       headers: {

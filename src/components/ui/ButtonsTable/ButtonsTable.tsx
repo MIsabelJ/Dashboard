@@ -16,7 +16,7 @@ export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
   el,
   handleDelete,
   setOpenModal,
-  setSelectedId
+  setSelectedId,
 }: IButtonsTable<T>) => {
   const dispatch = useAppDispatch();
 
