@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { UnidadMedidaService } from "../../../services/UnidadMedidaService";
 import Swal from "sweetalert2";
-import { IUnidadMedidaPost } from "../../../types/UnidadMedida/IUnidadMedidaPost";
 import { useAppDispatch } from "../../../hooks/redux";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
-import { Loader } from "../../ui/Loader/Loader";
-import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { IUnidadMedida } from "../../../types/UnidadMedida/IUnidadMedida";
+import { UnidadMedidaService } from "../../../services/UnidadMedidaService";
 import { UnidadMedidaModal } from "../../ui/modals/ModalUnidadMedida/ModalUnidadMedida";
+import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
+import { Loader } from "../../ui/Loader/Loader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -17,7 +16,6 @@ export const SeccionUnidadesMedida = () => {
   // -------------------- STATES --------------------
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-
 
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
@@ -50,8 +48,6 @@ export const SeccionUnidadesMedida = () => {
       }
     });
   };
-
-
 
   // -------------------- FUNCIONES --------------------
   const dispatch = useAppDispatch();
@@ -87,7 +83,10 @@ export const SeccionUnidadesMedida = () => {
       <UnidadMedidaModal
         selectedId={selectedId}
         show={openModal}
-        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+        handleClose={() => {
+          setOpenModal(false);
+          setSelectedId(undefined);
+        }}
       />
     </>
   );

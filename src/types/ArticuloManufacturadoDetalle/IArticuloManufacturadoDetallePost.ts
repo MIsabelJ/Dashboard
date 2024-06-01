@@ -1,5 +1,5 @@
 export interface IArticuloManufacturadoDetallePost {
-    id: number
+    id?: number
     cantidad: number
     idArticuloInsumo: number
 }

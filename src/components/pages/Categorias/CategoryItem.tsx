@@ -15,7 +15,6 @@ import {
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import GridViewOutlinedIcon from "@mui/icons-material/GridViewOutlined";
-import "./category.css";
 
 // ------------------------------ CÓDIGO ------------------------------
 // -------------------- INTERFAZ --------------------
@@ -53,7 +52,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         </ListItemIcon>
         <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
-          <ButtonsTable
+          <ButtonsTable                           // FIXME: Falta setSelectedId ?
             setOpenModal={() => setOpenModal(true)}
             el={category}
             handleDelete={handleDelete}

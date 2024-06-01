@@ -5,12 +5,10 @@ import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
-import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
 import { ModalArticuloManufacturado } from "../../../ui/modals/ModalManufacturados/ModalManufacturados";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
-import "./manufacturados.css";
 import { Carousel } from "react-bootstrap";
 
 // ------------------------------ CÓDIGO ------------------------------

@@ -1,0 +1,42 @@
+.modal-content {
+  padding: 20px;
+  background-color: #fff;
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.stepper-container {
+  padding-top: 20px;
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: row;
+  padding-top: 20px;
+  align-items: center;
+}
+
+.form-actions .spacer {
+  flex: 1 1 auto;
+}
+
+.form-actions .next-button {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.form-actions .next-button:hover {
+  background-color: #0069d9;
+  border-color: #0062cc;
+}
+
+.form-actions .next-button.save-button {
+  background-color: #28a745;
+  border-color: #28a745;
+}
+
+.form-actions .next-button.save-button:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}

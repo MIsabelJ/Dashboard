@@ -5,26 +5,7 @@ import { useFormik } from "formik";
 import { SucursalService } from "../../../../services/SucursalService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { Modal } from "react-bootstrap";
-import { ModalImagen } from "../ModalImagen/ModalImagen";
-import {
-  Autocomplete,
-  Box,
-  Button,
-  FormControl,
-  FormLabel,
-  Grid,
-  IconButton,
-  InputAdornment,
-  MenuItem,
-  Select,
-  Step,
-  StepLabel,
-  Stepper,
-  TextField,
-} from "@mui/material";
-import { AddIcCallOutlined } from "@mui/icons-material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import * as Yup from "yup";
+import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import { IImagen } from "../../../../types/Imagen/IImagen";
 import { IArticulo } from "../../../../types/Articulo/IArticulo";
 import { ArticuloService } from "../../../../services/ArticuloService";
@@ -34,34 +15,23 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { PromocionService } from "../../../../services/PromocionService";
 import { ImagenService } from "../../../../services/ImagenService";
 import Swal from "sweetalert2";
+import {
+  API_URL,
+  validationSchema,
+  initialValues,
+  steps,
+} from "./utils/constants";
+import Step1 from "./stepper/Step1";
+import Step2 from "./stepper/Step2";
+import Step3 from "./stepper/Step3";
+import Step4 from "./stepper/Step4";
+import "./ModalPromocion.css";
 //---------------- INTERFAZ ----------------
 interface IPromocionModalProps {
   show: boolean;
   handleClose: () => void;
   selectedId?: number;
 }
-const API_URL = import.meta.env.VITE_API_URL;
-
-//---------------- FORMIK ----------------
-const initialValues: IPromocionPost = {
-  denominacion: "",
-  fechaDesde: "",
-  fechaHasta: "",
-  horaDesde: "",
-  horaHasta: "",
-  precioPromocional: 0,
-  tipoPromocion: "",
-  promocionDetalles: [],
-  imagenes: [],
-  idSucursales: [],
-  descripcionDescuento: "",
-};
-const steps = [
-  "Información de la promoción",
-  "Detalles de la promoción",
-  "Imagenes de la promoción",
-  "Sucursales Disponibles",
-];
 
 const ModalPromocion = ({
   show,
@@ -70,9 +40,6 @@ const ModalPromocion = ({
 }: IPromocionModalProps) => {
   // -------------------- STATES --------------------
   const [activeStep, setActiveStep] = useState(0);
-  // Barra de busqueda para detalles promociones
-  const [searchTerm, setSearchTerm] = useState("");
-  const [rows, setRows] = useState<any[]>([]);
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previousImages, setPreviousImages] = useState<IImagen[]>([]);
@@ -97,8 +64,6 @@ const ModalPromocion = ({
   >([]);
 
   // -------------------- FORMIK --------------------
-
-  const validationSchema = Yup.object({});
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -187,7 +152,6 @@ const ModalPromocion = ({
   };
 
   // -------------------- FUNCIONES --------------------
-
   const swalAlert = (
     title: string,
     content: string,
@@ -207,13 +171,12 @@ const ModalPromocion = ({
       const promocion = await promocionService.getById(id);
       if (promocion) {
         setPreviousImages(promocion.imagenes);
-        const detallesPost: IPromocionDetallePost[] = promocion.promocionDetalles.map(
-          (detalle) => ({
+        const detallesPost: IPromocionDetallePost[] =
+          promocion.promocionDetalles.map((detalle) => ({
             id: detalle.id,
             cantidad: detalle.cantidad,
             idArticulo: detalle.articulo.id,
-          })
-        );
+          }));
         setDetallePromocion(detallesPost);
         formik.setValues({
           denominacion: promocion.denominacion,
@@ -279,18 +242,15 @@ const ModalPromocion = ({
     <Modal show={show} onHide={internalHandleClose} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          {selectedId ? "Editar" : "Agregar"} Artículo Insumo
+          {selectedId ? "Editar" : "Agregar"} Promoción
         </Modal.Title>
       </Modal.Header>
-      <Box
-        sx={{
-          padding: "20px",
-          backgroundColor: "#fff",
-          margin: "20px auto",
-          maxWidth: "800px",
-        }}
-      >
-        <Stepper activeStep={activeStep} alternativeLabel>
+      <div className="modal-content">
+        <Stepper
+          activeStep={activeStep}
+          alternativeLabel
+          className="stepper-container"
+        >
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -298,265 +258,28 @@ const ModalPromocion = ({
           ))}
         </Stepper>
         <form onSubmit={formik.handleSubmit}>
-          {activeStep === 0 && (
-            <Box>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Denominación"
-                name="denominacion"
-                value={formik.values.denominacion}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.denominacion &&
-                  Boolean(formik.errors.denominacion)
-                }
-                helperText={
-                  formik.touched.denominacion && formik.errors.denominacion
-                }
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Fecha Desde"
-                type="date"
-                name="fechaDesde"
-                InputLabelProps={{ shrink: true }}
-                value={formik.values.fechaDesde}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.fechaDesde && Boolean(formik.errors.fechaDesde)
-                }
-                helperText={
-                  formik.touched.fechaDesde && formik.errors.fechaDesde
-                }
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Fecha Hasta"
-                type="date"
-                name="fechaHasta"
-                InputLabelProps={{ shrink: true }}
-                value={formik.values.fechaHasta}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.fechaHasta && Boolean(formik.errors.fechaHasta)
-                }
-                helperText={
-                  formik.touched.fechaHasta && formik.errors.fechaHasta
-                }
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Hora Desde"
-                type="time"
-                name="horaDesde"
-                InputLabelProps={{ shrink: true }}
-                value={formik.values.horaDesde}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.horaDesde && Boolean(formik.errors.horaDesde)
-                }
-                helperText={formik.touched.horaDesde && formik.errors.horaDesde}
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Hora Hasta"
-                type="time"
-                name="horaHasta"
-                InputLabelProps={{ shrink: true }}
-                value={formik.values.horaHasta}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.horaHasta && Boolean(formik.errors.horaHasta)
-                }
-                helperText={formik.touched.horaHasta && formik.errors.horaHasta}
-              />
-            </Box>
-          )}
-          {activeStep === 1 && (
-            <Box>
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Precio Promocional"
-                name="precioPromocional"
-                type="number"
-                value={formik.values.precioPromocional}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.precioPromocional &&
-                  Boolean(formik.errors.precioPromocional)
-                }
-                helperText={
-                  formik.touched.precioPromocional &&
-                  formik.errors.precioPromocional
-                }
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">$</InputAdornment>
-                  ),
-                }}
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Tipo de Promoción"
-                name="tipoPromocion"
-                value={formik.values.tipoPromocion}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.tipoPromocion &&
-                  Boolean(formik.errors.tipoPromocion)
-                }
-                helperText={
-                  formik.touched.tipoPromocion && formik.errors.tipoPromocion
-                }
-              />
-              <TextField
-                fullWidth
-                margin="normal"
-                label="Descripcion del descuento"
-                name="descripcionDescuento"
-                value={formik.values.descripcionDescuento}
-                onChange={formik.handleChange}
-                error={
-                  formik.touched.descripcionDescuento &&
-                  Boolean(formik.errors.descripcionDescuento)
-                }
-                helperText={
-                  formik.touched.descripcionDescuento &&
-                  formik.errors.descripcionDescuento
-                }
-              />
-            </Box>
-          )}
+          {activeStep === 0 && <Step1 formik={formik} />}
+          {activeStep === 1 && <Step2 formik={formik} />}
           {activeStep === 2 && (
-            <>
-              {detallePromocion.map((detalle, index) => (
-                <Grid container spacing={2} key={index} alignItems="center">
-                  <Grid item xs={5}>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Cantidad"
-                      name={`promocionDetalles[${index}].cantidad`}
-                      type="number"
-                      value={detalle.cantidad}
-                      onChange={(e) => {
-                        const newDetalles = [...detallePromocion];
-                        newDetalles[index].cantidad = parseInt(
-                          e.target.value,
-                          10
-                        );
-                        setDetallePromocion(newDetalles);
-                        formik.setFieldValue("promocionDetalles", newDetalles);
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={5}>
-                    <FormControl fullWidth margin="normal">
-                      <Autocomplete
-                        disablePortal
-                        id="combo-box-demo"
-                        options={opcionesArticulos}
-                        sx={{ width: "100%" }}
-                        onChange={(event, value) => {
-                          const newDetalles = [...detallePromocion];
-                          newDetalles[index].idArticulo = value ? value.id : 0;
-                          setDetallePromocion(newDetalles);
-                          formik.setFieldValue(
-                            "promocionDetalles",
-                            newDetalles
-                          );
-                        }}
-                        isOptionEqualToValue={(option, value) =>
-                          option.id === value.id
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Seleccione el artículo"
-                          />
-                        )}
-                      />
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={2}>
-                    <IconButton
-                      onClick={() =>
-                        setDetallePromocion(
-                          detallePromocion.filter((_, i) => i !== index)
-                        )
-                      }
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-              ))}
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcCallOutlined />}
-                onClick={() =>
-                  setDetallePromocion([
-                    ...detallePromocion,
-                    { id: 0 ,cantidad: 0, idArticulo: 0 },
-                  ])
-                }
-              >
-                Agregar Detalle
-              </Button>
-              <Box>
-                <FormControl fullWidth margin="normal">
-                  <FormLabel component="legend">Sucursales</FormLabel>
-                  <Autocomplete
-                    multiple
-                    id="tags-outlined"
-                    options={opcionesSucursal}
-                    getOptionLabel={(option) => option?.label || ""}
-                    filterSelectedOptions
-                    sx={{ width: "100%" }}
-                    isOptionEqualToValue={(option, value) =>
-                      option?.id === value?.id
-                    }
-                    onChange={(event, value) => handleSucursalChange(value)}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Sucursales"
-                        placeholder="Seleccione sucursales"
-                      />
-                    )}
-                  />
-                </FormControl>
-              </Box>
-            </>
+            <Step3
+              formik={formik}
+              detallePromocion={detallePromocion}
+              setDetallePromocion={setDetallePromocion}
+              opcionesArticulos={opcionesArticulos}
+              opcionesSucursal={opcionesSucursal}
+              handleSucursalChange={handleSucursalChange}
+            />
           )}
-
           {activeStep === 3 && (
-            <Box>
-              <ModalImagen
-                previousImages={previousImages}
-                setPreviousImages={setPreviousImages}
-                setSelectedFiles={setSelectedFiles}
-                selectedFiles={selectedFiles}
-                baseUrl="imagen-promocion"
-              />
-            </Box>
+            <Step4
+              formik={formik}
+              selectedFiles={selectedFiles}
+              setSelectedFiles={setSelectedFiles}
+              previousImages={previousImages}
+              setPreviousImages={setPreviousImages}
+            />
           )}
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              pt: 2,
-              alignItems: "center",
-            }}
-          >
+          <div className="form-actions">
             <Button
               color="inherit"
               disabled={activeStep === 0}
@@ -564,17 +287,19 @@ const ModalPromocion = ({
             >
               Atrás
             </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
+            <div className="spacer" />
             <Button
               onClick={handleNext}
               variant="contained"
-              color={activeStep === steps.length - 1 ? "success" : "primary"}
+              className={`next-button ${
+                activeStep === steps.length - 1 ? "save-button" : ""
+              }`}
             >
               {activeStep === steps.length - 1 ? "Guardar" : "Siguiente"}
             </Button>
-          </Box>
+          </div>
         </form>
-      </Box>
+      </div>
     </Modal>
   );
 };

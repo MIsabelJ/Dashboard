@@ -1,13 +1,12 @@
-
-import { PromocionService } from "../../../services/PromocionService";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
 import { useAppDispatch } from "../../../hooks/redux";
-import { useEffect, useState } from "react";
-import { Loader } from "../../ui/Loader/Loader";
-import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { IPromocion } from "../../../types/Promocion/IPromocion";
+import { PromocionService } from "../../../services/PromocionService";
 import ModalPromocion from "../../ui/modals/ModalPromociones/ModalPromocion";
+import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
+import { Loader } from "../../ui/Loader/Loader";
 import { Carousel } from "react-bootstrap";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -29,7 +28,9 @@ export const SeccionPromociones = () => {
     { label: "Denominación", key: "denominacion" },
     { label: "Descripción", key: "descripcionDescuento" },
     {
-      label: "Imágenes", key: "imagenes", render: (promocion: IPromocion) => (
+      label: "Imágenes",
+      key: "imagenes",
+      render: (promocion: IPromocion) => (
         <Carousel>
           {promocion.imagenes.map((imagen, index) => (
             <Carousel.Item key={index}>
@@ -110,7 +111,10 @@ export const SeccionPromociones = () => {
       <ModalPromocion
         selectedId={selectedId}
         show={openModal}
-        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+        handleClose={() => {
+          setOpenModal(false);
+          setSelectedId(undefined);
+        }}
       />
     </>
   );

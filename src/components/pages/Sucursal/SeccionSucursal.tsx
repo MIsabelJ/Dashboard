@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 // ---------- ARCHIVOS----------
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { useLocalStorage } from "../../../hooks/localstorage";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
 import { setCurrentSucursal } from "../../../redux/slices/SucursalReducer";
-import { SucursalService } from "../../../services/SucursalService";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { ISucursalPost } from "../../../types/Sucursal/ISucursalPost";
+import { SucursalService } from "../../../services/SucursalService";
+import { EmpresaService } from "../../../services/EmpresaService";
 import { ModalSucursal } from "../../ui/modals/ModalSucursal/ModalSucursal";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 import { Loader } from "../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import { useLocalStorage } from "../../../hooks/localstorage";
-import { EmpresaService } from "../../../services/EmpresaService";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -57,11 +57,11 @@ const SeccionSucursal = () => {
     });
   };
 
-  const handleSubmit = async (sucursal: any) => {
-    await sucursalService.put(sucursal.id, sucursal).then(() => {
-      getSucursales();
-    });
-  };
+  // const handleSubmit = async (sucursal: any) => {
+  //   await sucursalService.put(sucursal.id, sucursal).then(() => {
+  //     getSucursales();
+  //   });
+  // };
 
   const handleSave = async (sucursal: ISucursalPost) => {
     try {

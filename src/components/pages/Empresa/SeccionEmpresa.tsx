@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 // ---------- ARCHIVOS----------
+import { useLocalStorage } from "../../../hooks/localstorage";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
 import { setCurrentEmpresa } from "../../../redux/slices/EmpresaReducer";
@@ -13,7 +14,6 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
-import { useLocalStorage } from "../../../hooks/localstorage";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -29,7 +29,7 @@ export const SeccionEmpresa = () => {
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
+  // const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
   const [redirectId, setRedirectId] = useState<number | null>(null);
 
   // -------------------- SERVICES --------------------
@@ -52,11 +52,11 @@ export const SeccionEmpresa = () => {
     setRedirectId(id);
   };
 
-  const handleEdit = async (id: number) => {
-    const selectedEntity = await empresaService.getById(id);
-    setSelectedEntity(selectedEntity); // Actualiza el estado con los datos de la entidad seleccionada
-    setOpenModal(true);
-  };
+  // const handleEdit = async (id: number) => {
+  //   const selectedEntity = await empresaService.getById(id);
+  //   setSelectedEntity(selectedEntity); // Actualiza el estado con los datos de la entidad seleccionada
+  //   setOpenModal(true);
+  // };
 
   const handleDelete = async (id: number) => {
     Swal.fire({

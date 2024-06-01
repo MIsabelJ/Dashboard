@@ -6,12 +6,10 @@ import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { InsumoService } from "../../../../services/InsumoService";
 import { ModalArticuloInsumo } from "../../../ui/modals/ModalInsumos/ModalInsumos";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
-import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import Carousel from "react-bootstrap/Carousel";
-import "./insumos.css";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;

@@ -5,19 +5,10 @@ import * as Yup from "yup";
 // ---------- ARCHIVOS----------
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
-import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import { InsumoService } from "../../../../services/InsumoService";
-import { ModalArticuloInsumo } from "../ModalInsumos/ModalInsumos";
 // ---------- ESTILOS ----------
 import { Form, Modal } from "react-bootstrap";
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Grid,
-  TextField,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { Autocomplete, Box, Button, Grid, TextField } from "@mui/material";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -47,11 +38,7 @@ export const ManufacturadosDetalleModal = ({
   openModal,
   setOpenModal,
 }: ManufacturadosDetalleModalProps) => {
-
   // -------------------- STATES --------------------
-  // Abre el modal de Insumo
-  const [showModalArticuloInsumo, setShowModalArticuloInsumo] =
-    useState<boolean>(false);
   // Guarda los valores de todos los insumos que existen y que vayan a añadirse con el useEffect
   const [insumos, setInsumos] = useState<IArticuloInsumo[]>([]);
   // Utilizado para dar formato a los elementos del dropdown de insumos
@@ -83,28 +70,6 @@ export const ManufacturadosDetalleModal = ({
     setOpenModal(false);
   };
 
-  const handleSaveInsumo = async (insumo: IArticuloInsumoPost) => {
-    try {
-      await insumoService.post(insumo);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // -------------------- FUNCIONES --------------------
-
-  const addInsumo = (insumo: IArticuloInsumo) => {
-    setInsumos([...insumos, insumo]);
-    setShowModalArticuloInsumo(false);
-  };
-
-  const getInsumo = async () => {
-    await insumoService.getAll().then((insumoData) => {
-      // console.log(insumoData)
-      // dispatch(setDataTable(insumoData));
-    });
-  };
-
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     const getInsumos = async () => {
@@ -127,7 +92,7 @@ export const ManufacturadosDetalleModal = ({
     <>
       <Modal show={openModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Detalle de Artículo Manufacturado</Modal.Title>
+          <Modal.Title>Añada un insumo necesario</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Box sx={{ width: "100%" }}>
@@ -135,10 +100,10 @@ export const ManufacturadosDetalleModal = ({
               <Form onSubmit={formik.handleSubmit}>
                 <>
                   {/* ARTICULO INSUMO */}
-                  <Form.Group controlId="idArticuloInsumo" className="mb-3">
-                    <Form.Label>Insumo</Form.Label>
-                    <Grid container spacing={2} alignItems="center">
-                      <Grid item xs={7}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={5}>
+                      <Form.Group controlId="idArticuloInsumo" className="mb-3">
+                        <Form.Label>Insumo</Form.Label>
                         <Autocomplete
                           // disablePortal
                           id="combo-box-demo"
@@ -167,30 +132,12 @@ export const ManufacturadosDetalleModal = ({
                             />
                           )}
                         />
-                      </Grid>
-                      <Grid
-                        item
-                        xs={5}
-                        display="flex"
-                        justifyContent="flex-end"
-                      >
-                        <Button
-                          onClick={() => {
-                            setShowModalArticuloInsumo(true);
-                          }}
-                          variant="contained"
-                          startIcon={<AddIcon />}
-                        >
-                          Crear Insumo
-                        </Button>
-                      </Grid>
+                        <Form.Control.Feedback type="invalid">
+                          {formik.errors.idArticuloInsumo}
+                        </Form.Control.Feedback>
+                      </Form.Group>
                     </Grid>
-                    <Form.Control.Feedback type="invalid">
-                      {formik.errors.idArticuloInsumo}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Grid container spacing={2} alignItems="center" justifyContent="center">
-                    <Grid item xs={6} alignSelf={"flex-start"}>
+                    <Grid item xs={3}>
                       {/* CANTIDAD */}
                       <Form.Group controlId="cantidad" className="mb-3">
                         <Form.Label>Cantidad</Form.Label>
@@ -200,16 +147,13 @@ export const ManufacturadosDetalleModal = ({
                           name="cantidad"
                           value={formik.values.cantidad}
                           onChange={formik.handleChange}
-                        // isInvalid={
-                        //   formik.touched.cantidad && formik.errors.cantidad
-                        // }
                         />
                         <Form.Control.Feedback type="invalid">
                           {formik.errors.cantidad}
                         </Form.Control.Feedback>
                       </Form.Group>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={4}>
                       {/* UNIDAD DE MEDIDA */}
                       <Form.Group controlId="idUnidadMedida" className="mb-3">
                         <Form.Label>Unidad de Medida</Form.Label>
@@ -220,9 +164,10 @@ export const ManufacturadosDetalleModal = ({
                             value={
                               formik.values.idArticuloInsumo
                                 ? insumos.find(
-                                  (insumo) =>
-                                    insumo.id === formik.values.idArticuloInsumo
-                                )?.unidadMedida.denominacion
+                                    (insumo) =>
+                                      insumo.id ===
+                                      formik.values.idArticuloInsumo
+                                  )?.unidadMedida.denominacion
                                 : ""
                             }
                             InputProps={{
@@ -240,18 +185,18 @@ export const ManufacturadosDetalleModal = ({
             <React.Fragment>
               <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
                 <Box sx={{ flex: "1 1 auto" }} />
-                <Button onClick={handleSubmit} variant="contained" color="success">Guardar</Button>
+                <Button
+                  onClick={handleSubmit}
+                  variant="contained"
+                  color="success"
+                >
+                  Guardar
+                </Button>
               </Box>
             </React.Fragment>
           </Box>
         </Modal.Body>
       </Modal>
-      <ModalArticuloInsumo
-        handleSave={handleSaveInsumo}
-        getInsumos={getInsumo}
-        openModal={showModalArticuloInsumo}
-        setOpenModal={setShowModalArticuloInsumo}
-      />
     </>
   );
 };
