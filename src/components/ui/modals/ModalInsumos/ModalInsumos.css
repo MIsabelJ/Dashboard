@@ -1,0 +1,29 @@
+.modal-body {
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+.box-full-width {
+  width: 100%;
+}
+
+.stepper-padding {
+  padding: 20px 0;
+}
+
+.box-row {
+  display: flex;
+  flex-direction: row;
+  padding-top: 2rem;
+}
+
+.box-auto-flex {
+  flex: 1 1 auto;
+}
+
+.box-row-center {
+  display: flex;
+  flex-direction: row;
+  padding-top: 2rem;
+  align-items: center;
+}

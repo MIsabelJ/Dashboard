@@ -1,104 +1,39 @@
 import React, { useEffect, useState } from "react";
-import * as Yup from "yup";
 import { useFormik } from "formik";
+import Swal from "sweetalert2";
 // ---------- ARCHIVOS----------
+import { useAppDispatch } from "../../../../hooks/redux";
+import { setDataTable } from "../../../../redux/slices/TablaReducer";
+import {
+  API_URL,
+  initialValues,
+  validationSchema,
+  steps,
+} from "./utils/constants";
+import { swalAlert, formatCategorias } from "./utils/helpers";
 // INTERFACES
 import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { IArticuloInsumoPost } from "../../../../types/ArticuloInsumo/IArticuloInsumoPost";
 import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import { IImagen } from "../../../../types/Imagen/IImagen";
 // SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { CategoriaService } from "../../../../services/CategoriaService";
-// MODALS
-import { ModalImagen } from "../ModalImagen/ModalImagen";
-// ---------- ESTILOS ----------
-import { Modal, Form, InputGroup } from "react-bootstrap";
-import {
-  Autocomplete,
-  AutocompleteRenderGroupParams,
-  Box,
-  Button,
-  Grid,
-  Step,
-  StepLabel,
-  Stepper,
-  TextField,
-} from "@mui/material";
-import { darken, lighten, styled } from "@mui/material/styles";
-import { IImagen } from "../../../../types/Imagen/IImagen";
 import { InsumoService } from "../../../../services/InsumoService";
-import { useAppDispatch } from "../../../../hooks/redux";
-import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ImagenService } from "../../../../services/ImagenService";
-import Swal from "sweetalert2";
+// STEPPER
+import Step1 from "./stepper/Step1";
+import Step2 from "./stepper/Step2";
+import Step3 from "./stepper/Step3";
+// ---------- ESTILOS ----------
+import { Modal, Form } from "react-bootstrap";
+import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
+import "./ModalInsumos.css";
 
 // ------------------------------ CÓDIGO ------------------------------
-// ESTILOS del item de cabecera en el combo de CATEGORÍA
-const GroupHeader = styled("div")(({ theme }) => ({
-  position: "relative",
-  top: "-8px",
-  padding: "4px 10px",
-  color: theme.palette.primary.main,
-  backgroundColor:
-    theme.palette.mode === "light"
-      ? lighten(theme.palette.primary.light, 0.85)
-      : darken(theme.palette.primary.main, 0.8),
-}));
-
-// ESTILOS del item de subcategoría en el combo de CATEGORÍA
-const GroupItems = styled("ul")({
-  padding: 0,
-});
-
-const API_URL = import.meta.env.VITE_API_URL;
-
-// ---------- FORMIK ----------
-const initialValues: IArticuloInsumoPost = {
-  denominacion: "",
-  precioVenta: 0,
-  imagenes: [],
-  precioCompra: 0,
-  stockMinimo: 0,
-  stockActual: 0,
-  stockMaximo: 0,
-  esParaElaborar: true,
-  idUnidadMedida: 0,
-  idCategoria: 0,
-};
 
 //TODO: Agregar mensaje de error que traiga el error de
 //steps anteriores al último step del stepper
-
-const validationSchema = Yup.object({
-  denominacion: Yup.string().required("Campo requerido"),
-  precioVenta: Yup.number()
-    .required("Campo requerido")
-    .min(0, "El precio de venta debe ser mayor o igual a 0."),
-  precioCompra: Yup.number()
-    .required("Campo requerido")
-    .min(0, "El precio de compra debe ser mayor o igual a 0."),
-  stockMinimo: Yup.number()
-    .required("Campo requerido")
-    .min(1, "El stock minimo debe ser mayor que 0."),
-  stockActual: Yup.number()
-    .required("Campo requerido")
-    .min(
-      Yup.ref("stockMinimo"),
-      "El stock actual debe ser mayor o igual al stock mínimo."
-    )
-    .max(
-      Yup.ref("stockMaximo"),
-      "El stock actual debe ser menor o igual al stock máximo."
-    ),
-  stockMaximo: Yup.number()
-    .required("Campo requerido")
-    .min(1, "El stock máximo debe ser mayor que 0."),
-  esParaElaborar: Yup.boolean().required("Campo requerido"),
-  idUnidadMedida: Yup.number().required("Campo requerido"),
-  idCategoria: Yup.number().required("Campo requerido"),
-});
-
-const steps = ["Información del Artículo", "Información Adicional", "Imágenes"];
 
 // ---------- INTERFAZ ----------
 interface IArticuloInsumoModalProps {
@@ -208,62 +143,8 @@ export const ModalArticuloInsumo = ({
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  // -------------------- MANEJO DE CATEGORÍAS --------------------
-  interface CategoriaData {
-    id: number;
-    denominacion: string;
-    parent: number | null;
-  }
-
-  const categoriasData: CategoriaData[] = [];
-  const subCategorias: CategoriaData[] = [];
-
-  const formatCategorias = () => {
-    categorias.forEach((categoria) => {
-      if (categoria.subCategorias.length > 0) {
-        categoria.subCategorias.forEach((subCategoria) => {
-          subCategorias.push({
-            id: subCategoria.id,
-            denominacion: subCategoria.denominacion,
-            parent: null,
-          });
-        });
-      }
-    });
-    categorias.forEach((categoria) => {
-      if (
-        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
-      ) {
-        categoriasData.push({
-          id: categoria.id,
-          denominacion: categoria.denominacion,
-          parent: null,
-        });
-        if (categoria.subCategorias.length > 0) {
-          categoria.subCategorias.forEach((subCategoria) => {
-            categoriasData.push({
-              id: subCategoria.id,
-              denominacion: subCategoria.denominacion,
-              parent: categoria.id,
-            });
-          });
-        }
-      }
-    });
-    return categoriasData;
-  };
-
-  const categoriasFiltradas = formatCategorias();
-
   // -------------------- FUNCIONES --------------------
-
-  const swalAlert = (
-    title: string,
-    content: string,
-    icon: "error" | "success"
-  ) => {
-    Swal.fire(title, content, icon);
-  };
+  const categoriasFiltradas = formatCategorias(categorias);
 
   const getAllInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
@@ -333,12 +214,12 @@ export const ModalArticuloInsumo = ({
             {selectedId ? "Editar" : "Agregar"} Artículo Insumo
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
-          <Box sx={{ width: "100%" }}>
+        <Modal.Body className="modal-body">
+          <Box className="box-full-width">
             <Stepper
               activeStep={activeStep}
               alternativeLabel
-              sx={{ padding: "20px 0" }}
+              className="stepper-padding"
             >
               {steps.map((label) => (
                 <Step key={label}>
@@ -348,278 +229,32 @@ export const ModalArticuloInsumo = ({
             </Stepper>
             {activeStep === steps.length ? (
               <React.Fragment>
-                <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-                  <Box sx={{ flex: "1 1 auto" }} />
+                <Box className="box-row">
+                  <Box className="box-auto-flex" />
                   <Button onClick={internalHandleClose}>Finalizar</Button>
                 </Box>
               </React.Fragment>
             ) : (
               <React.Fragment>
                 <Form onSubmit={formik.handleSubmit}>
-                  {activeStep === 0 && (
-                    <>
-                      {/* DENOMINACION */}
-                      <Form.Group controlId="denominacion" className="mb-3">
-                        <Form.Label>Denominación</Form.Label>
-                        <Form.Control
-                          type="text"
-                          placeholder="Ingrese la denominación"
-                          name="denominacion"
-                          value={formik.values.denominacion}
-                          onChange={formik.handleChange}
-                          isInvalid={
-                            formik.touched.denominacion &&
-                            !!formik.errors.denominacion
-                          }
-                        />
-                        <Form.Control.Feedback type="invalid">
-                          {formik.errors.denominacion}
-                        </Form.Control.Feedback>
-                      </Form.Group>
-                      <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                          {/* PRECIO DE COMPRA */}
-                          <Form.Group controlId="precioCompra" className="mb-3">
-                            <Form.Label>Precio de Compra</Form.Label>
-                            <InputGroup>
-                              <InputGroup.Text>$</InputGroup.Text>
-                              <Form.Control
-                                type="number"
-                                placeholder="Ingrese el precio de compra"
-                                name="precioCompra"
-                                value={formik.values.precioCompra}
-                                onChange={formik.handleChange}
-                                isInvalid={
-                                  formik.touched.precioCompra &&
-                                  !!formik.errors.precioCompra
-                                }
-                              />
-                            </InputGroup>
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.precioCompra}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid item xs={4}>
-                          {/* PRECIO DE VENTA */}
-                          <Form.Group controlId="precioVenta" className="mb-3">
-                            <Form.Label>Precio de Venta</Form.Label>
-                            <InputGroup>
-                              <InputGroup.Text>$</InputGroup.Text>
-                              <Form.Control
-                                type="number"
-                                placeholder="Ingrese el precio de venta"
-                                name="precioVenta"
-                                value={formik.values.precioVenta}
-                                onChange={formik.handleChange}
-                                isInvalid={
-                                  formik.touched.precioVenta &&
-                                  !!formik.errors.precioVenta
-                                }
-                                disabled={formik.values.esParaElaborar} // Deshabilita si es para elaborar
-                              />
-                            </InputGroup>
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.precioVenta}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={4}
-                          display="flex"
-                          alignItems="end"
-                          justifyContent="center"
-                        >
-                          {/* ES PARA ELABORAR */}
-                          <Form.Group
-                            controlId="esParaElaborar"
-                            className="mb-3"
-                          >
-                            <Form.Check
-                              type="checkbox"
-                              label="Es para Elaborar"
-                              name="esParaElaborar"
-                              checked={formik.values.esParaElaborar}
-                              onChange={formik.handleChange}
-                            />
-                          </Form.Group>
-                        </Grid>
-                      </Grid>
-                    </>
-                  )}
+                  {activeStep === 0 && <Step1 formik={formik} />}
                   {activeStep === 1 && (
-                    <>
-                      <Grid container spacing={2}>
-                        <Grid item xs={4}>
-                          {/* STOCK MÍNIMO */}
-                          <Form.Group controlId="stockMinimo" className="mb-3">
-                            <Form.Label>Stock Mínimo</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el stock mínimo"
-                              name="stockMinimo"
-                              value={formik.values.stockMinimo}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.stockMinimo &&
-                                !!formik.errors.stockMinimo
-                              }
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.stockMinimo}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid item xs={4}>
-                          {/* STOCK ACTUAL */}
-                          <Form.Group controlId="stockActual" className="mb-3">
-                            <Form.Label>Stock Actual</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el stock actual"
-                              name="stockActual"
-                              value={formik.values.stockActual}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.stockActual &&
-                                !!formik.errors.stockActual
-                              }
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.stockActual}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid item xs={4}>
-                          {/* STOCK MAXIMO */}
-                          <Form.Group controlId="stockMaximo" className="mb-3">
-                            <Form.Label>Stock Máximo</Form.Label>
-                            <Form.Control
-                              type="number"
-                              placeholder="Ingrese el stock máximo"
-                              name="stockMaximo"
-                              value={formik.values.stockMaximo}
-                              onChange={formik.handleChange}
-                              isInvalid={
-                                formik.touched.stockMaximo &&
-                                !!formik.errors.stockMaximo
-                              }
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.stockMaximo}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                      </Grid>
-                      {/* UNIDAD DE MEDIDA */}
-                      <Grid container spacing={2} alignItems="center">
-                        <Grid item xs={6}>
-                          <Form.Group
-                            controlId="idUnidadMedida"
-                            className="mb-3"
-                          >
-                            <Form.Label>Unidad de Medida</Form.Label>
-                            <Autocomplete
-                              disablePortal
-                              id="combo-box-demo"
-                              options={opcionesUnidadMedida}
-                              sx={{ width: "100%" }}
-                              value={
-                                opcionesUnidadMedida.find(
-                                  (option) =>
-                                    option.id === formik.values.idUnidadMedida
-                                ) || null
-                              }
-                              onChange={(event, value) =>
-                                formik.setFieldValue(
-                                  "idUnidadMedida",
-                                  value?.id
-                                )
-                              }
-                              isOptionEqualToValue={(option, value) =>
-                                option.id === value.id
-                              }
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Seleccione la unidad"
-                                />
-                              )}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {formik.errors.idUnidadMedida}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Grid>
-                        <Grid item xs={6}>
-                          {/* CATEGORIA */}
-                          <Form.Group controlId="idCategoria" className="mb-3">
-                            <Form.Label>Categoría</Form.Label>
-                            <Autocomplete
-                              id="idCategoria"
-                              options={categoriasFiltradas}
-                              value={
-                                categoriasFiltradas.find(
-                                  (categoria) =>
-                                    categoria.id === formik.values.idCategoria
-                                ) || null
-                              }
-                              groupBy={(option) =>
-                                option.parent
-                                  ? categoriasFiltradas.find(
-                                      (categoria) =>
-                                        categoria.id === option.parent
-                                    )?.denominacion || ""
-                                  : option.denominacion
-                              }
-                              getOptionLabel={(option) => option.denominacion}
-                              getOptionKey={(option) => option.id}
-                              onChange={(event, value) => {
-                                formik.setFieldValue("idCategoria", value?.id);
-                              }}
-                              isOptionEqualToValue={(option, value) =>
-                                option.id === value.id
-                              }
-                              renderInput={(params) => (
-                                <TextField {...params} label="Categorías" />
-                              )}
-                              renderGroup={(
-                                params: AutocompleteRenderGroupParams
-                              ) => (
-                                <li key={params.key}>
-                                  <GroupHeader>{params.group}</GroupHeader>
-                                  <GroupItems>{params.children}</GroupItems>
-                                </li>
-                              )}
-                            />
-                          </Form.Group>
-                        </Grid>
-                      </Grid>
-                    </>
+                    <Step2
+                      formik={formik}
+                      opcionesUnidadMedida={opcionesUnidadMedida}
+                      categoriasFiltradas={categoriasFiltradas}
+                    />
                   )}
                   {activeStep === 2 && (
-                    <>
-                      {/* IMAGENES */}
-                      <Form.Group className="mb-3"></Form.Group>
-                      <Form.Label>Imágenes</Form.Label>
-                      <ModalImagen
-                        previousImages={previousImages}
-                        setSelectedFiles={setSelectedFiles}
-                        selectedFiles={selectedFiles}
-                        baseUrl="imagen-articulo"
-                        setPreviousImages={setPreviousImages}
-                      />
-                    </>
+                    <Step3
+                      formik={formik}
+                      selectedFiles={selectedFiles}
+                      setSelectedFiles={setSelectedFiles}
+                      previousImages={previousImages}
+                      setPreviousImages={setPreviousImages}
+                    />
                   )}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      pt: 2,
-                      alignItems: "center",
-                    }}
-                  >
+                  <Box className="box-row-center">
                     <Button
                       color="inherit"
                       disabled={activeStep === 0}
@@ -627,7 +262,7 @@ export const ModalArticuloInsumo = ({
                     >
                       Atrás
                     </Button>
-                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Box className="box-auto-flex" />
                     <Button
                       onClick={handleNext}
                       variant="contained"
