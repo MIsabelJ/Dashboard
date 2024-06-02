@@ -30,6 +30,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [idSucursales, setIdSucursales] = useState<number[]>([]);
   const [idSubcategorias, setIdSubcategorias] = useState<number[]>([]);
   const [existingSucursales, setExistingSucursales] = useState<ISucursal[]>([]);
+  const [esParaElaborar, setEsParaElaborar] = useState<boolean>(false);
 
   // Barra de búsqueda para sucursales
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,12 +51,14 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
       denominacion: denominacion,
       idSucursales: idSucursales,
       idSubCategorias: idSubcategorias,
+      esParaElaborar: esParaElaborar,
     };
     handleSave(categoria);
     handleClose();
     setDenominacion(""); // Reset form
     setIdSucursales([]);
     setIdSubcategorias([]);
+    setEsParaElaborar(false);
   };
 
   // BARRA DE BÚSQUEDA
@@ -116,14 +119,29 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Form>
-            <Form.Group controlId="formDenominacion" className="mb-3">
-              <Form.Label>Denominación</Form.Label>
-              <Form.Control
-                type="text"
-                value={denominacion}
-                onChange={(e) => setDenominacion(e.target.value)}
-              />
-            </Form.Group>
+            <Grid container spacing={2} justifyContent="space-between">
+              <Grid item xs={8}>
+                <Form.Group controlId="formDenominacion" className="mb-3">
+                  <Form.Label>Denominación</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={denominacion}
+                    onChange={(e) => setDenominacion(e.target.value)}
+                  />
+                </Form.Group>
+              </Grid>
+              <Grid item xs={4}>
+                <Form.Group controlId="formEsParaElaborar" className="mb-3">
+                  <Form.Check
+                    type="checkbox"
+                    id="checkbox-esParaElaborar"
+                    label="Es para elaborar"
+                    checked={esParaElaborar}
+                    onChange={() => setEsParaElaborar(!esParaElaborar)}
+                  />
+                </Form.Group>
+              </Grid>
+            </Grid>
             <Form.Group controlId="formIdSucursales" className="mb-3">
               <Form.Label className="mr-2">Sucursales</Form.Label>
               <Grid container spacing={2} justifyContent="space-between">

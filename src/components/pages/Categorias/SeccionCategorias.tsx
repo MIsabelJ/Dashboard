@@ -11,9 +11,9 @@ import { CategoryItem } from "./CategoryItem";
 import { Loader } from "../../ui/Loader/Loader";
 import SearchBar from "../../ui/SearchBar/SearchBar.tsx";
 // ---------- ESTILOS ----------
-import { IconButton, List } from "@mui/material";
+import { Button, ButtonGroup, IconButton, List } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import "./SeccionCategorias.css"
+import "./SeccionCategorias.css";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -28,6 +28,7 @@ export function SeccionCategorias() {
   // const categoriasFiltradas: ICategoria[] = [];
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const [filtro, setFiltro] = useState("todas");
 
   // -------------------- SERVICES --------------------
   const categoriaService = new CategoriaService(API_URL + "/categoria");
@@ -75,6 +76,10 @@ export function SeccionCategorias() {
     setSearchTerm(event.target.value);
   };
 
+  const handleFiltro = (filtro) => {
+    setFiltro(filtro);
+  };
+
   // -------------------- FUNCIONES --------------------
   // BARRA DE BÚSQUEDA
   // Obtener los datos de la tabla en su estado inicial (sin datos)
@@ -114,29 +119,41 @@ export function SeccionCategorias() {
         });
       }
     });
+
     categoria.forEach((categoria) => {
-      if (
-        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
-      ) {
+      const categoriaFiltrada =
+        filtro === "todas" ||
+        (filtro === "paraElaborar" && categoria.esParaElaborar) ||
+        (filtro === "paraVender" && !categoria.esParaElaborar);
+
+      if (categoriaFiltrada) {
         categoriasData.push(categoria);
-        if (categoria.subCategorias.length > 0) {
-          categoria.subCategorias.forEach((subCategoria) => {
-            categoriasData.find((categoria) => {
-              if (subCategoria.id === categoria.id) {
-                categoria.subCategorias.push(subCategoria);
-              }
-            });
-          });
-        }
+      }
+
+      if (categoria.subCategorias.length > 0) {
+        categoria.subCategorias.forEach((subCategoria) => {
+          const subCategoriaFiltrada =
+            filtro === "todas" ||
+            (filtro === "paraElaborar" && subCategoria.esParaElaborar) ||
+            (filtro === "paraVender" && !subCategoria.esParaElaborar);
+
+          if (
+            subCategoriaFiltrada &&
+            !categoriasData.find((cat) => cat.id === subCategoria.id)
+          ) {
+            categoriasData.push(subCategoria);
+          }
+        });
       }
     });
+
     return categoriasData;
   };
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     getCategoria();
-  }, []);
+  }, [filtro]);
 
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
@@ -154,6 +171,31 @@ export function SeccionCategorias() {
     <div className="seccion-container">
       {!loading && (
         <>
+          <div className="seccion-filtros">
+            <ButtonGroup variant="outlined" aria-label="filtros button group">
+              <Button
+                variant={filtro === "todas" ? "contained" : "outlined"}
+                onClick={() => handleFiltro("todas")}
+                className={filtro === "todas" ? "filtro-activo" : ""}
+              >
+                Todas
+              </Button>
+              <Button
+                variant={filtro === "paraElaborar" ? "contained" : "outlined"}
+                onClick={() => handleFiltro("paraElaborar")}
+                className={filtro === "paraElaborar" ? "filtro-activo" : ""}
+              >
+                Para Elaborar
+              </Button>
+              <Button
+                variant={filtro === "paraVender" ? "contained" : "outlined"}
+                onClick={() => handleFiltro("paraVender")}
+                className={filtro === "paraVender" ? "filtro-activo" : ""}
+              >
+                Para Vender
+              </Button>
+            </ButtonGroup>
+          </div>
           <div className="seccion-busqueda">
             <SearchBar
               value={searchTerm}
@@ -171,7 +213,7 @@ export function SeccionCategorias() {
             </IconButton>
           </div>
           <List
-            sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+            sx={{ width: "100%", bgcolor: "background.paper" }}
             component="nav"
             aria-labelledby="nested-list-subheader"
           >

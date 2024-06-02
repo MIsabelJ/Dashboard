@@ -43,7 +43,6 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   // -------------------- FUNCIONES --------------------
   const handleClick = () => setOpen(!open);
 
-
   return (
     <div>
       <ListItemButton sx={{ pl: padding }}>
@@ -52,7 +51,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         </ListItemIcon>
         <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
-          <ButtonsTable                           // FIXME: Falta setSelectedId ?
+          {category.esParaElaborar ? "Para elaborar" : null}
+          <ButtonsTable // FIXME: Falta setSelectedId ?
             setOpenModal={() => setOpenModal(true)}
             el={category}
             handleDelete={handleDelete}

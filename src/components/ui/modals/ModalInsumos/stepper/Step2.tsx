@@ -17,6 +17,7 @@ interface Step2Props {
     id: number;
     denominacion: string;
     parent: number | null;
+    esParaElaborar: boolean;
   }[];
 }
 
@@ -25,6 +26,11 @@ const Step2: React.FC<Step2Props> = ({
   opcionesUnidadMedida,
   categoriasFiltradas,
 }) => {
+
+  const categoriasParaMostrar = categoriasFiltradas.filter(
+    (categoria) => categoria.esParaElaborar === formik.values.esParaElaborar
+  );
+  
   return (
     <>
       <Grid container spacing={2}>
@@ -120,9 +126,9 @@ const Step2: React.FC<Step2Props> = ({
             <Form.Label>Categoría</Form.Label>
             <Autocomplete
               id="idCategoria"
-              options={categoriasFiltradas}
+              options={categoriasParaMostrar}
               value={
-                categoriasFiltradas.find(
+                categoriasParaMostrar.find(
                   (categoria) => categoria.id === formik.values.idCategoria
                 ) || null
               }

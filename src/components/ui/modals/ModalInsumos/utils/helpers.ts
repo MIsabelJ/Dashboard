@@ -14,6 +14,7 @@ interface CategoriaData {
   id: number;
   denominacion: string;
   parent: number | null;
+  esParaElaborar: boolean;
 }
 
 export const formatCategorias = (categorias: ICategoria[]) => {
@@ -27,6 +28,7 @@ export const formatCategorias = (categorias: ICategoria[]) => {
           id: subCategoria.id,
           denominacion: subCategoria.denominacion,
           parent: null,
+          esParaElaborar: subCategoria.esParaElaborar,
         });
       });
     }
@@ -40,6 +42,7 @@ export const formatCategorias = (categorias: ICategoria[]) => {
         id: categoria.id,
         denominacion: categoria.denominacion,
         parent: null,
+        esParaElaborar: categoria.esParaElaborar,
       });
       if (categoria.subCategorias.length > 0) {
         categoria.subCategorias.forEach((subCategoria) => {
@@ -47,6 +50,7 @@ export const formatCategorias = (categorias: ICategoria[]) => {
             id: subCategoria.id,
             denominacion: subCategoria.denominacion,
             parent: categoria.id,
+            esParaElaborar: subCategoria.esParaElaborar,
           });
         });
       }
