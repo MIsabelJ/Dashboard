@@ -54,7 +54,7 @@ const ModalPromocion = ({
   const [articulos, setArticulos] = useState<IArticulo[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de articulos
   const [opcionesArticulos, setOpcionesArticulos] = useState<
-    { label: string; id: number }[]
+    { label: string; id: number; precioVenta: number }[]
   >([]);
 
   const [values, setValues] = useState<IPromocion | IPromocionPost>();
@@ -220,6 +220,7 @@ const ModalPromocion = ({
     const opciones = articulos.map((articulos) => ({
       label: articulos.denominacion,
       id: articulos.id,
+      precioVenta: articulos.precioVenta,
     }));
     setOpcionesArticulos(opciones);
   }, [articulos]);

@@ -16,10 +16,15 @@ interface Step1Props {
     id: number;
     denominacion: string;
     parent: number | null;
+    esParaElaborar: boolean;
   }[];
 }
 
 const Step1: React.FC<Step1Props> = ({ formik, categoriasFiltradas }) => {
+  const categoriasParaMostrar = categoriasFiltradas.filter(
+    (categoria) => categoria.esParaElaborar === false
+  );
+
   return (
     <>
       {/* DENOMINACION */}
@@ -46,15 +51,15 @@ const Step1: React.FC<Step1Props> = ({ formik, categoriasFiltradas }) => {
             <Form.Label>Categoría</Form.Label>
             <Autocomplete
               id="idCategoria"
-              options={categoriasFiltradas}
+              options={categoriasParaMostrar}
               value={
-                categoriasFiltradas.find(
+                categoriasParaMostrar.find(
                   (categoria) => categoria.id === formik.values.idCategoria
                 ) || null
               }
               groupBy={(option) =>
                 option.parent
-                  ? categoriasFiltradas.find(
+                  ? categoriasParaMostrar.find(
                       (categoria) => categoria.id === option.parent
                     )?.denominacion || ""
                   : option.denominacion

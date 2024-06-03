@@ -43,7 +43,9 @@ export const ManufacturadosDetalleModal = ({
   const [insumos, setInsumos] = useState<IArticuloInsumo[]>([]);
   // Utilizado para dar formato a los elementos del dropdown de insumos
   const [opcionesInsumos, setOpcionesInsumos] = useState<
-    { label: string; id: number }[]
+    {
+      esParaElaborar: boolean; label: string; id: number 
+}[]
   >([]);
 
   // -------------------- FORMIK --------------------
@@ -83,6 +85,7 @@ export const ManufacturadosDetalleModal = ({
     const opciones = insumos.map((insumo) => ({
       label: insumo.denominacion,
       id: insumo.id,
+      esParaElaborar: insumo.esParaElaborar,
     }));
     setOpcionesInsumos(opciones);
   }, [insumos]);
@@ -105,9 +108,8 @@ export const ManufacturadosDetalleModal = ({
                       <Form.Group controlId="idArticuloInsumo" className="mb-3">
                         <Form.Label>Insumo</Form.Label>
                         <Autocomplete
-                          // disablePortal
                           id="combo-box-demo"
-                          options={opcionesInsumos}
+                          options={opcionesInsumos.filter((opcion) => opcion.esParaElaborar === true)}
                           getOptionKey={(option) => option.id}
                           sx={{ width: "100%" }}
                           value={

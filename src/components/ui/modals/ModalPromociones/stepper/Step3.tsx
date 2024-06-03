@@ -20,7 +20,7 @@ interface Step3Props {
   setDetallePromocion: React.Dispatch<
     React.SetStateAction<IPromocionDetallePost[]>
   >;
-  opcionesArticulos: { label: string; id: number }[];
+  opcionesArticulos: { label: string; id: number, precioVenta: number }[];
   opcionesSucursal: { label: string; id: number }[];
   handleSucursalChange: (value: { label: string; id: number }[]) => void;
 }
@@ -76,7 +76,7 @@ const Step3: React.FC<Step3Props> = ({
             <Autocomplete
               disablePortal
               id="combo-box-demo"
-              options={opcionesArticulos}
+              options={opcionesArticulos.filter((opcion) => opcion.precioVenta > 0)}
               sx={{ width: "100%" }}
               onChange={(event, value) => {
                 const newDetalles = [...detallePromocion];
