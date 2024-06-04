@@ -34,6 +34,7 @@ const Sidebar = ({
   sucursalSelected,
   sucursales,
   handleChangeSucursal,
+  empresa,
   navigate,
 }: any) => {
   const theme = useTheme();
@@ -53,7 +54,7 @@ const Sidebar = ({
       anchor="left"
       open={open}
     >
-      <DrawerHeader>
+      {/* <DrawerHeader>
         <IconButton onClick={handleDrawerClose} style={{ alignSelf: "center" }}>
           {theme.direction === "ltr" ? (
             <ChevronLeftIcon />
@@ -61,14 +62,15 @@ const Sidebar = ({
             <ChevronRightIcon />
           )}
         </IconButton>
-      </DrawerHeader>
+      </DrawerHeader> */}
+      <h5 style={{ padding: "15px", marginBottom: "0" }}>{empresa ? empresa.nombre : ""}</h5>
       <Divider />
       <div
         style={{
           display: "flex",
           alignItems: "center",
-          gap: "1rem",
           justifyContent: "center",
+          marginTop: "0px",
         }}
       >
         <IconButton aria-label="user" color="primary">

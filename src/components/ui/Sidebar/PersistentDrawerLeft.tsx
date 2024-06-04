@@ -13,6 +13,7 @@ import { EmpresaService } from "../../../services/EmpresaService";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { SelectChangeEvent } from "@mui/material";
 import { DashboardSection } from "./DashboardSection";
+import { IEmpresa } from "../../../types/Empresa/IEmpresa";
 
 export default function PersistentDrawerLeft({
   sectionName,
@@ -29,6 +30,7 @@ export default function PersistentDrawerLeft({
     "sucursalId",
     sucursalSelected
   );
+  const [empresa, setEmpresa] = React.useState<IEmpresa>();
 
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
@@ -59,6 +61,12 @@ export default function PersistentDrawerLeft({
       );
     };
     getSucursales();
+    const getEmpresaById = async (idEmpresa: number) => {
+      await empresaService.getById(idEmpresa).then((data) => {
+        if (data) setEmpresa(data);
+      })
+    }
+    getEmpresaById(Number(getFromLocalStorage("empresaId")));
   }, []);
 
   React.useEffect(() => {
@@ -81,6 +89,7 @@ export default function PersistentDrawerLeft({
         sucursalSelected={sucursalSelected}
         sucursales={sucursales}
         handleChangeSucursal={handleChangeSucursal}
+        empresa={empresa}
         navigate={navigate}
       />
       <Main style={{ marginTop: "36px" }} open={open}>
