@@ -29,8 +29,10 @@ export const SeccionEmpresa = () => {
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  // const [selectedEntity, setSelectedEntity] = useState<IEmpresa | null>(null);
   const [redirectId, setRedirectId] = useState<number | null>(null);
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
 
   // -------------------- SERVICES --------------------
   const empresaService = new EmpresaService(API_URL + "/empresa");
@@ -79,9 +81,8 @@ export const SeccionEmpresa = () => {
 
   const handleSave = async (empresa: IEmpresaPost) => {
     try {
-      const response = await empresaService.post(empresa);
+      await empresaService.post(empresa);
       getEmpresa();
-      console.log(response);
     } catch (error) {
       console.error(error);
     }
@@ -99,9 +100,6 @@ export const SeccionEmpresa = () => {
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     if (redirectId !== null && empresaActive === redirectId) {
-      console.log(
-        "Redireccionando a la subruta de la empresa " + empresaActive
-      );
       navigate(`/sucursal`);
       setRedirectId(null); // Reset redirect ID after navigation
     }
@@ -135,6 +133,7 @@ export const SeccionEmpresa = () => {
               handleDelete={handleDelete}
               setOpenModal={setOpenModal}
               denominacion="Empresa"
+              setSelectedId={setSelectedId}
             />
           )}
         </div>

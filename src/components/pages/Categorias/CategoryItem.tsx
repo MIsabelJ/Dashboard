@@ -39,6 +39,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
   const [openModal, setOpenModal] = React.useState(false);
+  const [selectedId, setSelectedId] = React.useState<number>();
 
   // -------------------- FUNCIONES --------------------
   const handleClick = () => setOpen(!open);
@@ -52,7 +53,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         <ListItemText primary={category.denominacion} />
         <div style={{ padding: "10px" }}>
           {category.esParaElaborar ? "Para elaborar" : null}
-          <ButtonsTable // FIXME: Falta setSelectedId ?
+          <ButtonsTable
+            setSelectedId={setSelectedId}
             setOpenModal={() => setOpenModal(true)}
             el={category}
             handleDelete={handleDelete}

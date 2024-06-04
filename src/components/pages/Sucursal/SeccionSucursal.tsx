@@ -27,6 +27,9 @@ const SeccionSucursal = () => {
   //manejo de datos en el localStorage
   const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', '');
   const [empresaNombre, setEmpresaNombre] = useState('');
+  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
+  const [selectedId, setSelectedId] = useState<number>();
+
 
   // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
@@ -76,11 +79,7 @@ const SeccionSucursal = () => {
   // Recibo el ID del endpoint proveniente de la empresa
   const navigate = useNavigate();
 
-  const empresaActual = useAppSelector(
-    (state) => state.empresaReducer.empresaActual
-  );
-
-  const dataCard: ISucursal = useAppSelector((state) => state.tableReducer.dataTable);
+  const dataCard: ISucursal[] = useAppSelector((state) => state.tableReducer.dataTable);
   const dispatch = useAppDispatch();
 
   const sucursalActive = useAppSelector(
@@ -112,11 +111,10 @@ const SeccionSucursal = () => {
 
   // Obtener el nombre de la empresa
   useEffect(() => {
-
+    setIdSucursalLocalStorage('');
     const id = empresaActive == 0 ? Number(idEmpresa) : empresaActive;
     if (id == null || id == 0) navigate('/empresa');
     const getNombreEmpresa = async () => {
-      //obtengo el id de empresa que está en localstorage
       const empresa = await empresaService.getById(id)
       if (empresa) setEmpresaNombre(empresa.nombre)
     }
@@ -148,6 +146,7 @@ const SeccionSucursal = () => {
               handleDelete={handleDelete}
               setOpenModal={setOpenModal}
               denominacion="Sucursal"
+              setSelectedId={setSelectedId}
             />
           )}
         </div>
@@ -155,7 +154,6 @@ const SeccionSucursal = () => {
       <ModalSucursal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        idEmpresa={Number(empresaActual)}
         handleSave={handleSave}
         getSucursal={getSucursales}
       />

@@ -10,15 +10,17 @@ export interface ICardProps<T> {
   handleDelete: (id: number) => void;
   setOpenModal: (state: boolean) => void;
   denominacion: string;
+  setSelectedId: (state: number) => void;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
-export const GenericCards = <T extends { id: number }>({
+export const GenericCards = <T extends { id: number, nombre: string, eliminado: boolean }>({
   items,
   handleClick,
   handleDelete,
   setOpenModal,
   denominacion,
+  setSelectedId,
 }: ICardProps<T>) => {
   // -------------------- RENDER --------------------
   if (items && items.length > 0) {
@@ -43,42 +45,40 @@ export const GenericCards = <T extends { id: number }>({
         </Card>
 
         {items.map((item) => (
-          <>
-            <Card
-              key={item.id}
-              className={`item-card ${
-                item.eliminado ? "item-card-disabled" : "item-card-enabled"
+          <Card
+            key={item.id}
+            className={`item-card ${item.eliminado ? "item-card-disabled" : "item-card-enabled"
               }`}
-            >
-              <div style={{ textAlign: "center" }}>
-                <Typography variant="h5" component="h2" gutterBottom>
-                  {item.nombre}
+          >
+            <div style={{ textAlign: "center" }}>
+              <Typography variant="h5" component="h2" gutterBottom>
+                {item.nombre}
+              </Typography>
+            </div>
+            {/* <div style={{ marginBottom: "10px" }}>
+              {item.razonSocial && (
+                <Typography variant="body2" gutterBottom>
+                  Razón social: {item.razonSocial}
                 </Typography>
-              </div>
-              <div style={{ marginBottom: "10px" }}>
-                {item.razonSocial && (
-                  <Typography variant="body2" gutterBottom>
-                    Razón social: {item.razonSocial}
-                  </Typography>
-                )}
-                {item.direccion && (
-                  <Typography variant="body2" gutterBottom>
-                    Dirección: {item.direccion.calle} {item.direccion.numero}
-                  </Typography>
-                )}
-              </div>
-              <CardActions className="item-card-actions">
-                <Button size="small" onClick={() => handleClick(item.id)}>
-                  Ver más
-                </Button>
-                <ButtonsTable
-                  el={item}
-                  handleDelete={handleDelete}
-                  setOpenModal={setOpenModal}
-                />
-              </CardActions>
-            </Card>
-          </>
+              )}
+              {item.direccion && (
+                <Typography variant="body2" gutterBottom>
+                  Dirección: {item.direccion.calle} {item.direccion.numero}
+                </Typography>
+              )}
+            </div> */}
+            <CardActions className="item-card-actions">
+              <Button size="small" onClick={() => { !item.eliminado ? handleClick(item.id) : null }}>
+                Ver más
+              </Button>
+              <ButtonsTable
+                el={{ ...item }}
+                handleDelete={handleDelete}
+                setOpenModal={setOpenModal}
+                setSelectedId={setSelectedId}
+              />
+            </CardActions>
+          </Card>
         ))}
       </div>
     );

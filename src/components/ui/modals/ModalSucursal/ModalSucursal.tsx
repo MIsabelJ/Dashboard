@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 // ---------- ARCHIVOS----------
-import { useAppSelector } from "../../../../hooks/redux";
+import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
 import { SucursalService } from "../../../../services/SucursalService";
 import { PaisService } from "../../../../services/PaisService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
@@ -13,6 +13,8 @@ import { ILocalidad } from "../../../../types/Localidad/ILocalidad";
 // ---------- ESTILOS ----------
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Grid, Step, StepLabel, Stepper } from "@mui/material";
+import { removeElementActive, setElementActive } from "../../../../redux/slices/TablaReducer";
+
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,7 +24,6 @@ const steps = ["Información de la Sucursal", "Domicilio de la Sucursal"];
 interface SucursalModalProps {
   show: boolean;
   handleClose: () => void;
-  idEmpresa: number; // Recibe el idEmpresa como prop
   handleSave: (sucursal: ISucursalPost) => void;
   getSucursal: () => void;
 }
@@ -31,7 +32,6 @@ interface SucursalModalProps {
 export const ModalSucursal: React.FC<SucursalModalProps> = ({
   show,
   handleClose,
-  idEmpresa,
   handleSave,
   getSucursal,
 }) => {
@@ -51,14 +51,19 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     idLocalidad: 0,
   });
   const [paises, setPaises] = useState<IPais[]>([]);
+  const [idPais, setIdPais] = useState<number>(0);
   const [provincias, setProvincias] = useState<IProvincia[]>([]);
   const [idProvincia, setIdProvincia] = useState<number>(0);
   const [localidades, setLocalidades] = useState<ILocalidad[]>([]);
-  const [idPais, setIdPais] = useState<number>(0);
+
+  const idSucursal = localStorage.getItem('sucursalId');
+  const idEmpresa = localStorage.getItem('empresaId');
 
   // -------------------- SERVICES --------------------
   const sucursalService = new SucursalService(API_URL + "/sucursal");
   const paisService = new PaisService(API_URL + "/pais");
+
+  const dispatch = useAppDispatch();
 
   // -------------------- HANDLERS --------------------
   const handlePaisChange = async (e: any) => {
@@ -73,6 +78,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     if (selectedPaisId !== 0) {
       try {
         const provincias = await fetchProvinciasByPais(selectedPaisId);
+        setIdPais(selectedPaisId);
         setProvincias(provincias);
         setLocalidades([]);
       } catch (error) {
@@ -97,6 +103,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
         const localidades = await fetchLocalidadesByProvincia(
           selectedProvinciaId
         );
+        setIdProvincia(selectedProvinciaId);
         setLocalidades(localidades);
       } catch (error) {
         console.error("Error al obtener las localidades:", error);
@@ -112,6 +119,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       ...prevState,
       idLocalidad: selectedLocalidadId,
     }));
+
   };
 
   const handleNext = () => {
@@ -130,13 +138,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleUpdate = (id: number, sucursal: ISucursalEdit) => {
-    console.log(id, sucursal);
-    sucursalService.put(id, sucursal);
-    handleClose();
-  };
-
   const handleCloseModal = () => {
+    setActiveStep(0);
     setNombre("");
     setHorarioApertura("00:00");
     setHorarioCierre("00:00");
@@ -149,7 +152,13 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       nroDpto: 0,
       idLocalidad: 0,
     });
+    dispatch(removeElementActive());
     setError("");
+    setPaises([]);
+    setIdPais(0);
+    setProvincias([]);
+    setIdProvincia(0);
+    setLocalidades([]);
     handleClose();
   };
 
@@ -165,6 +174,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       handleNext();
     }
   };
+
+
 
   // -------------------- FUNCIONES --------------------
   const fetchPaises = async () => {
@@ -196,6 +207,15 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     }
   };
 
+  const getOneSucursal = async (sucursalId: number) => {
+    try {
+      const response = await sucursalService.getById(sucursalId);
+      return response;
+    } catch (error) {
+      console.error("Error al obtener la sucursal:", error);
+    }
+  }
+
   const empresaActual = useAppSelector(
     (state) => state.empresaReducer.empresaActual
   );
@@ -223,57 +243,37 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       );
       return;
     }
-    // Convertir el horario a formato HH:mm:ss antes de guardar
-    const horarioAperturaFormatted = `${horarioApertura}:00`;
-    const horarioCierreFormatted = `${horarioCierre}:00`;
 
     const sucursal: ISucursalPost = {
       nombre,
-      horarioApertura: horarioAperturaFormatted,
-      horarioCierre: horarioCierreFormatted,
+      horarioApertura,
+      horarioCierre,
       esCasaMatriz,
       domicilio,
-      idEmpresa,
+      idEmpresa: Number(idEmpresa),
     };
 
-    console.log(sucursal)
     handleSave(sucursal);
     getSucursal();
-    handleClose();
-    // Resetear los valores del formulario
-    setNombre("");
-    setHorarioApertura("00:00");
-    setHorarioCierre("00:00");
-    setEsCasaMatriz(false);
-    setDomicilio({
-      calle: "",
-      numero: 0,
-      cp: 0,
-      piso: 0,
-      nroDpto: 0,
-      idLocalidad: 0,
-    });
-    setError("");
+    handleCloseModal();
   };
 
-  const onUpdate = () => {
+  const onUpdate = async () => {
     if (horarioCierre <= horarioApertura) {
       setError(
         "El horario de cierre debe ser mayor que el horario de apertura."
       );
       return;
     }
-    const horarioAperturaFormatted = `${horarioApertura}:00`;
-    const horarioCierreFormatted = `${horarioCierre}:00`;
 
     const sucursal: ISucursalEdit = {
-      horarioApertura: horarioAperturaFormatted,
-      horarioCierre: horarioCierreFormatted,
+      horarioApertura,
+      horarioCierre,
       esCasaMatriz,
     };
-    handleUpdate(elementActive.element.id, sucursal);
+    await sucursalService.put(elementActive.element.id, sucursal);
     getSucursal();
-    handleClose();
+    handleCloseModal();
   };
 
   // BOTONES
@@ -288,25 +288,56 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (elementActive && elementActive.element) {
-      const sucursal = elementActive.element as ISucursalPost;
-      setNombre(sucursal.nombre);
-      setHorarioApertura(sucursal.horarioApertura);
-      setHorarioCierre(sucursal.horarioCierre);
-      setEsCasaMatriz(sucursal.esCasaMatriz);
-      setDomicilio(sucursal.domicilio);
-    }
-
-    getSucursal();
     fetchPaises();
-  }, [elementActive]);
+    const fetchData = async () => {
+      if (elementActive && elementActive.element && show) {
+        const sucursal = await getOneSucursal(Number(idSucursal) ? Number(idSucursal) : elementActive.element.id); // Add the missing argument 'sucursalId'
+        if (sucursal) {
+          setNombre(sucursal.nombre);
+          setHorarioApertura(sucursal.horarioApertura);
+          setHorarioCierre(sucursal.horarioCierre);
+          setEsCasaMatriz(sucursal.esCasaMatriz);
+          setDomicilio({
+            calle: sucursal.domicilio.calle,
+            numero: sucursal.domicilio.numero,
+            cp: sucursal.domicilio.cp,
+            piso: sucursal.domicilio.piso,
+            nroDpto: sucursal.domicilio.nroDpto,
+            idLocalidad: sucursal.domicilio.localidad.id,
+          });
+          setProvincias(await fetchProvinciasByPais(sucursal.domicilio.localidad.provincia.pais.id))
+          setLocalidades(await fetchLocalidadesByProvincia(sucursal.domicilio.localidad.provincia.id))
+          setIdPais(sucursal.domicilio.localidad.provincia.pais.id);
+          setIdProvincia(sucursal.domicilio.localidad.provincia.id);
+        }
+      }
+      getSucursal();
+    };
+
+    fetchData();
+  }, [show]);
+
+  // useEffect(() => {
+
+  //   const id = elementActive == 0 ? Number(idEmpresa) : empresaActive;
+  //   if (id == null || id == 0) navigate('/empresa');
+  //   const getNombreEmpresa = async () => {
+  //     //obtengo el id de empresa que está en localstorage
+  //     const empresa = await empresaService.getById(id)
+  //     if (empresa) setEmpresaNombre(empresa.nombre)
+  //   }
+  //   getNombreEmpresa();
+  //   setLoading(true);
+  //   getSucursales();
+  // }, []);
+
 
   // -------------------- RENDER --------------------
   return (
     <>
-      <Modal show={show} onHide={handleClose} size="lg">
+      <Modal show={show} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Agregar Sucursal</Modal.Title>
+          <Modal.Title>{elementActive ? "Editar" : "Añadir"} sucursal</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Stepper
@@ -344,7 +375,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         type="text"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        readOnly={!!elementActive}
+                        disabled={elementActive ? true : false}
                       />
                     </Form.Group>
                     <Grid container spacing={2}>
@@ -404,6 +435,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         onChange={(e) =>
                           setDomicilio({ ...domicilio, calle: e.target.value })
                         }
+                        disabled={elementActive ? true : false}
                       />
                     </Form.Group>
                     <Grid container spacing={2}>
@@ -422,6 +454,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                                 numero: Number(e.target.value),
                               })
                             }
+                            disabled={elementActive ? true : false}
                           />
                         </Form.Group>
                       </Grid>
@@ -440,6 +473,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                                 cp: Number(e.target.value),
                               })
                             }
+                            disabled={elementActive ? true : false}
                           />
                         </Form.Group>
                       </Grid>
@@ -460,6 +494,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                                 piso: Number(e.target.value),
                               })
                             }
+                            disabled={elementActive ? true : false}
                           />
                         </Form.Group>
                       </Grid>
@@ -478,6 +513,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                                 nroDpto: Number(e.target.value),
                               })
                             }
+                            disabled={elementActive ? true : false}
                           />
                         </Form.Group>
                       </Grid>
@@ -489,8 +525,9 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                           <Form.Label>País</Form.Label>
                           <Form.Control
                             as="select"
-                            value={domicilio.idPais}
+                            value={idPais}
                             onChange={handlePaisChange}
+                            disabled={elementActive ? true : false}
                           >
                             <option value={0}>Seleccionar País</option>
                             {paises.map((pais) => (
@@ -507,8 +544,9 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                           <Form.Label>Provincia</Form.Label>
                           <Form.Control
                             as="select"
-                            value={domicilio.idProvincia}
+                            value={idProvincia}
                             onChange={handleProvinciaChange}
+                            disabled={elementActive ? true : false}
                           >
                             <option value={0}>Seleccionar Provincia</option>
                             {provincias.map((provincia) => (
@@ -527,7 +565,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                             as="select"
                             value={domicilio.idLocalidad}
                             onChange={handleLocalidadChange}
-
+                            disabled={elementActive ? true : false}
                           >
                             <option value={0}>Seleccionar Localidad</option>
                             {localidades.map((localidad) => (
