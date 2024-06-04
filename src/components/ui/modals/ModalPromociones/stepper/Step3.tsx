@@ -1,6 +1,6 @@
 import { FormikProps } from "formik";
 import { IPromocionPost } from "../../../../../types/Promocion/IPromocionPost";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { IPromocionDetallePost } from "../../../../../types/PromocionDetalle/IPromocionDetallePost";
 import {
   Autocomplete,
@@ -78,6 +78,7 @@ const Step3: React.FC<Step3Props> = ({
               id="combo-box-demo"
               options={opcionesArticulos.filter((opcion) => opcion.precioVenta > 0)}
               sx={{ width: "100%" }}
+              value={opcionesArticulos.find((opcion) => opcion.id === detalle.idArticulo) || null}
               onChange={(event, value) => {
                 const newDetalles = [...detallePromocion];
                 newDetalles[index].idArticulo = value ? value.id : 0;
@@ -111,6 +112,7 @@ const Step3: React.FC<Step3Props> = ({
           options={opcionesSucursal}
           getOptionLabel={(option) => option?.label || ""}
           filterSelectedOptions
+          value={opcionesSucursal.filter((sucursal) => formik.values.idSucursales.includes(sucursal.id)) || []}
           sx={{ width: "100%" }}
           isOptionEqualToValue={(option, value) => option?.id === value?.id}
           onChange={(event, value) => handleSucursalChange(value)}

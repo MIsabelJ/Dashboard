@@ -36,9 +36,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
 
-  const empresaActive = useAppSelector(
-    (state) => state.empresaReducer.empresaActual
-  );
+  const empresaActive = localStorage.getItem("empresaId")
   // -------------------- SERVICIOS --------------------
 
   const API_URL = import.meta.env.VITE_API_URL as string;
@@ -103,12 +101,12 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   }, [dataTable, searchTerm]);
 
   useEffect(() => {
-    const getSucursales = async (idEmpresa) => {
+    const getSucursales = async (idEmpresa: number) => {
       const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
       setExistingSucursales(response);
     };
-    getSucursales(empresaActive);
-  });
+    getSucursales(Number(empresaActive));
+  }, [show]);
 
   // -------------------- RENDER --------------------
   return (

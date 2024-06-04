@@ -47,6 +47,8 @@ export default function PersistentDrawerLeft({
   };
 
   React.useEffect(() => {
+    if (!getFromLocalStorage("empresaId")) navigate("/empresa");
+    if (!getFromLocalStorage("sucursalId")) navigate("/sucursal");
     const sucursalId = getFromLocalStorage("sucursalId");
     if (sucursalId) setSucursalSelected(sucursalId);
     const getSucursales = async () => {

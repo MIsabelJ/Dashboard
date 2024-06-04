@@ -77,6 +77,7 @@ const ModalPromocion = ({
           Swal.showLoading();
         },
       });
+      console.log("valores por enviar", values)
       let actualImages: IImagen[] = [];
       if (selectedFiles.length > 0) {
         actualImages = await imagenService.upload(selectedFiles);
@@ -95,8 +96,8 @@ const ModalPromocion = ({
 
   const imagenService = new ImagenService(API_URL + "/imagen-promocion");
   const sucursalService = new SucursalService(API_URL + "/sucursal");
-  const articuloService = new ArticuloService(API_URL + "/articulo"); //TODO: asegurarse de que sea la ruta correcta
-  const promocionService = new PromocionService(API_URL + "/promocion"); //TODO: asegurarse de que sea la ruta correcta
+  const articuloService = new ArticuloService(API_URL + "/articulo");
+  const promocionService = new PromocionService(API_URL + "/promocion");
   const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
@@ -125,6 +126,12 @@ const ModalPromocion = ({
     formik.resetForm();
     setSelectedFiles([]);
     setPreviousImages([]);
+    setArticulos([]);
+    setSucursales([]);
+    setOpcionesArticulos([]);
+    setOpcionesSucursal([]);
+    setDetallePromocion([]);
+    setValues(undefined);
     setActiveStep(0);
   };
 
@@ -145,10 +152,8 @@ const ModalPromocion = ({
   };
 
   const handleSucursalChange = (value: { label: string; id: number }[]) => {
-    formik.setFieldValue(
-      "idSucursales",
-      value.map((option) => option?.id) || []
-    );
+    const list = value.map((option) => option.id);
+    formik.setFieldValue("idSucursales", list);
   };
 
   // -------------------- FUNCIONES --------------------
@@ -178,6 +183,7 @@ const ModalPromocion = ({
             idArticulo: detalle.articulo.id,
           }));
         setDetallePromocion(detallesPost);
+        const listSucursales = promocion.sucursales.map((sucursal) => sucursal.id)
         formik.setValues({
           denominacion: promocion.denominacion,
           fechaDesde: promocion.fechaDesde,
@@ -187,7 +193,7 @@ const ModalPromocion = ({
           descripcionDescuento: promocion.descripcionDescuento,
           precioPromocional: promocion.precioPromocional,
           tipoPromocion: promocion.tipoPromocion,
-          idSucursales: promocion.sucursales.map((sucursal) => sucursal.id),
+          idSucursales: listSucursales,
           promocionDetalles: detallesPost,
           imagenes: promocion.imagenes,
         });
@@ -203,7 +209,7 @@ const ModalPromocion = ({
     if (selectedId) {
       getOnePromocion(selectedId);
     } else {
-      setValues(initialValues); //TODO: hay que poner valores al initial values
+      setValues(initialValues);
     }
   }, [selectedId]);
 
@@ -237,7 +243,7 @@ const ModalPromocion = ({
       setArticulos(response);
     };
     getArticulos();
-  }, []);
+  }, [show]);
 
   return (
     <Modal show={show} onHide={internalHandleClose} size="lg">
@@ -292,9 +298,8 @@ const ModalPromocion = ({
             <Button
               onClick={handleNext}
               variant="contained"
-              className={`next-button ${
-                activeStep === steps.length - 1 ? "save-button" : ""
-              }`}
+              className={`next-button ${activeStep === steps.length - 1 ? "save-button" : ""
+                }`}
             >
               {activeStep === steps.length - 1 ? "Guardar" : "Siguiente"}
             </Button>

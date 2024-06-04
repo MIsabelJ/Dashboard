@@ -140,14 +140,16 @@ export const GenericTable = <T extends { id: number }>({
                             </TableCell>
                           );
                         })}
-                        <div className="genericTable-buttons-container">
-                          <ButtonsTable
-                            el={row}
-                            setSelectedId={setSelectedId}
-                            handleDelete={handleDelete}
-                            setOpenModal={setOpenModal}
-                          />
-                        </div>
+                        <TableCell>
+                          <div className="genericTable-buttons-container">
+                            <ButtonsTable
+                              el={row}
+                              setSelectedId={setSelectedId}
+                              handleDelete={handleDelete}
+                              setOpenModal={setOpenModal}
+                            />
+                          </div>
+                        </TableCell>
                       </TableRow>
                     );
                   })

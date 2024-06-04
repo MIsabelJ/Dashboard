@@ -22,6 +22,7 @@ import {
 import { DrawerHeader } from "./StyledComponents";
 import { dashboardItems } from "./DashboardItems";
 import { AccountCircle } from "@mui/icons-material";
+import { ISucursal } from "../../../types/Sucursal/ISucursal";
 
 const drawerWidth = 240;
 
@@ -78,17 +79,18 @@ const Sidebar = ({
           <Select
             labelId="demo-select-small-label"
             id="demo-select-small"
-            value={Number(sucursalSelected)}
+            value={sucursales ? Number(sucursalSelected) : ""}
             label="Branch"
             onChange={(event) => handleChangeSucursal(event)}
           >
             {sucursales &&
-              sucursales?.map((sucursal, index) => (
+              sucursales?.map((sucursal: ISucursal, index: number) => (
                 <MenuItem key={index} value={sucursal.id}>
                   {sucursal.nombre}
                 </MenuItem>
               ))}
           </Select>
+
         </FormControl>
       </div>
       <Divider />

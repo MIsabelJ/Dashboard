@@ -22,8 +22,6 @@ export const SwitchButton = ({ currentState }: ISwitchButton) => {
     setLoader(true); // Activar el loader antes de las operaciones asincrónicas
     setMessage("");
     try {
-      // genericService.logicDelete(id);
-      console.log(active ? "Activado" : "Desactivado");
       setActive(!active);
     } catch (error) {
       console.error("Error:", error);
