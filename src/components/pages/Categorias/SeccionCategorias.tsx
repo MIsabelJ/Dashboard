@@ -76,7 +76,7 @@ export function SeccionCategorias() {
     setSearchTerm(event.target.value);
   };
 
-  const handleFiltro = (filtro) => {
+  const handleFiltro = (filtro: React.SetStateAction<string>) => {
     setFiltro(filtro);
   };
 
