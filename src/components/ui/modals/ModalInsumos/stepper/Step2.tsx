@@ -30,7 +30,7 @@ const Step2: React.FC<Step2Props> = ({
   const categoriasParaMostrar = categoriasFiltradas.filter(
     (categoria) => categoria.esParaElaborar === formik.values.esParaElaborar
   );
-  
+
   return (
     <>
       <Grid container spacing={2}>
@@ -135,8 +135,8 @@ const Step2: React.FC<Step2Props> = ({
               groupBy={(option) =>
                 option.parent
                   ? categoriasFiltradas.find(
-                      (categoria) => categoria.id === option.parent
-                    )?.denominacion || ""
+                    (categoria) => categoria.id === option.parent
+                  )?.denominacion || ""
                   : option.denominacion
               }
               getOptionLabel={(option) => option.denominacion}

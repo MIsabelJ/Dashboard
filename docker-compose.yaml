@@ -1,0 +1,9 @@
+services:
+  backend:
+    image: agusmando/backbuensabor
+    ports: 
+      - "8080:8080"
+  frontend:
+    image: agusmando/dashboard
+    ports:
+      - "5173:5173"

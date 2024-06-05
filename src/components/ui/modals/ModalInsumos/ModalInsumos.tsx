@@ -184,17 +184,20 @@ export const ModalArticuloInsumo = ({
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
-    const getUnidadesMedida = async () => {
-      const response = await unidadMedidaService.getAll();
-      setUnidadesMedida(response);
-    };
-    getUnidadesMedida();
-    const getCategorias = async () => {
-      const response = await categoriaService.getAll();
-      setCategorias(response);
-    };
-    getCategorias();
-  }, []);
+    if (show) {
+
+      const getUnidadesMedida = async () => {
+        const response = await unidadMedidaService.getAll();
+        setUnidadesMedida(response);
+      };
+      getUnidadesMedida();
+      const getCategorias = async () => {
+        const response = await categoriaService.getAll();
+        setCategorias(response);
+      };
+      getCategorias();
+    }
+  }, [show]);
 
   //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {
