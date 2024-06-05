@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form } from 'react-bootstrap';
-import './Login.css';
+import './login.css';
 
 const Login = () => {
   const [showPass, setShowPass] = useState(false);
