@@ -36,7 +36,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
 
-  const empresaActive = localStorage.getItem("empresaId")
+  const empresaActive = localStorage.getItem("empresaId");
   // -------------------- SERVICIOS --------------------
 
   const API_URL = import.meta.env.VITE_API_URL as string;
@@ -104,6 +104,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     const getSucursales = async (idEmpresa: number) => {
       const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
       setExistingSucursales(response);
+      handleToggleAll();
     };
     getSucursales(Number(empresaActive));
   }, [show]);
@@ -153,8 +154,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                 <Grid
                   item
                   xs={3}
-                  style={{ display: "flex", justifyContent: "flex-start" }}
-                >
+                  style={{ display: "flex", justifyContent: "flex-start" }}>
                   <Form.Check
                     type="checkbox"
                     id="checkbox-all"
@@ -175,8 +175,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                     <div
                       key={sucursal.id}
                       className="mb-3"
-                      style={{ maxHeight: "150px", overflowY: "auto" }}
-                    >
+                      style={{ maxHeight: "150px", overflowY: "auto" }}>
                       <Form.Check
                         type="checkbox"
                         id={`checkbox-${sucursal.id}`}
