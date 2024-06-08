@@ -102,6 +102,14 @@ export const ModalArticuloManufacturado = ({
         articuloManufacturadoDetalles: newDetalles,
         imagenes: [...previousImages, ...actualImages],
       };
+
+      let precioInsumos : number = 0;
+      const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(async (detalle)=>{
+        const insumo : IArticuloInsumo | any = await insumoService.getById(detalle.idArticuloInsumo);
+        precioInsumos += insumo.precioCompra * detalle.cantidad;
+      });
+      await Promise.all(promiseInsumos);
+      manufacturado.precioCompra = precioInsumos;
       handleSave(manufacturado);
     },
   });
@@ -209,6 +217,7 @@ export const ModalArticuloManufacturado = ({
           });
         setNewDetalles(detallesPost);
         formik.setValues({
+          precioCompra: articuloManufacturado.precioCompra,
           denominacion: articuloManufacturado.denominacion,
           precioVenta: articuloManufacturado.precioVenta,
           descripcion: articuloManufacturado.descripcion,
