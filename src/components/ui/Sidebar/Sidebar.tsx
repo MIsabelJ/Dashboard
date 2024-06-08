@@ -3,10 +3,10 @@ import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import ExpandLess from "@mui/icons-material/ExpandLess"
-import ExpandMore from "@mui/icons-material/ExpandMore"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandLess from "@mui/icons-material/ExpandLess";
+import ExpandMore from "@mui/icons-material/ExpandMore";
 import {
   Collapse,
   FormControl,
@@ -52,8 +52,7 @@ const Sidebar = ({
       }}
       variant="persistent"
       anchor="left"
-      open={open}
-    >
+      open={open}>
       {/* <DrawerHeader>
         <IconButton onClick={handleDrawerClose} style={{ alignSelf: "center" }}>
           {theme.direction === "ltr" ? (
@@ -63,7 +62,9 @@ const Sidebar = ({
           )}
         </IconButton>
       </DrawerHeader> */}
-      <h5 style={{ padding: "15px", marginBottom: "0" }}>{empresa ? empresa.nombre : ""}</h5>
+      <h5 style={{ padding: "15px", marginBottom: "0" }}>
+        {empresa ? empresa.nombre : ""}
+      </h5>
       <Divider />
       <div
         style={{
@@ -71,8 +72,7 @@ const Sidebar = ({
           alignItems: "center",
           justifyContent: "center",
           marginTop: "0px",
-        }}
-      >
+        }}>
         <IconButton aria-label="user" color="primary">
           <AccountCircle fontSize="large" />
         </IconButton>
@@ -83,8 +83,7 @@ const Sidebar = ({
             id="demo-select-small"
             value={sucursales ? Number(sucursalSelected) : ""}
             label="Branch"
-            onChange={(event) => handleChangeSucursal(event)}
-          >
+            onChange={(event) => handleChangeSucursal(event)}>
             {sucursales &&
               sucursales?.map((sucursal: ISucursal, index: number) => (
                 <MenuItem key={index} value={sucursal.id}>
@@ -92,7 +91,6 @@ const Sidebar = ({
                 </MenuItem>
               ))}
           </Select>
-
         </FormControl>
       </div>
       <Divider />
@@ -107,8 +105,7 @@ const Sidebar = ({
                   navigate(`/${route}`);
                 }
               }}
-              disablePadding
-            >
+              disablePadding>
               <ListItemButton>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText primary={text} />
@@ -124,8 +121,7 @@ const Sidebar = ({
                       key={`${index}-${subIndex}`}
                       onClick={() => navigate(`/${subItem.route}`)}
                       disablePadding
-                      sx={{ pl: 4 }}
-                    >
+                      sx={{ pl: 4 }}>
                       <ListItemButton>
                         <ListItemIcon>{subItem.icon}</ListItemIcon>
                         <ListItemText primary={subItem.text} />

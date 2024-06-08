@@ -1,6 +1,7 @@
 export interface IArticuloPost {
-    denominacion: string
-    precioVenta: number
-    idImagenes: string[]
+    denominacion: string,
+    precioCompra: number,
+    precioVenta: number,
+    idImagenes: string[],
     idUnidadMedida: number
 }

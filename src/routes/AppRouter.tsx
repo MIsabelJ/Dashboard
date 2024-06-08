@@ -67,6 +67,14 @@ const AppRouter = () => {
           </Box>
         }
       />
+      <Route
+        path="/pedido"
+        element={
+          <Box sx={{ display: "flex" }}>
+            <PersistentDrawerLeft sectionName="Pedidos" />
+          </Box>
+        }
+      />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

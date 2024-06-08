@@ -6,6 +6,7 @@ import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import StoreIcon from "@mui/icons-material/Store";
 import GroupIcon from "@mui/icons-material/Group";
 import ScaleIcon from "@mui/icons-material/Scale";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 
 interface IDashboardItem {
   text: string;
@@ -60,6 +61,11 @@ export const dashboardItems: IDashboard = {
       text: "Sucursales",
       icon: <StoreIcon />,
       route: "sucursal",
+    },
+    {
+      text: "Pedidos",
+      icon: <ReceiptLongIcon />,
+      route: "pedido",
     },
     {
       text: "Usuarios",
