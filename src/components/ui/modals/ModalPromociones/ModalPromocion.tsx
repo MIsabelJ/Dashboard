@@ -5,7 +5,7 @@ import { useFormik } from "formik";
 import { SucursalService } from "../../../../services/SucursalService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { Modal } from "react-bootstrap";
-import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
+import { Button, Step, StepLabel, Stepper } from "@mui/material";
 import { IImagen } from "../../../../types/Imagen/IImagen";
 import { IArticulo } from "../../../../types/Articulo/IArticulo";
 import { ArticuloService } from "../../../../services/ArticuloService";
@@ -77,7 +77,7 @@ const ModalPromocion = ({
           Swal.showLoading();
         },
       });
-      console.log("valores por enviar", values)
+      console.log("valores por enviar", values);
       let actualImages: IImagen[] = [];
       if (selectedFiles.length > 0) {
         actualImages = await imagenService.upload(selectedFiles);
@@ -183,7 +183,9 @@ const ModalPromocion = ({
             idArticulo: detalle.articulo.id,
           }));
         setDetallePromocion(detallesPost);
-        const listSucursales = promocion.sucursales.map((sucursal) => sucursal.id)
+        const listSucursales = promocion.sucursales.map(
+          (sucursal) => sucursal.id
+        );
         formik.setValues({
           denominacion: promocion.denominacion,
           fechaDesde: promocion.fechaDesde,
@@ -248,16 +250,13 @@ const ModalPromocion = ({
   return (
     <Modal show={show} onHide={internalHandleClose} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>
-          {selectedId ? "Editar" : "Agregar"} Promoción
-        </Modal.Title>
+        <Modal.Title>{selectedId ? "Editar" : "Agregar"} Promoción</Modal.Title>
       </Modal.Header>
       <div className="modal-content">
         <Stepper
           activeStep={activeStep}
           alternativeLabel
-          className="stepper-container"
-        >
+          className="stepper-container">
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
@@ -290,17 +289,16 @@ const ModalPromocion = ({
             <Button
               color="inherit"
               disabled={activeStep === 0}
-              onClick={handleBack}
-            >
+              onClick={handleBack}>
               Atrás
             </Button>
             <div className="spacer" />
             <Button
               onClick={handleNext}
               variant="contained"
-              className={`next-button ${activeStep === steps.length - 1 ? "save-button" : ""
-                }`}
-            >
+              className={`next-button ${
+                activeStep === steps.length - 1 ? "save-button" : ""
+              }`}>
               {activeStep === steps.length - 1 ? "Guardar" : "Siguiente"}
             </Button>
           </div>
