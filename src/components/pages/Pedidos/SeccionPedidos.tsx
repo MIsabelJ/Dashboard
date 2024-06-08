@@ -45,7 +45,6 @@ export const SeccionPedidos = () => {
       ),
     },
     { label: "Total", key: "total" },
-    { label: "Costo total", key: "totalCosto" },
     {
       label: "Status",
       key: "estado",

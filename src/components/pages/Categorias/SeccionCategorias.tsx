@@ -176,22 +176,19 @@ export function SeccionCategorias() {
               <Button
                 variant={filtro === "todas" ? "contained" : "outlined"}
                 onClick={() => handleFiltro("todas")}
-                className={filtro === "todas" ? "filtro-activo" : ""}
-              >
+                className={filtro === "todas" ? "filtro-activo" : ""}>
                 Todas
               </Button>
               <Button
                 variant={filtro === "paraElaborar" ? "contained" : "outlined"}
                 onClick={() => handleFiltro("paraElaborar")}
-                className={filtro === "paraElaborar" ? "filtro-activo" : ""}
-              >
+                className={filtro === "paraElaborar" ? "filtro-activo" : ""}>
                 Para Elaborar
               </Button>
               <Button
                 variant={filtro === "paraVender" ? "contained" : "outlined"}
                 onClick={() => handleFiltro("paraVender")}
-                className={filtro === "paraVender" ? "filtro-activo" : ""}
-              >
+                className={filtro === "paraVender" ? "filtro-activo" : ""}>
                 Para Vender
               </Button>
             </ButtonGroup>
@@ -207,16 +204,14 @@ export function SeccionCategorias() {
               aria-label="add"
               onClick={() => {
                 setOpenModal(true);
-              }}
-            >
+              }}>
               <AddIcon />
             </IconButton>
           </div>
           <List
             sx={{ width: "100%", bgcolor: "background.paper" }}
             component="nav"
-            aria-labelledby="nested-list-subheader"
-          >
+            aria-labelledby="nested-list-subheader">
             {categoria.length > 0 ? (
               categoria
                 .filter((category) =>
