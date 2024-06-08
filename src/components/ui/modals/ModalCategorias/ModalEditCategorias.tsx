@@ -229,6 +229,7 @@ export const ModalEditCategorias = ({
         show={openModal}
         handleClose={() => setOpenModal(false)}
         handleSave={handleSaveSubcategoria}
+        sucursales={categoria.sucursales}
       />
     </>
   );

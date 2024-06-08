@@ -17,6 +17,7 @@ interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
   handleSave: (categoria: ICategoriaPost) => void;
+  sucursales?: ISucursal[];
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -24,6 +25,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
   handleSave,
+  sucursales,
 }) => {
   // -------------------- STATES --------------------
   const [denominacion, setDenominacion] = useState<string>("");
@@ -102,8 +104,14 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
 
   useEffect(() => {
     const getSucursales = async (idEmpresa: number) => {
-      const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
-      setExistingSucursales(response);
+      if (!sucursales) {
+        const response = await empresaService.getSucursalesByEmpresaId(
+          idEmpresa
+        );
+        setExistingSucursales(response);
+      } else {
+        setExistingSucursales(sucursales);
+      }
       handleToggleAll();
     };
     getSucursales(Number(empresaActive));
