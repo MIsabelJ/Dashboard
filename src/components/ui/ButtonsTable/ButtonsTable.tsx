@@ -1,4 +1,3 @@
-
 import { IEmpresa } from "../../../types/Empresa/IEmpresa";
 import { useAppDispatch } from "../../../hooks/redux";
 import { setElementActive } from "../../../redux/slices/TablaReducer";
@@ -11,6 +10,7 @@ interface IButtonsTable<T = IEmpresa> {
   handleDelete: (id: number) => void; // Función para manejar la eliminación de un elemento
   setOpenModal: (state: boolean) => void; // Función para manejar la eliminación de un elemento
   setSelectedId: (id: number) => void;
+  editable?: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -19,6 +19,7 @@ export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
   handleDelete,
   setOpenModal,
   setSelectedId,
+  editable,
 }: IButtonsTable<T>) => {
   const dispatch = useAppDispatch();
 
@@ -40,14 +41,15 @@ export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
         justifyContent: "space-around",
         cursor: "pointer",
         opacity: 1.0,
-      }}
-    >
+      }}>
       {/* Botón para editar el elemento */}
-      {el && !el.eliminado && (
-        <IconButton onClick={handleModalSelected} color="primary">
-          <EditRounded />
-        </IconButton>
-      )}
+      {el &&
+        !el.eliminado &&
+        (editable === undefined || editable !== false) && (
+          <IconButton onClick={handleModalSelected} color="primary">
+            <EditRounded />
+          </IconButton>
+        )}
       <Switch
         checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
         onChange={() => handleDelete(el.id)}

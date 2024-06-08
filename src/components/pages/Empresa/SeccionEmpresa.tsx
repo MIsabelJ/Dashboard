@@ -24,8 +24,14 @@ export const SeccionEmpresa = () => {
   const navigate = useNavigate();
 
   //manejo de datos en el localStorage
-  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage('empresaId', "0");
-  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage('sucursalId', "0");
+  const [idEmpresaLocalStorage, setIdEmpresaLocalStorage] = useLocalStorage(
+    "empresaId",
+    "0"
+  );
+  const [idSucursalLocalStorage, setIdSucursalLocalStorage] = useLocalStorage(
+    "sucursalId",
+    "0"
+  );
 
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -33,12 +39,13 @@ export const SeccionEmpresa = () => {
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
 
-
   // -------------------- SERVICES --------------------
   const empresaService = new EmpresaService(API_URL + "/empresa");
   const dispatch = useAppDispatch();
 
-  const empresaActive = useAppSelector((state) => state.empresaReducer.empresaActual);
+  const empresaActive = useAppSelector(
+    (state) => state.empresaReducer.empresaActual
+  );
 
   useEffect(() => {
     if (redirectId !== null && empresaActive === redirectId) {
@@ -49,8 +56,8 @@ export const SeccionEmpresa = () => {
 
   const handleClick = (id: number) => {
     dispatch(setCurrentEmpresa(id));
-    setIdEmpresaLocalStorage(id)
-    setIdSucursalLocalStorage('0')
+    setIdEmpresaLocalStorage(id);
+    setIdSucursalLocalStorage("0");
     setRedirectId(id);
   };
 
@@ -134,6 +141,7 @@ export const SeccionEmpresa = () => {
               setOpenModal={setOpenModal}
               denominacion="Empresa"
               setSelectedId={setSelectedId}
+              editable={false}
             />
           )}
         </div>

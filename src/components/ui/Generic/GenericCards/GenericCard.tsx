@@ -1,7 +1,7 @@
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import { Button, Card, CardActions, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import "./GenericCard.css"
+import "./GenericCard.css";
 
 // -------------------- INTERFAZ --------------------
 export interface ICardProps<T> {
@@ -11,16 +11,20 @@ export interface ICardProps<T> {
   setOpenModal: (state: boolean) => void;
   denominacion: string;
   setSelectedId: (state: number) => void;
+  editable?: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
-export const GenericCards = <T extends { id: number, nombre: string, eliminado: boolean }>({
+export const GenericCards = <
+  T extends { id: number; nombre: string; eliminado: boolean }
+>({
   items,
   handleClick,
   handleDelete,
   setOpenModal,
   denominacion,
   setSelectedId,
+  editable,
 }: ICardProps<T>) => {
   // -------------------- RENDER --------------------
   if (items && items.length > 0) {
@@ -30,15 +34,13 @@ export const GenericCards = <T extends { id: number, nombre: string, eliminado: 
           <Typography
             variant="h4"
             component="h1"
-            className="generic-card-title"
-          >
+            className="generic-card-title">
             Añadir
           </Typography>
           <Typography
             variant="h6"
             component="h5"
-            className="generic-card-subtitle"
-          >
+            className="generic-card-subtitle">
             {denominacion}
           </Typography>
           <AddIcon sx={{ fontSize: "70px", color: "grey" }} color="action" />
@@ -47,28 +49,20 @@ export const GenericCards = <T extends { id: number, nombre: string, eliminado: 
         {items.map((item) => (
           <Card
             key={item.id}
-            className={`item-card ${item.eliminado ? "item-card-disabled" : "item-card-enabled"
-              }`}
-          >
+            className={`item-card ${
+              item.eliminado ? "item-card-disabled" : "item-card-enabled"
+            }`}>
             <div style={{ textAlign: "center" }}>
               <Typography variant="h5" component="h2" gutterBottom>
                 {item.nombre}
               </Typography>
             </div>
-            {/* <div style={{ marginBottom: "10px" }}>
-              {item.razonSocial && (
-                <Typography variant="body2" gutterBottom>
-                  Razón social: {item.razonSocial}
-                </Typography>
-              )}
-              {item.direccion && (
-                <Typography variant="body2" gutterBottom>
-                  Dirección: {item.direccion.calle} {item.direccion.numero}
-                </Typography>
-              )}
-            </div> */}
             <CardActions className="item-card-actions">
-              <Button size="small" onClick={() => { !item.eliminado ? handleClick(item.id) : null }}>
+              <Button
+                size="small"
+                onClick={() => {
+                  !item.eliminado ? handleClick(item.id) : null;
+                }}>
                 Ver más
               </Button>
               <ButtonsTable
@@ -76,6 +70,7 @@ export const GenericCards = <T extends { id: number, nombre: string, eliminado: 
                 handleDelete={handleDelete}
                 setOpenModal={setOpenModal}
                 setSelectedId={setSelectedId}
+                editable={editable}
               />
             </CardActions>
           </Card>
@@ -89,15 +84,13 @@ export const GenericCards = <T extends { id: number, nombre: string, eliminado: 
           <Typography
             variant="h4"
             component="h1"
-            className="generic-card-title"
-          >
+            className="generic-card-title">
             Añadir
           </Typography>
           <Typography
             variant="h6"
             component="h5"
-            className="generic-card-subtitle"
-          >
+            className="generic-card-subtitle">
             {denominacion}
           </Typography>
           <AddIcon sx={{ fontSize: "70px", color: "grey" }} color="action" />
