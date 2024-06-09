@@ -77,7 +77,6 @@ const ModalPromocion = ({
           Swal.showLoading();
         },
       });
-      console.log("valores por enviar", values);
       let actualImages: IImagen[] = [];
       if (selectedFiles.length > 0) {
         actualImages = await imagenService.upload(selectedFiles);
@@ -87,7 +86,6 @@ const ModalPromocion = ({
         imagenes: [...previousImages, ...actualImages],
         promocionDetalles: detallePromocion,
       };
-      console.log(promocion);
       handleSave(promocion);
     },
   });
@@ -110,7 +108,9 @@ const ModalPromocion = ({
       }
     } else {
       try {
-        await promocionService.post(promocion);
+        console.log("articulo antes de subir: ", promocion);
+        const response = await promocionService.post(promocion);
+        console.log("Respuesta del server: ", response);
       } catch (error) {
         console.error(error);
       }

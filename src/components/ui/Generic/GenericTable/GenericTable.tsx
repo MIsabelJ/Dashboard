@@ -72,12 +72,20 @@ export const GenericTable = <T extends { id: number }>({
   //useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
     const filteredRows = dataTable.filter((row) =>
-      Object.values(row).some((value: any) =>
-        value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-      )
+      columns.some((column) => {
+        const value = column.render ? column.render(row) : row[column.key];
+        // Convertir a texto para búsqueda
+        const textValue =
+          typeof value === "string"
+            ? value
+            : value !== null && value !== undefined
+            ? value.toString()
+            : "";
+        return textValue.toLowerCase().includes(searchTerm.toLowerCase());
+      })
     );
     setRows(filteredRows);
-  }, [dataTable, searchTerm]);
+  }, [dataTable, searchTerm, columns]);
 
   // -------------------- RENDER --------------------
   return (
@@ -95,8 +103,7 @@ export const GenericTable = <T extends { id: number }>({
           aria-label="add"
           onClick={() => {
             setOpenModal(true);
-          }}
-        >
+          }}>
           <AddIcon />
         </IconButton>
       </div>
@@ -128,8 +135,7 @@ export const GenericTable = <T extends { id: number }>({
                     return (
                       <TableRow
                         key={index}
-                        className={row.eliminado ? "filaDeshabilitada" : ""}
-                      >
+                        className={row.eliminado ? "filaDeshabilitada" : ""}>
                         {columns.map((column, i) => {
                           if (column.key === "id") return null;
                           return (

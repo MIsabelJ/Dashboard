@@ -63,12 +63,13 @@ export const SeccionInsumos = () => {
     {
       label: "Unidad de Medida",
       key: "unidadMedida",
-      render: (insumo: IArticuloInsumo) => insumo.unidadMedida.denominacion,
+      render: (insumo: IArticuloInsumo) =>
+        `${insumo.unidadMedida.denominacion}`,
     },
     {
       label: "Categoría",
       key: "categoria",
-      render: (insumo: IArticuloInsumo) => insumo.categoria.denominacion,
+      render: (insumo: IArticuloInsumo) => `${insumo.categoria.denominacion}`,
     },
     {
       label: "Estado",
@@ -112,7 +113,7 @@ export const SeccionInsumos = () => {
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     setLoading(true);
-    getAllInsumo()
+    getAllInsumo();
   }, []);
 
   // -------------------- RENDER --------------------
@@ -133,7 +134,10 @@ export const SeccionInsumos = () => {
       <ModalArticuloInsumo
         selectedId={selectedId}
         show={openModal}
-        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+        handleClose={() => {
+          setOpenModal(false);
+          setSelectedId(undefined);
+        }}
       />
     </>
   );

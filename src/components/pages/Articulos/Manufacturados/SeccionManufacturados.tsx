@@ -38,16 +38,13 @@ export const SeccionManufacturados = () => {
     {
       label: "Ingredientes",
       key: "articuloManufacturadoDetalles",
-      render: (manufacturado: IArticuloManufacturado) => (
-        <ul>
-          {manufacturado.articuloManufacturadoDetalles.map((detalle, index) => (
-            <li key={index}>
-              {detalle.articuloInsumo.denominacion}: {detalle.cantidad}{" "}
-              {detalle.articuloInsumo.unidadMedida.denominacion}
-            </li>
-          ))}
-        </ul>
-      ),
+      render: (manufacturado: IArticuloManufacturado) =>
+        manufacturado.articuloManufacturadoDetalles
+          .map(
+            (detalle) =>
+              `\u2022 ${detalle.articuloInsumo.denominacion}: ${detalle.cantidad} ${detalle.articuloInsumo.unidadMedida.denominacion}`
+          )
+          .join("\n"),
     },
     {
       label: "Imágenes",
@@ -144,7 +141,10 @@ export const SeccionManufacturados = () => {
       <ModalArticuloManufacturado
         selectedId={selectedId}
         show={openModal}
-        handleClose={() => { setOpenModal(false); setSelectedId(undefined) }}
+        handleClose={() => {
+          setOpenModal(false);
+          setSelectedId(undefined);
+        }}
       />
     </>
   );
