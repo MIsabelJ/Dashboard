@@ -5,7 +5,7 @@ import { IImagen } from "../Imagen/IImagen"
 import { IUnidadMedida } from "../UnidadMedida/IUnidadMedida"
 
 export interface IArticuloManufacturado extends IBaseEntity {
-    precioCompra: number
+    precioCompra?: number
     denominacion: string
     precioVenta: number
     descripcion: string

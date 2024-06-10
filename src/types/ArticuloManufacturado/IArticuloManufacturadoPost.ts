@@ -2,7 +2,7 @@ import { IArticuloManufacturadoDetallePost } from "../ArticuloManufacturadoDetal
 import { IImagen } from "../Imagen/IImagen"
 
 export interface IArticuloManufacturadoPost {
-    precioCompra: number
+    precioCompra?: number
     denominacion: string
     precioVenta: number
     descripcion: string
