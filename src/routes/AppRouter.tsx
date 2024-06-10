@@ -4,6 +4,7 @@ import Login from "../components/pages/Login/Login.tsx";
 import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
+import Profile from "../components/auth/Profile.tsx";
 
 const AppRouter = () => {
   return (
@@ -19,6 +20,7 @@ const AppRouter = () => {
           </Box>
         }
       />
+      <Route path="/profile" element={<Profile />} />
       <Route
         path="/articulo-manufacturado"
         element={

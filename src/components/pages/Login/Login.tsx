@@ -1,46 +1,31 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Form } from 'react-bootstrap';
-import './Login.css';
+import { useNavigate } from "react-router-dom";
+import "./login.css";
 
 const Login = () => {
-  const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    navigate('/empresa')
+    navigate("/empresa"); {/* TODO: Redirección según rol Auth0 */}
   };
 
   return (
-    <div className="containerLogin">
-      <div className="containerForm">
-        <span style={{ fontSize: '9vh' }}>
-          Bienvenido
-        </span>
-        <Form>
-          <Form.Group className="mb-3">
-            <Form.Label>Usuario</Form.Label>
-            <Form.Control type="text" placeholder="Usuario" />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Contraseña</Form.Label>
-            <Form.Control
-              type={showPass ? 'text' : 'password'}
-              placeholder="Contraseña"
-            />
-          </Form.Group>
-          <Form.Check
-            type="switch"
-            onChange={() => setShowPass(!showPass)}
-            id="custom-switch"
-            label="Mostrar contraseña"
-          />
-          <div className="d-flex justify-content-center align-items-center mt-2">
-            <Button variant="primary" onClick={handleLogin}>
-              Ingresar
-            </Button>{' '}
-          </div>
-        </Form>
+    <div className="page-container">
+      <div className="form-container">
+        <p className="title">Bienvenido</p>
+        <form className="form">
+          <input type="email" className="input" placeholder="Email" />
+          <input type="password" className="input" placeholder="Contraseña" />
+          <button className="form-btn" onClick={handleLogin}>
+            Iniciar sesión
+          </button>
+        </form>
+        <p className="sign-up-label">O</p>
+        <div className="buttons-container">
+          <button className="google-login-button" onClick={handleLogin}> {/* TODO: Redirección a Google con Auth0 */}
+            <img src="/google.png" className="google-icon" alt="Google icon" />
+            Iniciar sesión con Google
+          </button>
+        </div>
       </div>
     </div>
   );

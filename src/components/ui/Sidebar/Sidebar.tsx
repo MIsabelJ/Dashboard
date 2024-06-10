@@ -3,8 +3,6 @@ import Drawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import {
@@ -17,9 +15,7 @@ import {
   ListItemText,
   MenuItem,
   Select,
-  useTheme,
 } from "@mui/material";
-import { DrawerHeader } from "./StyledComponents";
 import { dashboardItems } from "./DashboardItems";
 import { AccountCircle } from "@mui/icons-material";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
@@ -28,7 +24,6 @@ const drawerWidth = 240;
 
 const Sidebar = ({
   open,
-  handleDrawerClose,
   handleSubMenuClick,
   openSubMenu,
   sucursalSelected,
@@ -37,7 +32,6 @@ const Sidebar = ({
   empresa,
   navigate,
 }: any) => {
-  const theme = useTheme();
 
   return (
     <Drawer
@@ -73,7 +67,7 @@ const Sidebar = ({
           justifyContent: "center",
           marginTop: "0px",
         }}>
-        <IconButton aria-label="user" color="primary">
+        <IconButton aria-label="user" color="primary" onClick={() => navigate("/profile")}>
           <AccountCircle fontSize="large" />
         </IconButton>
         <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
