@@ -10,13 +10,8 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   }
 
   async getAll(): Promise<TG[]> {
-    const response = await fetch(`${this.baseUrl}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "no-cors",
-      },
-    });
+    const response = await fetch(`${this.baseUrl}`);
+    console.log(response);
     const data = await response.json();
     return data as TG[];
   }

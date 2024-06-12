@@ -5,7 +5,7 @@ import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
 import Profile from "../components/auth/Profile.tsx";
-import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
+import PrivateRoute from "./RoutesProp.tsx";
 
 const AppRouter = () => {
   return (
@@ -13,16 +13,16 @@ const AppRouter = () => {
       <Route index path="/login" element={<Login />} />
       <Route
         path="/empresa"
-        element={<AuthenticationGuard component={SeccionEmpresa} />}
+        element={<PrivateRoute component={SeccionEmpresa} />}
       />
       <Route
         path="/sucursal"
-        element={<AuthenticationGuard component={SeccionSucursal} />}
+        element={<PrivateRoute component={SeccionSucursal} />}
       />
       <Route
         path="/inicio"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Inicio"}
           />
@@ -32,7 +32,7 @@ const AppRouter = () => {
       <Route
         path="/articulo-manufacturado"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Artículos manufacturados"}
           />
@@ -41,7 +41,7 @@ const AppRouter = () => {
       <Route
         path="/articulo-insumo"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Insumos"}
           />
@@ -50,7 +50,7 @@ const AppRouter = () => {
       <Route
         path="/categoria"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Categorías"}
           />
@@ -59,7 +59,7 @@ const AppRouter = () => {
       <Route
         path="/promocion"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Promociones"}
           />
@@ -68,7 +68,7 @@ const AppRouter = () => {
       <Route
         path="/usuario"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Usuarios"}
           />
@@ -77,7 +77,7 @@ const AppRouter = () => {
       <Route
         path="/unidad-medida"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Unidades de Medida"}
           />
@@ -86,7 +86,7 @@ const AppRouter = () => {
       <Route
         path="/pedido"
         element={
-          <AuthenticationGuard
+          <PrivateRoute
             component={PersistentDrawerLeft}
             sectionName={"Pedidos"}
           />

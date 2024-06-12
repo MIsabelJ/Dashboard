@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,9 +13,7 @@ const Login = () => {
   const { loginWithPopup, user, isAuthenticated } = useAuth0();
 
   const handleLogin = async () => {
-    await loginWithPopup({
-      connection: "google-oauth2",
-    });
+    await loginWithPopup();
     if (isAuthenticated) {
       navigate("/empresa");
     }

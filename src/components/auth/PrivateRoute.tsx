@@ -5,7 +5,9 @@ type Props = {
   [key: string]: any;
 };
 
-export const AuthenticationGuard = ({ component, ...rest }: Props) => {
+// Con lo de Luciano esto queda sin uso
+
+export const PrivateRoute = ({ component, ...rest }: Props) => {
   const Component = withAuthenticationRequired(component, {
     onRedirecting: () => (
       <div>
