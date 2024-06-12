@@ -1,11 +1,36 @@
 import { FormikProps } from "formik";
 import { IPromocionPost } from "../../../../../types/Promocion/IPromocionPost";
-import { Grid, InputAdornment, TextField } from "@mui/material";
+import { Autocomplete, Grid, InputAdornment, TextField } from "@mui/material";
+import { useState } from "react";
 
 interface Step2Props {
   formik: FormikProps<IPromocionPost>;
 }
 const Step2: React.FC<Step2Props> = ({ formik }) => {
+  const [opcionesPromocion, setOpcionesPromocion] = useState<
+    { label: string; id: number }[]
+  >([
+    {
+      label: "Happy hour",
+      id: 1,
+    },
+    {
+      label: "Promoción",
+      id: 2,
+    },
+  ]);
+
+  const promocionTraduccion = (promocion: number) => {
+    switch (promocion) {
+      case 1:
+        return "HAPPY_HOUR";
+      case 2:
+        return "PROMOCION";
+      default:
+        return "PROMOCION";
+    }
+  };
+
   return (
     <>
       <Grid container spacing={2}>
@@ -35,21 +60,28 @@ const Step2: React.FC<Step2Props> = ({ formik }) => {
         </Grid>
         <Grid item xs={8}>
           {" "}
-          {/* TODO: Autocomplete con los tipos de promociones disponibles */}
-          <TextField
-            fullWidth
-            margin="normal"
-            label="Tipo de Promoción"
-            name="tipoPromocion"
-            value={formik.values.tipoPromocion}
-            onChange={formik.handleChange}
-            error={
-              formik.touched.tipoPromocion &&
-              Boolean(formik.errors.tipoPromocion)
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={opcionesPromocion}
+            sx={{ width: "100%" }}
+            value={
+              opcionesPromocion.find(
+                (option) =>
+                  promocionTraduccion(option.id || 0) ===
+                  formik.values.tipoPromocion
+              ) || null
             }
-            helperText={
-              formik.touched.tipoPromocion && formik.errors.tipoPromocion
+            onChange={(event, value) =>
+              formik.setFieldValue(
+                "tipoPromocion",
+                promocionTraduccion(value?.id || 0)
+              )
             }
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={(params) => (
+              <TextField {...params} label="Seleccione la promoción" />
+            )}
           />
         </Grid>
       </Grid>

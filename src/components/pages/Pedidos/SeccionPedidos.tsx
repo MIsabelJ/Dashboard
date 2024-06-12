@@ -52,9 +52,13 @@ export const SeccionPedidos = () => {
 
   const handleFiltro = (filtro: React.SetStateAction<string>) => {
     setFiltro(filtro);
-    dispatch(
-      setDataTable(pedidoActive.filter((pedido) => pedido.estado === filtro))
-    );
+    if (filtro == "todos") {
+      dispatch(setDataTable(pedidoActive));
+    } else {
+      dispatch(
+        setDataTable(pedidoActive.filter((pedido) => pedido.estado === filtro))
+      );
+    }
   };
 
   // -------------------- FUNCIONES --------------------
@@ -72,7 +76,11 @@ export const SeccionPedidos = () => {
   useEffect(() => {
     setLoading(true);
     setUserRole("admin"); //TODO: Esto está hardcodeado, hay que ver como obtener el rol
-    setFiltro(roles[userRole][0]);
+    if (filtro == "todos") {
+      setFiltro("");
+    } else {
+      setFiltro(roles[userRole][0]);
+    }
     getPedido();
   }, []);
 
@@ -101,18 +109,11 @@ export const SeccionPedidos = () => {
               handleDelete={handleDelete}
               columns={ColumnsPedido}
               setOpenModal={setOpenModal}
+              editable={false}
             />
           </div>
         </div>
       )}
-      {/* <ModalPedido
-        selectedId={selectedId}
-        show={openModal}
-        handleClose={() => {
-          setOpenModal(false);
-          setSelectedId(undefined);
-        }}
-      /> */}
     </>
   );
 };

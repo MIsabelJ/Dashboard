@@ -1,4 +1,38 @@
 import { IPedido } from "../../../types/Pedido/IPedido";
+import * as React from "react";
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
+/*
+PREPARACION,
+PENDIENTE,
+TERMINADO,
+FACTURADO,
+CANCELADO,
+RECHAZADO,
+DELIVERY,
+APROBADO
+*/
+
+const TriggerMenu = () => {
+  return (
+    <PopupState variant="popover" popupId="demo-popup-menu">
+      {(popupState) => (
+        <React.Fragment>
+          <Button variant="contained" {...bindTrigger(popupState)}>
+            Dashboard
+          </Button>
+          <Menu {...bindMenu(popupState)}>
+            <MenuItem onClick={popupState.close}>Profile</MenuItem>
+            <MenuItem onClick={popupState.close}>My account</MenuItem>
+            <MenuItem onClick={popupState.close}>Logout</MenuItem>
+          </Menu>
+        </React.Fragment>
+      )}
+    </PopupState>
+  );
+};
 
 export const roles: Record<string, string[]> = {
   admin: [
@@ -26,7 +60,6 @@ export const roles: Record<string, string[]> = {
   delivery: ["en delivery", "entregados"],
 };
 
-
 // -------------------- COLUMNAS --------------------
 export const ColumnsPedido = [
   {
@@ -50,22 +83,7 @@ export const ColumnsPedido = [
   {
     label: "Status",
     key: "estado",
-    render: (pedido: IPedido) => {
-      switch (pedido?.estado) {
-        case "PENDIENTE":
-          return "Pendiente";
-        case "PREPARACION":
-          return "Preparación";
-        case "CANCELADO":
-          return "Cancelado";
-        case "RECHAZADO":
-          return "Rechazado";
-        case "ENTREGADO":
-          return "Entregado";
-        default:
-          return "Activo";
-      }
-    },
+    render: (pedido: IPedido) => TriggerMenu(),
   },
   {
     label: "Entrega",
