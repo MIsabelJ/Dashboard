@@ -6,6 +6,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditRounded from "@mui/icons-material/EditRounded";
 import React from "react";
 import { IArticuloInsumo } from "../../../../../types/ArticuloInsumo/IArticuloInsumo";
+import { ManufacturadosDetalleModal } from "../../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
+import { IArticuloManufacturadoDetallePost } from "../../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 
 interface Step3Props {
   articuloSeleccionado: { articuloInsumo: IArticuloInsumo; cantidad: string }[];
@@ -13,23 +15,34 @@ interface Step3Props {
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
   setShowDetallesModal: React.Dispatch<React.SetStateAction<boolean>>;
   handleDeleteDetalle: (index: number) => void;
+  handleSave: (detalle: IArticuloManufacturadoDetallePost) => Promise<void>;
+  openModal: boolean;
 }
 
 const Step3: React.FC<Step3Props> = ({
   articuloSeleccionado,
   searchTerm,
   handleSearch,
-  setShowDetallesModal,
   handleDeleteDetalle,
+  setShowDetallesModal,
+  handleSave,
+  openModal,
 }) => {
+  const [prevValues, setPrevValues] = React.useState<
+    {
+      articuloInsumo: IArticuloInsumo;
+      cantidad: string;
+      id: number;
+    }[]
+  >([]);
+
   return (
     <>
       {/* DETALLES MANUFACTURADO */}
       <Form.Group
         controlId="idArticuloManufacturadoDetalles"
         className="mb-3"
-        style={{ marginBottom: "2rem" }}
-      >
+        style={{ marginBottom: "2rem" }}>
         <Form.Label style={{ marginBottom: "1rem" }}>Insumos</Form.Label>
         <Grid container spacing={2} alignItems="center">
           <Grid item display="flex" justifyContent="flex-start">
@@ -38,8 +51,7 @@ const Step3: React.FC<Step3Props> = ({
                 setShowDetallesModal(true);
               }}
               variant="contained"
-              startIcon={<AddIcon />}
-            >
+              startIcon={<AddIcon />}>
               Añadir insumo
             </Button>
           </Grid>
@@ -54,8 +66,7 @@ const Step3: React.FC<Step3Props> = ({
               maxHeight: "150px",
               overflowY: "auto",
               marginLeft: "1rem",
-            }}
-          >
+            }}>
             {articuloSeleccionado.length > 0 && (
               <ul style={{ paddingLeft: 0, listStyleType: "none" }}>
                 {articuloSeleccionado
@@ -70,8 +81,7 @@ const Step3: React.FC<Step3Props> = ({
                         container
                         spacing={1}
                         alignItems="center"
-                        style={{ marginBottom: "1rem" }}
-                      >
+                        style={{ marginBottom: "1rem" }}>
                         <Grid item xs={3}>
                           <TextField
                             id="outlined-basic"
@@ -107,11 +117,18 @@ const Step3: React.FC<Step3Props> = ({
                         <Grid item xs={3}>
                           <IconButton
                             aria-label="delete"
-                            onClick={() => handleDeleteDetalle(index)}
-                          >
+                            onClick={() => handleDeleteDetalle(index)}>
                             <DeleteIcon />
                           </IconButton>
-                          <IconButton aria-label="edit">
+                          <IconButton
+                            aria-label="edit"
+                            onClick={() => {
+                              setShowDetallesModal(true);
+                              setPrevValues({
+                                ...articuloSeleccionado[index],
+                                id: detalle.articuloInsumo.id,
+                              });
+                            }}>
                             <EditRounded color="primary" />
                           </IconButton>
                         </Grid>
@@ -126,6 +143,12 @@ const Step3: React.FC<Step3Props> = ({
           {/* {formik.errors.articuloManufacturadoDetalles} */}
         </Form.Control.Feedback>
       </Form.Group>
+      <ManufacturadosDetalleModal
+        handleSave={handleSave}
+        openModal={openModal}
+        setOpenModal={setShowDetallesModal}
+        values={prevValues}
+      />
     </>
   );
 };

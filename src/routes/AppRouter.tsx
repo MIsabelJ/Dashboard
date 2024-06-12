@@ -5,79 +5,94 @@ import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
 import Profile from "../components/auth/Profile.tsx";
+import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
 
 const AppRouter = () => {
   return (
     <Routes>
       <Route index path="/login" element={<Login />} />
-      <Route path="/empresa" element={<SeccionEmpresa />} />
-      <Route path="/sucursal" element={<SeccionSucursal />} />
+      <Route
+        path="/empresa"
+        element={<AuthenticationGuard component={SeccionEmpresa} />}
+      />
+      <Route
+        path="/sucursal"
+        element={<AuthenticationGuard component={SeccionSucursal} />}
+      />
       <Route
         path="/inicio"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Inicio" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Inicio"}
+          />
         }
       />
       <Route path="/profile" element={<Profile />} />
       <Route
         path="/articulo-manufacturado"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Artículos manufacturados" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Artículos manufacturados"}
+          />
         }
       />
       <Route
         path="/articulo-insumo"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Insumos" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Insumos"}
+          />
         }
       />
       <Route
         path="/categoria"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Categorías" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Categorías"}
+          />
         }
       />
       <Route
         path="/promocion"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Promociones" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Promociones"}
+          />
         }
       />
       <Route
         path="/usuario"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Usuarios" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Usuarios"}
+          />
         }
       />
       <Route
         path="/unidad-medida"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Unidades de Medida" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Unidades de Medida"}
+          />
         }
       />
       <Route
         path="/pedido"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Pedidos" />
-          </Box>
+          <AuthenticationGuard
+            component={PersistentDrawerLeft}
+            sectionName={"Pedidos"}
+          />
         }
       />
-      <Route path="*" element={<Navigate to="/login" replace />} />
+      {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
     </Routes>
   );
 };

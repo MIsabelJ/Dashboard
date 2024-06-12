@@ -40,7 +40,7 @@ export const GenericTable = <T extends { id: number }>({
   handleDelete,
   setOpenModal,
   setSelectedId,
-  editable
+  editable,
 }: ITableProps<T>) => {
   // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
@@ -110,7 +110,7 @@ export const GenericTable = <T extends { id: number }>({
         </IconButton>
       </div>
       <Paper sx={{ width: "95%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: "70vh" }}>
+        <TableContainer sx={{ maxHeight: "70vh", overflow: "auto" }}>
           <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -167,6 +167,7 @@ export const GenericTable = <T extends { id: number }>({
           </Table>
         </TableContainer>
         <TablePagination
+          style={{ minHeight: "60px" }}
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={rows.length}

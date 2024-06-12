@@ -29,6 +29,11 @@ interface ManufacturadosDetalleModalProps {
   handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
+  values?: {
+    articuloInsumo: IArticuloInsumo;
+    cantidad: string;
+    id: number;
+  };
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -37,6 +42,7 @@ export const ManufacturadosDetalleModal = ({
   handleSave,
   openModal,
   setOpenModal,
+  values,
 }: ManufacturadosDetalleModalProps) => {
   // -------------------- STATES --------------------
   // Guarda los valores de todos los insumos que existen y que vayan a añadirse con el useEffect
@@ -44,8 +50,10 @@ export const ManufacturadosDetalleModal = ({
   // Utilizado para dar formato a los elementos del dropdown de insumos
   const [opcionesInsumos, setOpcionesInsumos] = useState<
     {
-      esParaElaborar: boolean; label: string; id: number 
-}[]
+      esParaElaborar: boolean;
+      label: string;
+      id: number;
+    }[]
   >([]);
 
   // -------------------- FORMIK --------------------
@@ -53,7 +61,6 @@ export const ManufacturadosDetalleModal = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      console.log(values);
       handleSave(values);
       handleCloseModal();
     },
@@ -74,12 +81,17 @@ export const ManufacturadosDetalleModal = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    const getInsumos = async () => {
-      const response = await insumoService.getAll();
-      setInsumos(response);
-    };
-    getInsumos();
-  }, []);
+    if (openModal) {
+      const getInsumos = async () => {
+        const response = await insumoService.getAll();
+        setInsumos(response);
+      };
+      getInsumos();
+    }
+    if (values) {
+      console.log(values);
+    }
+  }, [openModal]);
 
   useEffect(() => {
     const opciones = insumos.map((insumo) => ({
@@ -109,14 +121,20 @@ export const ManufacturadosDetalleModal = ({
                         <Form.Label>Insumo</Form.Label>
                         <Autocomplete
                           id="combo-box-demo"
-                          options={opcionesInsumos.filter((opcion) => opcion.esParaElaborar === true)}
-                          getOptionKey={(option) => option.id}
+                          options={opcionesInsumos.filter(
+                            (opcion) => opcion.esParaElaborar === true
+                          )}
                           sx={{ width: "100%" }}
                           value={
+                            (values &&
+                              opcionesInsumos.find((option) => {
+                                return option.id === values?.id;
+                              })) ||
                             opcionesInsumos.find(
                               (option) =>
                                 option.id === formik.values.idArticuloInsumo
-                            ) || null
+                            ) ||
+                            null
                           }
                           onChange={(event, value) =>
                             formik.setFieldValue(
@@ -147,8 +165,9 @@ export const ManufacturadosDetalleModal = ({
                           type="number"
                           placeholder="Ingrese la cantidad"
                           name="cantidad"
-                          value={formik.values.cantidad}
+                          value={values?.cantidad}
                           onChange={formik.handleChange}
+                          isInvalid={!!formik.errors.cantidad}
                         />
                         <Form.Control.Feedback type="invalid">
                           {formik.errors.cantidad}
@@ -190,8 +209,7 @@ export const ManufacturadosDetalleModal = ({
                 <Button
                   onClick={handleSubmit}
                   variant="contained"
-                  color="success"
-                >
+                  color="success">
                   Guardar
                 </Button>
               </Box>

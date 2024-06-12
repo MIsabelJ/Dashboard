@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 // ---------- ESTILOS ----------
 import {
   Avatar,
+  Box,
   IconButton,
   List,
   ListItem,
@@ -192,52 +193,55 @@ export const SeccionInicio = () => {
 
   // -------------------- RENDER --------------------
   return (
-    <div id="seccion-inicio">
-      <h2 style={{ fontSize: "22px", margin: "15px 0" }}>Resumen</h2>
-      <div id="chart-container">
-        <div className="charts box" style={{ width: "40vw" }}>
-          <h2>Ventas por sucursal</h2>
-          <Line data={lineData} options={lineOptions as ChartOptions<"line">} />
+    <Box sx={{ display: "flex" }}>
+      <div id="seccion-inicio">
+        <h2 style={{ fontSize: "22px", margin: "15px 0" }}>Resumen</h2>
+        <div id="chart-container">
+          <div className="charts box" style={{ width: "40vw" }}>
+            <h2>Ventas por sucursal</h2>
+            <Line
+              data={lineData}
+              options={lineOptions as ChartOptions<"line">}
+            />
+          </div>
+          <div className="charts box" style={{ width: "25vw" }}>
+            <h2>Ventas por semana</h2>
+            <Pie data={pieData} options={pieOptions as ChartOptions<"pie">} />
+          </div>
         </div>
-        <div className="charts box" style={{ width: "25vw" }}>
-          <h2>Ventas por semana</h2>
-          <Pie data={pieData} options={pieOptions as ChartOptions<"pie">} />
+        <div>
+          <h2 style={{ fontSize: "22px", marginTop: "15px" }}>
+            Productos más vendidos
+          </h2>
+          <List dense={dense}>
+            {" "}
+            {productos.map(({ nombre, descripcion }, index) => {
+              return (
+                <ListItem
+                  key={index}
+                  secondaryAction={
+                    <IconButton
+                      onClick={() => navigate("/inicio")} // Cambiar al modal correspondiente
+                      edge="end"
+                      aria-label="edit">
+                      <ModeEditIcon />
+                    </IconButton>
+                  }>
+                  <ListItemAvatar>
+                    <Avatar>
+                      <ShoppingBagIcon />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={nombre}
+                    secondary={secondary ? descripcion : null}
+                  />
+                </ListItem>
+              );
+            })}
+          </List>
         </div>
       </div>
-      <div>
-        <h2 style={{ fontSize: "22px", marginTop: "15px" }}>
-          Productos más vendidos
-        </h2>
-        <List dense={dense}>
-          {" "}
-          {productos.map(({ nombre, descripcion }, index) => {
-            return (
-              <ListItem
-                key={index}
-                secondaryAction={
-                  <IconButton
-                    onClick={() => navigate("/inicio")} // Cambiar al modal correspondiente
-                    edge="end"
-                    aria-label="edit"
-                  >
-                    <ModeEditIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemAvatar>
-                  <Avatar>
-                    <ShoppingBagIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={nombre}
-                  secondary={secondary ? descripcion : null}
-                />
-              </ListItem>
-            );
-          })}
-        </List>
-      </div>
-    </div>
+    </Box>
   );
 };

@@ -103,11 +103,15 @@ export const ModalArticuloManufacturado = ({
         imagenes: [...previousImages, ...actualImages],
       };
 
-      let precioInsumos : number = 0;
-      const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(async (detalle)=>{
-        const insumo : IArticuloInsumo | any = await insumoService.getById(detalle.idArticuloInsumo);
-        precioInsumos += insumo.precioCompra * detalle.cantidad;
-      });
+      let precioInsumos: number = 0;
+      const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(
+        async (detalle) => {
+          const insumo: IArticuloInsumo | any = await insumoService.getById(
+            detalle.idArticuloInsumo
+          );
+          precioInsumos += insumo.precioCompra * detalle.cantidad;
+        }
+      );
       await Promise.all(promiseInsumos);
       manufacturado.precioCompra = precioInsumos;
       handleSave(manufacturado);
@@ -174,6 +178,7 @@ export const ModalArticuloManufacturado = ({
     formik.resetForm();
     setSelectedFiles([]);
     setPreviousImages([]);
+    setNewDetalles([]);
     setActiveStep(0);
   };
 
@@ -283,7 +288,6 @@ export const ModalArticuloManufacturado = ({
   //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
     if (show) {
-
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
@@ -318,8 +322,7 @@ export const ModalArticuloManufacturado = ({
             <Stepper
               activeStep={activeStep}
               alternativeLabel
-              className="stepper-padding"
-            >
+              className="stepper-padding">
               {steps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
@@ -355,6 +358,8 @@ export const ModalArticuloManufacturado = ({
                       handleSearch={handleSearch}
                       setShowDetallesModal={setShowDetallesModal}
                       handleDeleteDetalle={handleDeleteDetalle}
+                      handleSave={handleSaveDetalle}
+                      openModal={showDetallesModal}
                     />
                   )}
                   {activeStep === 3 && (
@@ -370,8 +375,7 @@ export const ModalArticuloManufacturado = ({
                     <Button
                       color="inherit"
                       disabled={activeStep === 0}
-                      onClick={handleBack}
-                    >
+                      onClick={handleBack}>
                       Atrás
                     </Button>
                     <Box className="box-auto-flex" />
@@ -380,8 +384,7 @@ export const ModalArticuloManufacturado = ({
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"
-                      }
-                    >
+                      }>
                       {activeStep === steps.length - 1
                         ? "Guardar"
                         : "Siguiente"}

@@ -1,10 +1,11 @@
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 type Props = {
-  component: React.ComponentType<object>;
+  component: React.ComponentType<any>;
+  [key: string]: any;
 };
 
-export const AuthenticationGuard = ({ component }: Props) => {
+export const AuthenticationGuard = ({ component, ...rest }: Props) => {
   const Component = withAuthenticationRequired(component, {
     onRedirecting: () => (
       <div>
@@ -13,5 +14,5 @@ export const AuthenticationGuard = ({ component }: Props) => {
     ),
   });
 
-  return <Component />;
+  return <Component {...rest} />;
 };
