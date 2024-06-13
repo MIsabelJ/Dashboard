@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IUsuario } from "../../../../types/Usuario/IUsuario";
 import { UsuarioService } from "../../../../services/UsuarioService";
-import { API_URL, initialValues } from "./utils/constants";
+import { initialValues } from "./utils/constants";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { IUsuarioPost } from "../../../../types/Usuario/IUsuarioPost";
@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import { Modal, Button, Form } from "react-bootstrap";
 import { SucursalService } from "../../../../services/SucursalService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 //---------------- INTERFAZ ----------------
 interface ModalUsuariosProps {
@@ -38,8 +39,8 @@ const ModalUsuario = ({
 
   // -------------------- SERVICE --------------------
 
-  const usuarioService = new UsuarioService(API_URL + "/usuario");
-  const sucursalService = new SucursalService(API_URL + "/sucursal");
+  const usuarioService = useServiceHeaders(UsuarioService, "usuario");
+  const sucursalService = useServiceHeaders(SucursalService, "sucursal");
   const dispatch = useAppDispatch();
 
   // -------------------- FUNCIONES --------------------
@@ -112,17 +113,19 @@ const ModalUsuario = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    const getSucursales = async () => {
-      const response = await sucursalService.getAll();
-      setSucursales(response);
-    };
-    getSucursales();
-    if (selectedId) {
-      getOneUsuario(selectedId);
-    } else {
-      setValues(initialValues);
+    if (show && usuarioService && sucursalService) {
+      const getSucursales = async () => {
+        const response = await sucursalService.getAll();
+        setSucursales(response);
+      };
+      getSucursales();
+      if (selectedId) {
+        getOneUsuario(selectedId);
+      } else {
+        setValues(initialValues);
+      }
     }
-  }, [show]);
+  }, [show, usuarioService, sucursalService]);
 
   return (
     <Modal show={show} onHide={internalHandleClose} size="lg">

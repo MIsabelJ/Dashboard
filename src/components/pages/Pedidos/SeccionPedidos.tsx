@@ -9,6 +9,7 @@ import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
 import { roles, ColumnsPedido } from "./constantes";
 import { Button, ButtonGroup } from "@mui/material";
+import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -24,7 +25,7 @@ export const SeccionPedidos = () => {
   const [filtro, setFiltro] = useState("");
 
   // -------------------- SERVICES --------------------
-  const pedidoService = new PedidoService(API_URL + "/pedido");
+  const pedidoService = useServiceHeaders(PedidoService, "pedido");
   const dispatch = useAppDispatch();
 
   const pedidoActive = useAppSelector((state) => state.tableReducer.dataTable);
@@ -74,15 +75,17 @@ export const SeccionPedidos = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
-    setUserRole("admin"); //TODO: Esto está hardcodeado, hay que ver como obtener el rol
-    if (filtro == "todos") {
-      setFiltro("");
-    } else {
-      setFiltro(roles[userRole][0]);
+    if (pedidoService != null) {
+      setLoading(true);
+      setUserRole("admin"); //TODO: Esto está hardcodeado, hay que ver como obtener el rol
+      if (filtro == "todos") {
+        setFiltro("");
+      } else {
+        setFiltro(roles[userRole][0]);
+      }
+      getPedido();
     }
-    getPedido();
-  }, []);
+  }, [pedidoService]);
 
   return (
     <>

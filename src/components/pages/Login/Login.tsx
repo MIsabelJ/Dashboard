@@ -10,13 +10,14 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { loginWithPopup, user, isAuthenticated } = useAuth0();
+  const { loginWithRedirect, user, isAuthenticated } = useAuth0();
 
-  const handleLogin = async () => {
-    await loginWithPopup();
-    if (isAuthenticated) {
-      navigate("/empresa");
-    }
+  const handleLogin = () => {
+    loginWithRedirect({
+      appState: {
+        returnTo: "/empresa",
+      },
+    });
 
     /* TODO: Redirección según rol Auth0 */
   };

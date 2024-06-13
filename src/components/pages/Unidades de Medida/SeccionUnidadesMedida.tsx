@@ -7,6 +7,7 @@ import { UnidadMedidaService } from "../../../services/UnidadMedidaService";
 import { UnidadMedidaModal } from "../../ui/modals/ModalUnidadMedida/ModalUnidadMedida";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
+import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -21,8 +22,9 @@ export const SeccionUnidadesMedida = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const unidadMedidaService = new UnidadMedidaService(
-    API_URL + "/unidad-medida"
+  const unidadMedidaService = useServiceHeaders(
+    UnidadMedidaService,
+    "unidad-medida"
   );
 
   // -------------------- COLUMNAS --------------------
@@ -61,9 +63,11 @@ export const SeccionUnidadesMedida = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
-    getUnidadMedida();
-  }, []);
+    if (unidadMedidaService != null) {
+      setLoading(true);
+      getUnidadMedida();
+    }
+  }, [unidadMedidaService]);
 
   // -------------------- RENDER --------------------
   return (

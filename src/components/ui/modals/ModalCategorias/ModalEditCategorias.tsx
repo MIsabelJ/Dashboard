@@ -7,6 +7,7 @@ import { Button, Grid } from "@mui/material";
 // import SearchBar from "../../SearchBar/SearchBar";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { EmpresaService } from "../../../../services/EmpresaService";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ---------- INTERFAZ ----------
 interface ICategoriaModalProps {
@@ -43,8 +44,7 @@ export const ModalEditCategorias = ({
 
   // -------------------- SERVICES --------------------
 
-  const API_URL = import.meta.env.VITE_API_URL;
-  const empresaService = new EmpresaService(API_URL + "/empresa");
+  const empresaService = useServiceHeaders(EmpresaService, "empresa");
   // -------------------- HANDLERS --------------------
   const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
     await addSubCategoria(categoria.id, subcategoria);
@@ -111,12 +111,16 @@ export const ModalEditCategorias = ({
   // }, [dataTable, searchTerm]);
 
   useEffect(() => {
-    const getSucursales = async (idEmpresa: number) => {
-      const response = await empresaService.getSucursalesByEmpresaId(idEmpresa);
-      setExistingSucursales(response);
-    };
-    getSucursales(Number(localStorage.getItem("empresaId")));
-  }, [show]);
+    if (empresaService != null) {
+      const getSucursales = async (idEmpresa: number) => {
+        const response = await empresaService.getSucursalesByEmpresaId(
+          idEmpresa
+        );
+        setExistingSucursales(response);
+      };
+      getSucursales(Number(localStorage.getItem("empresaId")));
+    }
+  }, [show, empresaService]);
   // -------------------- RENDER --------------------
   return (
     <>

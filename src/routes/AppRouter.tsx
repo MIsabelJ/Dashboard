@@ -4,7 +4,7 @@ import Login from "../components/pages/Login/Login.tsx";
 import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
-import Profile from "../components/auth/Profile.tsx";
+// import Profile from "../components/auth/Profile.tsx";
 import PrivateRoute from "./RoutesProp.tsx";
 
 const AppRouter = () => {
@@ -28,7 +28,7 @@ const AppRouter = () => {
           />
         }
       />
-      <Route path="/profile" element={<Profile />} />
+      {/* <Route path="/profile" element={<Profile />} /> */}
       <Route
         path="/articulo-manufacturado"
         element={
@@ -92,7 +92,7 @@ const AppRouter = () => {
           />
         }
       />
-      {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+      {/* <Route path="*" element={<Navigate to="/inicio" replace />} /> */}
     </Routes>
   );
 };

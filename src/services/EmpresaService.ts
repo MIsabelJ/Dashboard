@@ -13,7 +13,8 @@ export class EmpresaService extends BackendClient<
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "no-cors",
+        // "Access-Control-Allow-Origin": "no-cors",
+        Authorization: `Bearer ${this.token}`,
       },
     });
     const data = await response.json();

@@ -1,22 +1,35 @@
-import { useAuth0 } from "@auth0/auth0-react";
+// import React, { useEffect, useState } from "react";
+// import { useAuth0 } from "@auth0/auth0-react";
+// // import jwt_decode from "jwt-decode";
 
-// TODO: SECCIÓN DEL PERFIL DEL USUARIO QUE SE LOGUEÓ
-const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+// const Profile = () => {
+//   const { user, getAccessTokenSilently } = useAuth0();
+//   const [roles, setRoles] = useState([]);
 
-  if (isLoading) {
-    return <div>Loading ...</div>;
-  }
+//   useEffect(() => {
+//     const getUserRoles = async () => {
+//       try {
+//         const accessToken = await getAccessTokenSilently();
+//         // const decodedToken = jwt_decode(accessToken);
+//         const roles =
+//           // decodedToken["https://your-app-namespace.com/roles"] || [];
+//           setRoles(roles);
+//       } catch (e) {
+//         console.error(e);
+//       }
+//     };
 
-  return (
-    isAuthenticated && (
-      <div>
-        <img src={user?.picture} alt={user?.name} />
-        <h2>{user?.name}</h2>
-        <p>{user?.email}</p>
-      </div>
-    )
-  );
-};
+//     getUserRoles();
+//   }, [getAccessTokenSilently]);
 
-export default Profile;
+//   return (
+//     <div>
+//       <h2>User Profile</h2>
+//       <p>Name: {user?.name}</p>
+//       <p>Email: {user?.email}</p>
+//       <p>Roles: {roles.join(", ")}</p>
+//     </div>
+//   );
+// };
+
+// export default Profile;

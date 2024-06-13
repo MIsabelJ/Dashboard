@@ -9,6 +9,7 @@ import { InsumoService } from "../../../../services/InsumoService";
 // ---------- ESTILOS ----------
 import { Form, Modal } from "react-bootstrap";
 import { Autocomplete, Box, Button, Grid, TextField } from "@mui/material";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -67,7 +68,7 @@ export const ManufacturadosDetalleModal = ({
   });
 
   // -------------------- SERVICES --------------------
-  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
 
   // -------------------- HANDLES --------------------
   const handleSubmit = () => {
@@ -81,17 +82,14 @@ export const ManufacturadosDetalleModal = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (openModal) {
+    if (openModal && insumoService) {
       const getInsumos = async () => {
         const response = await insumoService.getAll();
         setInsumos(response);
       };
       getInsumos();
     }
-    if (values) {
-      console.log(values);
-    }
-  }, [openModal]);
+  }, [openModal, insumoService]);
 
   useEffect(() => {
     const opciones = insumos.map((insumo) => ({

@@ -10,6 +10,7 @@ import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import Carousel from "react-bootstrap/Carousel";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -24,7 +25,10 @@ export const SeccionInsumos = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const insumoService: InsumoService = useServiceHeaders(
+    InsumoService,
+    "articulo-insumo"
+  );
   const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
@@ -112,9 +116,11 @@ export const SeccionInsumos = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
-    getAllInsumo();
-  }, []);
+    if (insumoService != null) {
+      setLoading(true);
+      getAllInsumo();
+    }
+  }, [insumoService]);
 
   // -------------------- RENDER --------------------
   return (

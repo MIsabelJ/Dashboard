@@ -26,6 +26,7 @@ import Step2 from "./stepper/Step2";
 import Step3 from "./stepper/Step3";
 import Step4 from "./stepper/Step4";
 import "./ModalPromocion.css";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 //---------------- INTERFAZ ----------------
 interface IPromocionModalProps {
   show: boolean;
@@ -92,10 +93,10 @@ const ModalPromocion = ({
 
   // -------------------- SERVICE --------------------
 
-  const imagenService = new ImagenService(API_URL + "/imagen-promocion");
-  const sucursalService = new SucursalService(API_URL + "/sucursal");
-  const articuloService = new ArticuloService(API_URL + "/articulo");
-  const promocionService = new PromocionService(API_URL + "/promocion");
+  const imagenService = useServiceHeaders(ImagenService, "imagen-promocion");
+  const sucursalService = useServiceHeaders(SucursalService, "sucursal");
+  const articuloService = useServiceHeaders(ArticuloService, "articulo");
+  const promocionService = useServiceHeaders(PromocionService, "promocion");
   const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
@@ -235,17 +236,25 @@ const ModalPromocion = ({
 
   //Trae las sucursales y los articulos de la base de datos
   useEffect(() => {
-    const getSucursales = async () => {
-      const response = await sucursalService.getAll();
-      setSucursales(response);
-    };
-    getSucursales();
-    const getArticulos = async () => {
-      const response = await articuloService.getAll();
-      setArticulos(response);
-    };
-    getArticulos();
-  }, [show]);
+    if (
+      articuloService !== null &&
+      imagenService !== null &&
+      sucursalService !== null &&
+      promocionService !== null &&
+      show
+    ) {
+      const getSucursales = async () => {
+        const response = await sucursalService.getAll();
+        setSucursales(response);
+      };
+      getSucursales();
+      const getArticulos = async () => {
+        const response = await articuloService.getAll();
+        setArticulos(response);
+      };
+      getArticulos();
+    }
+  }, [show, imagenService, sucursalService, articuloService, promocionService]);
 
   return (
     <Modal show={show} onHide={internalHandleClose} size="lg">

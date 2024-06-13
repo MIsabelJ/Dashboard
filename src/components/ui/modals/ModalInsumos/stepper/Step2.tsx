@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Form } from "react-bootstrap";
 import { FormikProps } from "formik";
 import { IArticuloInsumoPost } from "../../../../../types/ArticuloInsumo/IArticuloInsumoPost";
@@ -9,6 +9,10 @@ import {
   TextField,
 } from "@mui/material";
 import { GroupHeader, GroupItems } from "../utils/styles";
+import { ICategoria } from "../../../../../types/Categoria/ICategoria";
+import { useServiceHeaders } from "../../../../../hooks/useServiceHeader";
+import { CategoriaService } from "../../../../../services/CategoriaService";
+import { formatCategorias } from "../utils/helpers";
 
 interface Step2Props {
   formik: FormikProps<IArticuloInsumoPost>;
@@ -26,10 +30,37 @@ const Step2: React.FC<Step2Props> = ({
   opcionesUnidadMedida,
   categoriasFiltradas,
 }) => {
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [formatedCategorias, setFormatedCategorias] = useState<
+    {
+      id: number;
+      denominacion: string;
+      parent: number | null;
+      esParaElaborar: boolean;
+    }[]
+  >([]);
 
-  const categoriasParaMostrar = categoriasFiltradas.filter(
-    (categoria) => categoria.esParaElaborar === formik.values.esParaElaborar
+  const categoriaService: CategoriaService = useServiceHeaders(
+    CategoriaService,
+    "categoria"
   );
+
+  useEffect(() => {
+    if (categoriaService != null) {
+      const getCategorias = async () => {
+        const response = await categoriaService.getAll();
+        setCategorias(response);
+      };
+      getCategorias();
+    }
+  }, [categoriaService]);
+
+  useEffect(() => {
+    const categoriasParaMostrar = categorias?.filter(
+      (categoria) => categoria.esParaElaborar === formik.values.esParaElaborar
+    );
+    setFormatedCategorias(formatCategorias(categoriasParaMostrar));
+  }, [categorias]);
 
   return (
     <>
@@ -124,19 +155,20 @@ const Step2: React.FC<Step2Props> = ({
           {/* CATEGORIA */}
           <Form.Group controlId="idCategoria" className="mb-3">
             <Form.Label>Categoría</Form.Label>
+
             <Autocomplete
               id="idCategoria"
-              options={categoriasParaMostrar}
+              options={formatedCategorias}
               value={
-                categoriasParaMostrar.find(
+                formatedCategorias.find(
                   (categoria) => categoria.id === formik.values.idCategoria
                 ) || null
               }
               groupBy={(option) =>
                 option.parent
                   ? categoriasFiltradas.find(
-                    (categoria) => categoria.id === option.parent
-                  )?.denominacion || ""
+                      (categoria) => categoria.id === option.parent
+                    )?.denominacion || ""
                   : option.denominacion
               }
               getOptionLabel={(option) => option.denominacion}

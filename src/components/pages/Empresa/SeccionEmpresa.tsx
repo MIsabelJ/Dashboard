@@ -14,6 +14,7 @@ import { Loader } from "../../ui/Loader/Loader";
 import { GenericCards } from "../../ui/Generic/GenericCards/GenericCard";
 // ---------- ESTILOS ----------
 import { AppBar, Toolbar, Typography } from "@mui/material";
+import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -40,7 +41,10 @@ export const SeccionEmpresa = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const empresaService = new EmpresaService(API_URL + "/empresa");
+  const empresaService: EmpresaService = useServiceHeaders(
+    EmpresaService,
+    "empresa"
+  );
   const dispatch = useAppDispatch();
 
   const empresaActive = useAppSelector(
@@ -113,9 +117,11 @@ export const SeccionEmpresa = () => {
   }, [empresaActive, redirectId, navigate]);
 
   useEffect(() => {
-    setLoading(true);
-    getEmpresa();
-  }, []);
+    if (empresaService != null) {
+      setLoading(true);
+      getEmpresa();
+    }
+  }, [empresaService]);
 
   // -------------------- RENDER --------------------
   return (
