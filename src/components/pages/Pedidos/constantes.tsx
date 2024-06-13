@@ -4,6 +4,7 @@ import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
+import { Link } from "@mui/material";
 /*
 PREPARACION,
 PENDIENTE,
@@ -14,6 +15,8 @@ RECHAZADO,
 DELIVERY,
 APROBADO
 */
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const TriggerMenu = () => {
   return (
@@ -109,5 +112,24 @@ export const ColumnsPedido = [
     label: "Estado",
     key: "eliminado",
     render: (pedido: IPedido) => (pedido.eliminado ? "Eliminado" : "Activo"),
+  },
+  {
+    label: "Factura",
+    key: "factura",
+    render: (pedido: IPedido) => {
+      if (pedido.factura) {
+        return (
+          <Link
+            href={`${API_URL}/pedido/downloadFacturaPedido/${pedido.id}`}
+            target="_blank"
+            underline="none"
+          >
+            <Button variant="contained" color="success">
+              Descargar Factura
+            </Button>
+          </Link>
+        );
+      }
+    },
   },
 ];
