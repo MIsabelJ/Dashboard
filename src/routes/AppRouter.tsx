@@ -5,12 +5,14 @@ import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
 import Profile from "../components/auth/Profile.tsx";
+import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
+import CallbackPage from "../components/auth/CallbackPage.tsx";
 
 const AppRouter = () => {
   return (
     <Routes>
       <Route index path="/login" element={<Login />} />
-      <Route path="/empresa" element={<SeccionEmpresa />} />
+      <Route path="/empresa" element={<AuthenticationGuard component={SeccionEmpresa} />} />
       <Route path="/sucursal" element={<SeccionSucursal />} />
       <Route
         path="/inicio"
@@ -78,6 +80,7 @@ const AppRouter = () => {
         }
       />
       <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/callback" element={<CallbackPage />} />
     </Routes>
   );
 };

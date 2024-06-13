@@ -1,5 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+import LoginButton from "../../ui/LoginButtons/LoginButton";
+import RegisterButton from "../../ui/LoginButtons/RegisterButton";
+import { Logout } from "@mui/icons-material";
+import LogoutButton from "../../ui/LoginButtons/LogoutButton";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,11 +17,10 @@ const Login = () => {
       <div className="form-container">
         <p className="title">Bienvenido</p>
         <form className="form">
-          <input type="email" className="input" placeholder="Email" />
-          <input type="password" className="input" placeholder="Contraseña" />
-          <button className="form-btn" onClick={handleLogin}>
-            Iniciar sesión
-          </button>
+          {/* <input type="email" className="input" placeholder="Email" />
+          <input type="password" className="input" placeholder="Contraseña" /> */}
+          <LoginButton/>
+          <LogoutButton/>
         </form>
         <p className="sign-up-label">O</p>
         <div className="buttons-container">
