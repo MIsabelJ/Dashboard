@@ -14,13 +14,13 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({
 }) => {
   const { user } = useAuth0();
   console.log(user);
-  //   if (!user) {
-  //     return <Navigate to="/login" replace />;
-  //   }
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  //   if (roles && !roles.includes(user.role)) {
-  //     return <Navigate to="/unauthorized" replace />;
-  //   }
+  if (roles && !roles.includes(user.role)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
 
   return <Component {...props} />;
 };

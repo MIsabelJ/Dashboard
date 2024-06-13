@@ -17,6 +17,9 @@ export class ImagenService extends BackendClient<
       const response = await fetch(`${this.baseUrl}/uploads`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
       });
 
       if (response.ok) {
@@ -45,6 +48,7 @@ export class ImagenService extends BackendClient<
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${this.token}`,
           },
         }
       );
@@ -70,6 +74,9 @@ export class ImagenService extends BackendClient<
       const response = await fetch(`${this.baseUrl}/deleteImg`, {
         method: "POST",
         body: formData,
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
       });
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.statusText}`);

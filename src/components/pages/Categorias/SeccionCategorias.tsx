@@ -14,6 +14,7 @@ import SearchBar from "../../ui/SearchBar/SearchBar.tsx";
 import { Button, ButtonGroup, IconButton, List } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import "./SeccionCategorias.css";
+import { useServiceHeaders } from "../../../hooks/useServiceHeader.tsx";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -31,7 +32,7 @@ export function SeccionCategorias() {
   const [filtro, setFiltro] = useState("todas");
 
   // -------------------- SERVICES --------------------
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const categoriaService = useServiceHeaders(CategoriaService, "categoria");
 
   // -------------------- HANDLERS --------------------
   const handleDelete = async (id: number) => {
@@ -152,8 +153,8 @@ export function SeccionCategorias() {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    getCategoria();
-  }, [filtro]);
+    if (categoriaService != null) getCategoria();
+  }, [filtro, categoriaService]);
 
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla

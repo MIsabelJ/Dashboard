@@ -29,6 +29,7 @@ import Step3 from "./stepper/Step3";
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import "./ModalInsumos.css";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -62,6 +63,14 @@ export const ModalArticuloInsumo = ({
   >([]);
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [formatedCategorias, setFormatedCategorias] = useState<
+    {
+      id: number;
+      denominacion: string;
+      parent: number | null;
+      esParaElaborar: boolean;
+    }[]
+  >([]);
 
   // -------------------- FORMIK --------------------
   const formik = useFormik({
@@ -91,12 +100,12 @@ export const ModalArticuloInsumo = ({
   });
 
   // -------------------- SERVICES --------------------
-  const unidadMedidaService = new UnidadMedidaService(
-    API_URL + "/unidad-medida"
+  const unidadMedidaService = useServiceHeaders(
+    UnidadMedidaService,
+    "unidad-medida"
   );
-  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
-  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const imagenService = useServiceHeaders(ImagenService, "imagen-articulo");
+  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
   const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
@@ -144,7 +153,6 @@ export const ModalArticuloInsumo = ({
   };
 
   // -------------------- FUNCIONES --------------------
-  const categoriasFiltradas = formatCategorias(categorias);
 
   const getAllInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
@@ -184,20 +192,19 @@ export const ModalArticuloInsumo = ({
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
-    if (show) {
-
+    if (
+      unidadMedidaService !== null &&
+      imagenService !== null &&
+      insumoService !== null &&
+      show
+    ) {
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
       };
       getUnidadesMedida();
-      const getCategorias = async () => {
-        const response = await categoriaService.getAll();
-        setCategorias(response);
-      };
-      getCategorias();
     }
-  }, [show]);
+  }, [show, unidadMedidaService, imagenService, insumoService]);
 
   //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {
@@ -222,8 +229,7 @@ export const ModalArticuloInsumo = ({
             <Stepper
               activeStep={activeStep}
               alternativeLabel
-              className="stepper-padding"
-            >
+              className="stepper-padding">
               {steps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
@@ -245,7 +251,7 @@ export const ModalArticuloInsumo = ({
                     <Step2
                       formik={formik}
                       opcionesUnidadMedida={opcionesUnidadMedida}
-                      categoriasFiltradas={categoriasFiltradas}
+                      categoriasFiltradas={formatedCategorias}
                     />
                   )}
                   {activeStep === 2 && (
@@ -261,8 +267,7 @@ export const ModalArticuloInsumo = ({
                     <Button
                       color="inherit"
                       disabled={activeStep === 0}
-                      onClick={handleBack}
-                    >
+                      onClick={handleBack}>
                       Atrás
                     </Button>
                     <Box className="box-auto-flex" />
@@ -271,8 +276,7 @@ export const ModalArticuloInsumo = ({
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"
-                      }
-                    >
+                      }>
                       {activeStep === steps.length - 1
                         ? "Guardar"
                         : "Siguiente"}

@@ -9,6 +9,7 @@ import SearchBar from "../../SearchBar/SearchBar";
 import "./ModalCategorias.css";
 import { Modal, Form } from "react-bootstrap";
 import { Button, Grid } from "@mui/material";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -41,8 +42,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   const empresaActive = localStorage.getItem("empresaId");
   // -------------------- SERVICIOS --------------------
 
-  const API_URL = import.meta.env.VITE_API_URL as string;
-  const empresaService = new EmpresaService(API_URL + "/empresa");
+  const empresaService = useServiceHeaders(EmpresaService, "empresa");
 
   // -------------------- FUNCIONES --------------------
 
@@ -103,19 +103,21 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   }, [dataTable, searchTerm]);
 
   useEffect(() => {
-    const getSucursales = async (idEmpresa: number) => {
-      if (!sucursales) {
-        const response = await empresaService.getSucursalesByEmpresaId(
-          idEmpresa
-        );
-        setExistingSucursales(response);
-      } else {
-        setExistingSucursales(sucursales);
-      }
-      handleToggleAll();
-    };
-    getSucursales(Number(empresaActive));
-  }, [show]);
+    if (empresaService != null) {
+      const getSucursales = async (idEmpresa: number) => {
+        if (!sucursales) {
+          const response = await empresaService.getSucursalesByEmpresaId(
+            idEmpresa
+          );
+          setExistingSucursales(response);
+        } else {
+          setExistingSucursales(sucursales);
+        }
+        handleToggleAll();
+      };
+      getSucursales(Number(empresaActive));
+    }
+  }, [show, empresaService]);
 
   // -------------------- RENDER --------------------
   return (

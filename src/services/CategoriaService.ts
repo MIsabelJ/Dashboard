@@ -15,7 +15,10 @@ export class CategoriaService extends BackendClient<
       `${this.baseUrl}/addSubCategoria/${idCategoria}`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${this.token}`,
+        },
         body: JSON.stringify(subCategoria),
       }
     );

@@ -36,6 +36,7 @@ import Step2 from "./stepper/Step2";
 import Step3 from "./stepper/Step3";
 import Step4 from "./stepper/Step4";
 import "./ModalManufacturados.css";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -119,15 +120,17 @@ export const ModalArticuloManufacturado = ({
   });
 
   // -------------------- SERVICES --------------------
-  const unidadMedidaService = new UnidadMedidaService(
-    API_URL + "/unidad-medida"
+  const unidadMedidaService = useServiceHeaders(
+    UnidadMedidaService,
+    "unidad-medida"
   );
-  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
-  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-  const manufacturadoService = new ManufacturadoService(
-    API_URL + "/articulo-manufacturado"
+  const imagenService = useServiceHeaders(ImagenService, "imagen-articulo");
+  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
+  const manufacturadoService = useServiceHeaders(
+    ManufacturadoService,
+    "articulo-manufacturado"
   );
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const categoriaService = useServiceHeaders(CategoriaService, "categoria");
   const dispatch = useAppDispatch();
 
   // -------------------- HANDLERS --------------------
@@ -287,7 +290,12 @@ export const ModalArticuloManufacturado = ({
 
   //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
-    if (show) {
+    if (
+      unidadMedidaService !== null &&
+      imagenService !== null &&
+      insumoService !== null &&
+      show
+    ) {
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
@@ -299,7 +307,13 @@ export const ModalArticuloManufacturado = ({
       };
       getCategorias();
     }
-  }, [show]);
+  }, [
+    show,
+    imagenService,
+    insumoService,
+    manufacturadoService,
+    categoriaService,
+  ]);
 
   //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {

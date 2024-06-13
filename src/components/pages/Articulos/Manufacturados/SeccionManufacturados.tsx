@@ -10,9 +10,9 @@ import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import { Carousel } from "react-bootstrap";
+import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
-const API_URL = import.meta.env.VITE_API_URL;
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const SeccionManufacturados = () => {
@@ -24,8 +24,9 @@ export const SeccionManufacturados = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const manufacturadoService = new ManufacturadoService(
-    API_URL + "/articulo-manufacturado"
+  const manufacturadoService = useServiceHeaders(
+    ManufacturadoService,
+    "articulo-manufacturado"
   );
 
   // -------------------- COLUMNAS --------------------
@@ -117,9 +118,11 @@ export const SeccionManufacturados = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
-    getManufacturado();
-  }, []);
+    if (manufacturadoService != null) {
+      setLoading(true);
+      getManufacturado();
+    }
+  }, [manufacturadoService]);
 
   // -------------------- RENDER --------------------
 

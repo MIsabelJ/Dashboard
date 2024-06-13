@@ -8,7 +8,7 @@ import { IUsuario } from "../../../types/Usuario/IUsuario";
 import { MenuItem, Select } from "@mui/material";
 import ModalUsuario from "../../ui/modals/ModalUsuario/ModalUsuario";
 import { SucursalService } from "../../../services/SucursalService";
-
+import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const SeccionUsuarios = () => {
@@ -18,7 +18,7 @@ export const SeccionUsuarios = () => {
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
 
-  const sucursalService = new SucursalService(API_URL + "/sucursal");
+  const sucursalService = useServiceHeaders(SucursalService, "sucursal");
   const dispatch = useAppDispatch();
 
   const roles = [
@@ -125,9 +125,11 @@ export const SeccionUsuarios = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
-    getUsuario();
-  }, []);
+    if (sucursalService != null) {
+      setLoading(true);
+      getUsuario();
+    }
+  }, [sucursalService]);
 
   return (
     <>

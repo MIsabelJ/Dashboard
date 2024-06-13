@@ -8,8 +8,7 @@ import ModalPromocion from "../../ui/modals/ModalPromociones/ModalPromocion";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
 import { Carousel } from "react-bootstrap";
-
-const API_URL = import.meta.env.VITE_API_URL;
+import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 
 export const SeccionPromociones = () => {
   // -------------------- STATES --------------------
@@ -20,7 +19,7 @@ export const SeccionPromociones = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const promocionService = new PromocionService(API_URL + "/promocion");
+  const promocionService = useServiceHeaders(PromocionService, "promocion");
   const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
@@ -90,9 +89,11 @@ export const SeccionPromociones = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
-    getPromocion();
-  }, []);
+    if (promocionService != null) {
+      setLoading(true);
+      getPromocion();
+    }
+  }, [promocionService]);
 
   return (
     <>
