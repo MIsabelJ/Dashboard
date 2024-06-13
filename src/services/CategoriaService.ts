@@ -11,11 +11,15 @@ export class CategoriaService extends BackendClient<
     idCategoria: number,
     subCategoria: ICategoriaPost
   ): Promise<ICategoria> {
+    const token = localStorage.getItem("token");
     const response = await fetch(
       `${this.baseUrl}/addSubCategoria/${idCategoria}`,
       {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify(subCategoria),
       }
     );

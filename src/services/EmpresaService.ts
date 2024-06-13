@@ -9,11 +9,12 @@ export class EmpresaService extends BackendClient<
   IEmpresaPost
 > {
   async getSucursalesByEmpresaId(idEmpresa: number): Promise<ISucursal[]> {
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}/${idEmpresa}/sucursales`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "no-cors",
+        Authorization: `Bearer ${token}`,
       },
     });
     const data = await response.json();
