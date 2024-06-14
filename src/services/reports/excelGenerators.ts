@@ -34,7 +34,8 @@ export const generarExcelIngresosDiarios = (dia, setError) => {
     return;
   }
 
-  const url = `${API_URL}/pedido/downloadExcelIngresosDiarios?dia=${dia}`; // DÍA ES UNA FECHA, NO UN NÚMERO
+  const fechaFormateada = new Date(dia).toISOString().split('T')[0];
+  const url = `${API_URL}/pedido/downloadExcelIngresosDiarios?dia=${fechaFormateada}`; // DÍA ES UNA FECHA, NO UN NÚMERO
   window.location.href = url;
 };
 
