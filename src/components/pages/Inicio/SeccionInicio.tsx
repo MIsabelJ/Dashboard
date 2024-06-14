@@ -17,6 +17,8 @@ import {
 // ---------- ESTILOS ----------
 import "./SeccionInicio.css";
 import { Loader } from "../../ui/Loader/Loader";
+import { IconButton, Tooltip } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 
 export const SeccionInicio = () => {
   // -------------------- STATES --------------------
@@ -35,7 +37,7 @@ export const SeccionInicio = () => {
     useState(fechaHastaRanking);
 
   // Gráfico de Ingresos
-  const [dia, setDia] = useState(new Date().getDate());
+  const [dia, setDia] = useState(new Date().toISOString().slice(0, 10));
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const { dataLine, loading: loadingChart } = useChartLine(mes);
 
@@ -82,7 +84,7 @@ export const SeccionInicio = () => {
   };
 
   const handleDiaChange = (e) => {
-    setDia(parseInt(e.target.value));
+    setDia(e.target.value);
   };
 
   const handleMesChange = (e) => {
@@ -164,27 +166,43 @@ export const SeccionInicio = () => {
         <section className="box">
           <h2>Ranking de Comidas Más Pedidas</h2>
           <form onSubmit={handleSubmitRanking}>
-            <label>
-              Desde:
-              <input
-                type="date"
-                value={fechaDesdeRankingLocal}
-                onChange={(e) => setFechaDesdeRankingLocal(e.target.value)}
-              />
-            </label>
-            <label>
-              Hasta:
-              <input
-                type="date"
-                value={fechaHastaRankingLocal}
-                onChange={(e) => setFechaHastaRankingLocal(e.target.value)}
-              />
-            </label>
-            <button type="submit">Actualizar</button>
+            <div className="date-range">
+              <label>
+                Desde:
+                <input
+                  type="date"
+                  value={fechaDesdeRankingLocal}
+                  onChange={(e) => setFechaDesdeRankingLocal(e.target.value)}
+                />
+              </label>
+              <label>
+                Hasta:
+                <input
+                  type="date"
+                  value={fechaHastaRankingLocal}
+                  onChange={(e) => setFechaHastaRankingLocal(e.target.value)}
+                />
+              </label>
+              {/* <button type="submit" className="update-button">
+                Actualizar
+              </button> */}
+              <Tooltip title="Actualizar fecha" arrow placement="top">
+                <IconButton type="submit">
+                  <SendIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Descargar reporte" arrow placement="top">
+                <IconButton onClick={handleGenerarExcelMasVendidos}>
+                  <img
+                    src="excel.png"
+                    width={"32px"}
+                    height={"32px"}
+                    alt="Excel"
+                  />
+                </IconButton>
+              </Tooltip>
+            </div>
           </form>
-          <button onClick={handleGenerarExcelMasVendidos}>
-            Descargar Excel
-          </button>
           {(error.fechaDesde || error.fechaHasta) && (
             <p className="error">Por favor, seleccione ambas fechas.</p>
           )}
@@ -192,9 +210,9 @@ export const SeccionInicio = () => {
           {loadingRanking ? (
             <p>Cargando ranking...</p>
           ) : rankingData.length > 0 ? (
-            <ul>
+            <ul className="ul-ranking">
               {rankingData.map((item, index) => (
-                <li key={index}>
+                <li key={index} className="li-ranking">
                   {item[1]}: {item[0]} pedidos
                 </li>
               ))}
@@ -206,79 +224,47 @@ export const SeccionInicio = () => {
           )}
         </section>
 
-        {/* Sección de Gráfico de Ingresos Mensuales */}
-        <section className="box">
-          <h2>Gráfico de Ingresos Mensuales</h2>
-
-          <select value={mes} onChange={handleMesChange}>
-            {[...Array(12)].map((_, i) => (
-              <option key={i} value={i + 1}>
-                {new Date(0, i).toLocaleString("default", { month: "long" })}
-              </option>
-            ))}
-          </select>
-          <button onClick={handleGenerarExcelIngresosMensuales}>
-            Descargar Ingresos Mensuales
-          </button>
-          {error.mes && <p className="error">Por favor, seleccione un mes.</p>}
-
-          <select value={dia} onChange={handleDiaChange}>
-            {[...Array(365)].map((_, i) => (
-              <div key={i}>
-                {new Date(2024, 0, i + 1).toLocaleString("default", {
-                  month: "long",
-                  day: "numeric",
-                })}
-              </div>
-            ))}
-          </select>
-          <button onClick={handleGenerarExcelIngresosDiarios}>
-            Descargar Ingresos Diarios
-          </button>
-          {error.dia && <p className="error">Por favor, seleccione un día.</p>}
-
-          {loadingChart ? (
-            <p>Cargando gráfico...</p>
-          ) : dataLine.length > 1 ? (
-            <Chart
-              chartType="LineChart"
-              width="100%"
-              height="400px"
-              data={dataLine}
-              options={optionsLineChart}
-            />
-          ) : (
-            <p>No hay datos disponibles para el mes seleccionado.</p>
-          )}
-        </section>
-      </div>
-      <div id="chart-container">
         {/* Sección de Gráfico de Ganancias */}
         <section className="box">
-          <h2>Gráfico de Ganancias</h2>
+          <h2>Ganancias</h2>
           <form onSubmit={handleSubmitGanancias}>
-            <label>
-              Desde:
-              <input
-                type="date"
-                value={fechaDesdeGananciasLocal}
-                onChange={(e) => setFechaDesdeGananciasLocal(e.target.value)}
-              />
-            </label>
-            <label>
-              Hasta:
-              <input
-                type="date"
-                value={fechaHastaGananciasLocal}
-                onChange={(e) => setFechaHastaGananciasLocal(e.target.value)}
-              />
-            </label>
-            <button type="submit">Actualizar</button>
+            <div className="date-range">
+              <label>
+                Desde:
+                <input
+                  type="date"
+                  value={fechaDesdeGananciasLocal}
+                  onChange={(e) => setFechaDesdeGananciasLocal(e.target.value)}
+                />
+              </label>
+              <label>
+                Hasta:
+                <input
+                  type="date"
+                  value={fechaHastaGananciasLocal}
+                  onChange={(e) => setFechaHastaGananciasLocal(e.target.value)}
+                />
+              </label>
+              <Tooltip title="Actualizar fecha" arrow placement="top">
+                <IconButton type="submit">
+                  <SendIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Descargar reporte" arrow placement="top">
+                <IconButton onClick={handleGenerarExcelGanancias}>
+                  <img
+                    src="excel.png"
+                    width={"32px"}
+                    height={"32px"}
+                    alt="Excel"
+                  />
+                </IconButton>
+              </Tooltip>
+              {(error.fechaDesde || error.fechaHasta) && (
+                <p className="error">Por favor, seleccione ambas fechas.</p>
+              )}
+            </div>
           </form>
-          <button onClick={handleGenerarExcelGanancias}>Descargar Excel</button>
-          {(error.fechaDesde || error.fechaHasta) && (
-            <p className="error">Por favor, seleccione ambas fechas.</p>
-          )}
 
           {loadingColumnChart ? (
             <p>Cargando gráfico de ganancias...</p>
@@ -297,35 +283,104 @@ export const SeccionInicio = () => {
             </p>
           )}
         </section>
+      </div>
+      <div id="chart-container">
+        {/* Sección de Gráfico de Ingresos Mensuales */}
+        <section className="box">
+          <h2>Ingresos Mensuales</h2>
+          <div className="single-line-controls">
+            <select value={mes} onChange={handleMesChange}>
+              {[...Array(12)].map((_, i) => (
+                <option key={i} value={i + 1}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
+              ))}
+            </select>
+            <Tooltip title="Descargar ingresos mensuales" arrow placement="top">
+              <IconButton onClick={handleGenerarExcelIngresosMensuales}>
+                <img
+                  src="excel.png"
+                  width={"32px"}
+                  height={"32px"}
+                  alt="Excel"
+                />
+              </IconButton>
+            </Tooltip>
+            <input
+              type="date"
+              value={dia}
+              onChange={(e) => setDia(e.target.value)}
+            />
+            <Tooltip title="Descargar ingresos diarios" arrow placement="top">
+              <IconButton onClick={handleGenerarExcelIngresosDiarios}>
+                <img
+                  src="excel.png"
+                  width={"32px"}
+                  height={"32px"}
+                  alt="Excel"
+                />
+              </IconButton>
+            </Tooltip>
+          </div>
+          {error.mes && <p className="error">Por favor, seleccione un mes.</p>}
+          {error.dia && <p className="error">Por favor, seleccione un día.</p>}
+
+          {loadingChart ? (
+            <p>Cargando gráfico...</p>
+          ) : dataLine.length > 1 ? (
+            <Chart
+              chartType="LineChart"
+              width="100%"
+              height="400px"
+              data={dataLine}
+              options={optionsLineChart}
+            />
+          ) : (
+            <p>No hay datos disponibles para el mes seleccionado.</p>
+          )}
+        </section>
 
         {/* Sección de Gráfico de Pedidos por Cliente */}
         <section className="box">
           <h2>Pedidos por Cliente</h2>
           <form onSubmit={handleSubmitPedidos}>
-            <label>
-              Desde:
-              <input
-                type="date"
-                value={fechaDesdePedidosLocal}
-                onChange={(e) => setFechaDesdePedidosLocal(e.target.value)}
-              />
-            </label>
-            <label>
-              Hasta:
-              <input
-                type="date"
-                value={fechaHastaPedidosLocal}
-                onChange={(e) => setFechaHastaPedidosLocal(e.target.value)}
-              />
-            </label>
-            <button type="submit">Actualizar</button>
+            <div className="date-range">
+              <label>
+                Desde:
+                <input
+                  type="date"
+                  value={fechaDesdePedidosLocal}
+                  onChange={(e) => setFechaDesdePedidosLocal(e.target.value)}
+                />
+              </label>
+              <label>
+                Hasta:
+                <input
+                  type="date"
+                  value={fechaHastaPedidosLocal}
+                  onChange={(e) => setFechaHastaPedidosLocal(e.target.value)}
+                />
+              </label>
+              <Tooltip title="Actualizar fecha" arrow placement="top">
+                <IconButton type="submit">
+                  <SendIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Descargar reporte" arrow placement="top">
+                <IconButton onClick={handleGenerarExcelPedidosPorCliente}>
+                  <img
+                    src="excel.png"
+                    width={"32px"}
+                    height={"32px"}
+                    alt="Excel"
+                  />
+                </IconButton>
+              </Tooltip>
+              {(error.fechaDesde || error.fechaHasta) && (
+                <p className="error">Por favor, seleccione ambas fechas.</p>
+              )}
+            </div>
           </form>
-          <button onClick={handleGenerarExcelPedidosPorCliente}>
-            Descargar Excel
-          </button>
-          {(error.fechaDesde || error.fechaHasta) && (
-            <p className="error">Por favor, seleccione ambas fechas.</p>
-          )}
 
           {loadingBarChart ? (
             <p>Cargando gráfico de pedidos por cliente...</p>

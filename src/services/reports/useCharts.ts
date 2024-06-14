@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 export const useRanking = () => {
   const [dataRanking, setDataRanking] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const token = localStorage.getItem("token");
   // Obtener la fecha actual y la fecha de hace una semana
   const hoy = new Date();
   const unaSemanaAtras = new Date(hoy.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -24,7 +24,14 @@ export const useRanking = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_URL}/articulo-manufacturado/dataMasPedidos?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`
+        `${API_URL}/articulo-manufacturado/dataMasPedidos?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Error al obtener los datos.");
@@ -36,7 +43,7 @@ export const useRanking = () => {
     } finally {
       setLoading(false);
     }
-  }, [fechaDesde, fechaHasta]);
+  }, [fechaDesde, fechaHasta, token]);
 
   useEffect(() => {
     fetchRanking();
@@ -64,12 +71,20 @@ export const useChartLine = (
   const [dataLine, setDataLine] = useState([]);
   const [loading, setLoading] = useState(false);
   const [mes, setMes] = useState(initialMes);
+  const token = localStorage.getItem("token");
 
   const fetchChartLine = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_URL}/pedido/dataIngresosMensuales?mes=${mes}`
+        `${API_URL}/pedido/dataIngresosMensuales?mes=${mes}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Error al obtener los datos.");
@@ -81,7 +96,7 @@ export const useChartLine = (
     } finally {
       setLoading(false);
     }
-  }, [mes]);
+  }, [mes, token]);
 
   useEffect(() => {
     fetchChartLine();
@@ -94,6 +109,7 @@ export const useChartLine = (
 export const useChartColumn = () => {
   const [dataColumn, setDataColumn] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const token = localStorage.getItem("token");
 
   // Obtener la fecha actual y la fecha de hace una semana
   const hoy = new Date();
@@ -112,7 +128,14 @@ export const useChartColumn = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_URL}/pedido/dataGanancias?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`
+        `${API_URL}/pedido/dataGanancias?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Error al obtener los datos.");
@@ -124,7 +147,7 @@ export const useChartColumn = () => {
     } finally {
       setLoading(false);
     }
-  }, [fechaDesde, fechaHasta]);
+  }, [fechaDesde, fechaHasta, token]);
 
   useEffect(() => {
     fetchChartColumn();
@@ -149,6 +172,7 @@ export const useChartColumn = () => {
 export const useChartBar = () => {
   const [dataBar, setDataBar] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const token = localStorage.getItem("token");
 
   // Obtener la fecha actual y la fecha de hace una semana
   const hoy = new Date();
@@ -167,7 +191,14 @@ export const useChartBar = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_URL}/pedido/dataPedidosPorCliente?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`
+        `${API_URL}/pedido/dataPedidosPorCliente?fechaDesde=${fechaDesde}&fechaHasta=${fechaHasta}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (!response.ok) {
         throw new Error("Error al obtener los datos.");
@@ -179,7 +210,7 @@ export const useChartBar = () => {
     } finally {
       setLoading(false);
     }
-  }, [fechaDesde, fechaHasta]);
+  }, [fechaDesde, fechaHasta, token]);
 
   useEffect(() => {
     fetchChartBar();
