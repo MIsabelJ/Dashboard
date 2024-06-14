@@ -64,7 +64,6 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
     });
     const newData = await response.json();
     return newData as TG;
-    return newData as TG;
   }
 
   // Método para eliminar un elemento por su ID
@@ -86,7 +85,7 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
       body: data,
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
-      }
+      },
     });
     const newData = await response.json();
     return newData as TG;

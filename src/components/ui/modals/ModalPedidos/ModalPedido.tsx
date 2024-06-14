@@ -105,14 +105,14 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   };
 
   const opciones = [
-    { label: "pendientes", value: "PENDIENTES" },
-    { label: "rechazados", value: "RECHAZADOS" },
-    { label: "cancelados", value: "CANCELADOS" },
-    { label: "aprobados", value: "APROBADOS" },
-    { label: "en proceso", value: "EN PROCESO" },
-    { label: "terminados", value: "TERMINADOS" },
-    { label: "en delivery", value: "EN DELIVERY" },
-    { label: "facturados", value: "FACTURADOS" },
+    { label: "pendientes", value: "PENDIENTE" },
+    { label: "rechazados", value: "RECHAZADO" },
+    { label: "cancelados", value: "CANCELADO" },
+    { label: "aprobados", value: "APROBADO" },
+    { label: "en proceso", value: "PREPARACION" },
+    { label: "terminados", value: "TERMINADO" },
+    { label: "en delivery", value: "DELIVERY" },
+    { label: "facturados", value: "FACTURADO" },
   ];
 
   useEffect(() => {
