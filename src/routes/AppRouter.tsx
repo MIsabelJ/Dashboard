@@ -7,76 +7,179 @@ import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.
 import Profile from "../components/auth/Profile.tsx";
 import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
 import CallbackPage from "../components/auth/CallbackPage.tsx";
+import { RutaPrivada } from "./RutaPrivada.tsx";
 
 const AppRouter = () => {
   return (
     <Routes>
       <Route index path="/login" element={<Login />} />
-      <Route path="/empresa" element={<AuthenticationGuard component={SeccionEmpresa} />} />
+      <Route
+        path="/empresa"
+        element={
+          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+            <AuthenticationGuard component={SeccionEmpresa} />
+          </RutaPrivada>
+        }
+      />
       <Route path="/sucursal" element={<SeccionSucursal />} />
       <Route
         path="/inicio"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Inicio" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Inicio" />
+            </Box>
+          </RutaPrivada>
         }
       />
-      <Route path="/profile" element={<Profile />} />
+      <Route
+        path="/profile"
+        element={
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Profile />
+          </RutaPrivada>
+        }
+      />
       <Route
         path="/articulo-manufacturado"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Artículos manufacturados" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Artículos manufacturados" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/articulo-insumo"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Insumos" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Insumos" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/categoria"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Categorías" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Categorías" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/promocion"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Promociones" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Promociones" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/usuario"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Usuarios" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Usuarios" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/unidad-medida"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Unidades de Medida" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Unidades de Medida" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/pedido"
         element={
-          <Box sx={{ display: "flex" }}>
-            <PersistentDrawerLeft sectionName="Pedidos" />
-          </Box>
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Pedidos" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route path="*" element={<Navigate to="/login" replace />} />

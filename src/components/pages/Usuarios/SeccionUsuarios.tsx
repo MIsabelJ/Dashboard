@@ -39,14 +39,21 @@ export const SeccionUsuarios = () => {
       label: "Rol",
       key: "rol",
       render: (usuario: IUsuario) => (
-        <select
-          value={estadoActual}
-          onChange={(e) => handleEstadoChange(e.target.value)}>
-          <option value="En espera">En espera</option>
-          <option value="En progreso">En progreso</option>
-          <option value="Completado">Completado</option>
-          <option value="Cancelado">Cancelado</option>
-        </select>
+        <Select
+          value={usuario.rol}
+          onChange={(e) => {
+            const updatedUsers = users.map((user: IUsuario) =>
+              user.id === usuario.id ? { ...user, rol: e.target.value } : user
+            );
+            setUsers(updatedUsers);
+            dispatch(setDataTable(updatedUsers));
+          }}>
+          {roles.map((rol) => (
+            <MenuItem key={rol} value={rol}>
+              {rol}
+            </MenuItem>
+          ))}
+        </Select>
       ),
     },
     {
