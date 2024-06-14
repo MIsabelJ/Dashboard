@@ -20,3 +20,10 @@
 .seccion-filtros {
     align-self: center;
 }
+
+.menu-item {
+    width: "10px";
+    height: "10px";
+    borderRadius: "50%";
+    display: "inline-block";
+}

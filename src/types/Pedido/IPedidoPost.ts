@@ -1,5 +1,5 @@
 import { IDetallePedidoPost } from "../DetallePedido/IDetallePedidoPost";
-import { IFactura } from "../Factura/IFactura";
+import { IFacturaPost } from "../Factura/IFacturaPost";
 
 export interface IPedidoPost {
     horaEstimadaFinalizacion: string,
@@ -12,7 +12,7 @@ export interface IPedidoPost {
 
     idDomicilio: number,
     idSucursal: number,
-    factura: IFactura,
+    factura: IFacturaPost,
     idCliente: number,
     detallePedidos: IDetallePedidoPost[],
     idEmpleado: number

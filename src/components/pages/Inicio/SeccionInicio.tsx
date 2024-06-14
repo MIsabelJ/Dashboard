@@ -1,242 +1,349 @@
-import * as React from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import {
+  useRanking,
+  useChartLine,
+  useChartColumn,
+  useChartBar,
+} from "../../../services/reports/useCharts";
+import { Chart } from "react-google-charts";
+import {
+  ErrorState,
+  generarExcelMasVendidos,
+  generarExcelIngresosDiarios,
+  generarExcelIngresosMensuales,
+  generarExcelGanancias,
+  generarExcelPedidosPorCliente,
+} from "../../../services/reports/excelGenerators";
 // ---------- ESTILOS ----------
-import {
-  Avatar,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-} from "@mui/material";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  LinearScale,
-  CategoryScale,
-  PointElement,
-  LineElement,
-  Title,
-  ChartOptions,
-} from "chart.js";
-import { Pie, Line } from "react-chartjs-2";
 import "./SeccionInicio.css";
+import { Loader } from "../../ui/Loader/Loader";
 
-// ------------------------------ CÓDIGO ------------------------------
 export const SeccionInicio = () => {
-  // -------------------- GRÁFICOS --------------------
-  ChartJS.register(
-    ArcElement,
-    Tooltip,
-    Legend,
-    LinearScale,
-    CategoryScale,
-    PointElement,
-    LineElement,
-    Title
-  );
-
-  const pieData = {
-    labels: [
-      "Lunes",
-      "Martes",
-      "Viernes",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-      "Domingo",
-    ],
-    datasets: [
-      {
-        label: "Esta semana",
-        // Esto debería entrar dinámicamente
-        data: [12, 19, 3, 5, 2, 3, 7],
-        backgroundColor: [
-          "rgb(235, 95, 26)",
-          "rgb(245, 163, 22)",
-          "rgb(255, 209, 23)",
-          "rgb(102, 198, 222)",
-          "rgb(53, 181, 232)",
-          "rgb(66, 138, 201)",
-          "rgb(42, 83, 161)",
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
-  const pieOptions = {
-    plugins: {
-      legend: {
-        display: true,
-        position: "right",
-        labels: {
-          padding: 20,
-        },
-      },
-      tooltip: {
-        titleFontSize: 16,
-        bodyFontSize: 14,
-      },
-    },
-  };
-
-  const lineData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
-    //Los datos de los datasets deberían entrar dinámicamente
-    datasets: [
-      {
-        label: "Sucursal 1",
-        data: [65, 59, 80, 81, 56, 55, 40],
-        yAxisID: "y-axis-1",
-        borderColor: "rgb(235, 95, 26)",
-        backgroundColor: "rgb(235, 95, 26)",
-      },
-      {
-        label: "Sucursal 2",
-        data: [28, 48, 40, 19, 86, 27, 90],
-        yAxisID: "y-axis-1",
-        borderColor: "rgb(245, 163, 22)",
-        backgroundColor: "rgb(245, 163, 22)",
-      },
-      {
-        label: "Sucursal 3",
-        data: [52, 16, 44, 46, 51, 42, 96],
-        yAxisID: "y-axis-1",
-        borderColor: "rgb(255, 209, 23)",
-        backgroundColor: "rgb(255, 209, 23)",
-      },
-    ],
-  };
-
-  const lineOptions = {
-    type: "line",
-    data: lineData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        mode: "index",
-        intersect: false,
-      },
-      stacked: false,
-      plugins: {
-        title: {
-          display: true,
-          text: "Ventas semanales",
-          fontSize: 18,
-          fontColor: "#333",
-          padding: 20,
-        },
-      },
-      scales: {
-        x: {
-          type: "category",
-          display: true,
-        },
-        y: {
-          type: "linear",
-          display: true,
-          position: "left",
-        },
-        y1: {
-          type: "linear",
-          display: true,
-          position: "right",
-        },
-        y2: {
-          type: "linear",
-          display: true,
-          position: "right",
-        },
-      },
-    },
-  };
-
   // -------------------- STATES --------------------
-  const [dense, setDense] = React.useState(false);
-  const [secondary, setSecondary] = React.useState(true);
+  const [error, setError] = useState<ErrorState>({});
+  // Ranking de Comidas
+  const {
+    dataRanking,
+    loading: loadingRanking,
+    updateFechas: updateFechasRanking,
+    fechaDesde: fechaDesdeRanking,
+    fechaHasta: fechaHastaRanking,
+  } = useRanking();
+  const [fechaDesdeRankingLocal, setFechaDesdeRankingLocal] =
+    useState(fechaDesdeRanking);
+  const [fechaHastaRankingLocal, setFechaHastaRankingLocal] =
+    useState(fechaHastaRanking);
 
-  // -------------------- FUNCIONES --------------------
-  const navigate = useNavigate();
+  // Gráfico de Ingresos
+  const [dia, setDia] = useState(new Date().getDate());
+  const [mes, setMes] = useState(new Date().getMonth() + 1);
+  const { dataLine, loading: loadingChart } = useChartLine(mes);
 
-  // -------------------- HARDCODED --------------------
-  const productos = [
-    {
-      nombre: "Pizza Muzzarella",
-      descripcion: "Clásica pizza de muzzarella",
+  // Gráfico de Ganancias
+  const {
+    dataColumn,
+    loading: loadingColumnChart,
+    updateFechas: updateFechasGanancias,
+    fechaDesde: fechaDesdeGanancias,
+    fechaHasta: fechaHastaGanancias,
+  } = useChartColumn();
+  const [fechaDesdeGananciasLocal, setFechaDesdeGananciasLocal] =
+    useState(fechaDesdeGanancias);
+  const [fechaHastaGananciasLocal, setFechaHastaGananciasLocal] =
+    useState(fechaHastaGanancias);
+
+  // Gráfico de Barras Horizontales de Pedidos por Cliente
+  const {
+    dataBar,
+    loading: loadingBarChart,
+    updateFechas: updateFechasPedidos,
+    fechaDesde: fechaDesdePedidos,
+    fechaHasta: fechaHastaPedidos,
+  } = useChartBar();
+  const [fechaDesdePedidosLocal, setFechaDesdePedidosLocal] =
+    useState(fechaDesdePedidos);
+  const [fechaHastaPedidosLocal, setFechaHastaPedidosLocal] =
+    useState(fechaHastaPedidos);
+
+  // -------------------- HANDLERS --------------------
+  const handleSubmitRanking = (e) => {
+    e.preventDefault();
+    updateFechasRanking(fechaDesdeRankingLocal, fechaHastaRankingLocal);
+  };
+
+  const handleSubmitGanancias = (e) => {
+    e.preventDefault();
+    updateFechasGanancias(fechaDesdeGananciasLocal, fechaHastaGananciasLocal);
+  };
+
+  const handleSubmitPedidos = (e) => {
+    e.preventDefault();
+    updateFechasPedidos(fechaDesdePedidosLocal, fechaHastaPedidosLocal);
+  };
+
+  const handleDiaChange = (e) => {
+    setDia(parseInt(e.target.value));
+  };
+
+  const handleMesChange = (e) => {
+    setMes(parseInt(e.target.value));
+  };
+
+  // GENERACIÓN DE EXCEL
+  const handleGenerarExcelMasVendidos = () => {
+    generarExcelMasVendidos(
+      fechaDesdeRankingLocal,
+      fechaHastaRankingLocal,
+      setError
+    );
+  };
+
+  const handleGenerarExcelIngresosDiarios = () => {
+    generarExcelIngresosDiarios(dia, setError);
+  };
+
+  const handleGenerarExcelIngresosMensuales = () => {
+    generarExcelIngresosMensuales(mes, setError);
+  };
+
+  const handleGenerarExcelGanancias = () => {
+    generarExcelGanancias(fechaDesdeGanancias, fechaHastaGanancias, setError);
+  };
+
+  const handleGenerarExcelPedidosPorCliente = () => {
+    generarExcelPedidosPorCliente(
+      fechaDesdePedidos,
+      fechaHastaPedidos,
+      setError
+    );
+  };
+
+  // -------------------- GRÁFICOS --------------------
+  const optionsLineChart = {
+    title: "Ingresos Mensuales",
+    curveType: "function",
+    legend: { position: "bottom" },
+    hAxis: { title: "Fecha" },
+    vAxis: { title: "Recaudación ($)" },
+  };
+
+  const optionsColumnChart = {
+    chart: {
+      title: "Ganancias de la Empresa",
+      subtitle: "Ingresos, Costos y Ganancias",
     },
-    {
-      nombre: "Lomo Completo",
-      descripcion:
-        "Bifes de lomo, mayo casera, huevo, jamón, queso, tomate y lechuga",
+    hAxis: { title: "Fecha" },
+    vAxis: { title: "Monto ($)" },
+  };
+
+  const optionsBarChart = {
+    title: "Pedidos por Cliente",
+    chartArea: { width: "50%" },
+    hAxis: {
+      title: "Cantidad de Pedidos",
+      minValue: 0,
     },
-    {
-      nombre: "Hamburguesa Clásica",
-      descripcion:
-        "Medallón de carne con queso mozzarella, lechuga, tomate, cebolla y papas",
+    vAxis: {
+      title: "Cliente",
     },
-    {
-      nombre: "Lomo Criollo",
-      descripcion:
-        "Bifes de lomo, mayo casera, huevo, jamón, queso y salsa criolla",
-    },
-    {
-      nombre: "Pizza Napolitana",
-      descripcion: "Pizza con rodajas de tomate y queso rallado",
-    },
-  ];
+  };
+
+  // Eliminamos el primer elemento que contiene los encabezados
+  const rankingData = dataRanking.slice(1);
+
+  if (loadingRanking || loadingChart || loadingColumnChart) {
+    return <Loader />;
+  }
 
   // -------------------- RENDER --------------------
   return (
-    <div id="seccion-inicio">
-      <h2 style={{ fontSize: "22px", margin: "15px 0" }}>Resumen</h2>
+    <div className="charts">
+      <h1>Estadísticas</h1>
       <div id="chart-container">
-        <div className="charts box" style={{ width: "40vw" }}>
-          <h2>Ventas por sucursal</h2>
-          <Line data={lineData} options={lineOptions as ChartOptions<"line">} />
-        </div>
-        <div className="charts box" style={{ width: "25vw" }}>
-          <h2>Ventas por semana</h2>
-          <Pie data={pieData} options={pieOptions as ChartOptions<"pie">} />
-        </div>
+        {/* Sección de Ranking de Comidas */}
+        <section className="box">
+          <h2>Ranking de Comidas Más Pedidas</h2>
+          <form onSubmit={handleSubmitRanking}>
+            <label>
+              Desde:
+              <input
+                type="date"
+                value={fechaDesdeRankingLocal}
+                onChange={(e) => setFechaDesdeRankingLocal(e.target.value)}
+              />
+            </label>
+            <label>
+              Hasta:
+              <input
+                type="date"
+                value={fechaHastaRankingLocal}
+                onChange={(e) => setFechaHastaRankingLocal(e.target.value)}
+              />
+            </label>
+            <button type="submit">Actualizar</button>
+          </form>
+          <button onClick={handleGenerarExcelMasVendidos}>
+            Descargar Excel
+          </button>
+          {(error.fechaDesde || error.fechaHasta) && (
+            <p className="error">Por favor, seleccione ambas fechas.</p>
+          )}
+
+          {loadingRanking ? (
+            <p>Cargando ranking...</p>
+          ) : rankingData.length > 0 ? (
+            <ul>
+              {rankingData.map((item, index) => (
+                <li key={index}>
+                  {item[1]}: {item[0]} pedidos
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>
+              No hay datos disponibles para el rango de fechas seleccionado.
+            </p>
+          )}
+        </section>
+
+        {/* Sección de Gráfico de Ingresos Mensuales */}
+        <section className="box">
+          <h2>Gráfico de Ingresos Mensuales</h2>
+
+          <select value={mes} onChange={handleMesChange}>
+            {[...Array(12)].map((_, i) => (
+              <option key={i} value={i + 1}>
+                {new Date(0, i).toLocaleString("default", { month: "long" })}
+              </option>
+            ))}
+          </select>
+          <button onClick={handleGenerarExcelIngresosMensuales}>
+            Descargar Ingresos Mensuales
+          </button>
+          {error.mes && <p className="error">Por favor, seleccione un mes.</p>}
+
+          <select value={dia} onChange={handleDiaChange}>
+            {[...Array(365)].map((_, i) => (
+              <div key={i}>
+                {new Date(2024, 0, i + 1).toLocaleString("default", {
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+            ))}
+          </select>
+          <button onClick={handleGenerarExcelIngresosDiarios}>
+            Descargar Ingresos Diarios
+          </button>
+          {error.dia && <p className="error">Por favor, seleccione un día.</p>}
+
+          {loadingChart ? (
+            <p>Cargando gráfico...</p>
+          ) : dataLine.length > 1 ? (
+            <Chart
+              chartType="LineChart"
+              width="100%"
+              height="400px"
+              data={dataLine}
+              options={optionsLineChart}
+            />
+          ) : (
+            <p>No hay datos disponibles para el mes seleccionado.</p>
+          )}
+        </section>
       </div>
-      <div>
-        <h2 style={{ fontSize: "22px", marginTop: "15px" }}>
-          Productos más vendidos
-        </h2>
-        <List dense={dense}>
-          {" "}
-          {productos.map(({ nombre, descripcion }, index) => {
-            return (
-              <ListItem
-                key={index}
-                secondaryAction={
-                  <IconButton
-                    onClick={() => navigate("/inicio")} // Cambiar al modal correspondiente
-                    edge="end"
-                    aria-label="edit"
-                  >
-                    <ModeEditIcon />
-                  </IconButton>
-                }
-              >
-                <ListItemAvatar>
-                  <Avatar>
-                    <ShoppingBagIcon />
-                  </Avatar>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={nombre}
-                  secondary={secondary ? descripcion : null}
-                />
-              </ListItem>
-            );
-          })}
-        </List>
+      <div id="chart-container">
+        {/* Sección de Gráfico de Ganancias */}
+        <section className="box">
+          <h2>Gráfico de Ganancias</h2>
+          <form onSubmit={handleSubmitGanancias}>
+            <label>
+              Desde:
+              <input
+                type="date"
+                value={fechaDesdeGananciasLocal}
+                onChange={(e) => setFechaDesdeGananciasLocal(e.target.value)}
+              />
+            </label>
+            <label>
+              Hasta:
+              <input
+                type="date"
+                value={fechaHastaGananciasLocal}
+                onChange={(e) => setFechaHastaGananciasLocal(e.target.value)}
+              />
+            </label>
+            <button type="submit">Actualizar</button>
+          </form>
+          <button onClick={handleGenerarExcelGanancias}>Descargar Excel</button>
+          {(error.fechaDesde || error.fechaHasta) && (
+            <p className="error">Por favor, seleccione ambas fechas.</p>
+          )}
+
+          {loadingColumnChart ? (
+            <p>Cargando gráfico de ganancias...</p>
+          ) : dataColumn.length > 1 ? (
+            <Chart
+              chartType="Bar"
+              width="100%"
+              height="400px"
+              data={dataColumn}
+              options={optionsColumnChart}
+            />
+          ) : (
+            <p>
+              No hay datos de ganancias disponibles para el rango de fechas
+              seleccionado.
+            </p>
+          )}
+        </section>
+
+        {/* Sección de Gráfico de Pedidos por Cliente */}
+        <section className="box">
+          <h2>Pedidos por Cliente</h2>
+          <form onSubmit={handleSubmitPedidos}>
+            <label>
+              Desde:
+              <input
+                type="date"
+                value={fechaDesdePedidosLocal}
+                onChange={(e) => setFechaDesdePedidosLocal(e.target.value)}
+              />
+            </label>
+            <label>
+              Hasta:
+              <input
+                type="date"
+                value={fechaHastaPedidosLocal}
+                onChange={(e) => setFechaHastaPedidosLocal(e.target.value)}
+              />
+            </label>
+            <button type="submit">Actualizar</button>
+          </form>
+          <button onClick={handleGenerarExcelPedidosPorCliente}>
+            Descargar Excel
+          </button>
+          {(error.fechaDesde || error.fechaHasta) && (
+            <p className="error">Por favor, seleccione ambas fechas.</p>
+          )}
+
+          {loadingBarChart ? (
+            <p>Cargando gráfico de pedidos por cliente...</p>
+          ) : dataBar.length > 1 ? (
+            <Chart
+              chartType="BarChart"
+              width="100%"
+              height="400px"
+              data={dataBar}
+              options={optionsBarChart}
+            />
+          ) : (
+            <p>
+              No hay datos de pedidos por cliente disponibles para el rango de
+              fechas seleccionado.
+            </p>
+          )}
+        </section>
       </div>
     </div>
   );
