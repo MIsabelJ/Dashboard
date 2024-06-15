@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { useAppDispatch } from "../../../hooks/redux";
 import { IPedido } from "../../../types/Pedido/IPedido";
 import { PedidoService } from "../../../services/PedidoService";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
-import { Button, ButtonGroup, Link } from "@mui/material";
+import { Button, ButtonGroup } from "@mui/material";
 import { PedidoModal } from "../../ui/modals/ModalPedidos/ModalPedido";
 import { roles, ColumnsPedido } from "./constantes";
 
@@ -116,6 +116,7 @@ export const SeccionPedidos = () => {
         show={openModal}
         handleClose={() => setOpenModal(false)}
         selectedId={selectedId}
+        role={userRole}
       />
     </>
   );
