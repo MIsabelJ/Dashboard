@@ -32,6 +32,13 @@ export const SeccionUsuarios = () => {
 
   const ColumnsUsuario = [
     {
+      label: "Sucursal",
+      key: "sucursal",
+      // render: (usuario: IUsuario) => { // Cuando esté listo el endpoint, descomentar esto
+      //   return <>{usuario.sucursal.nombre}</>;
+      // },
+    },
+    {
       label: "Nombre",
       key: "name",
     },
@@ -55,13 +62,6 @@ export const SeccionUsuarios = () => {
           ))}
         </Select>
       ),
-    },
-    {
-      label: "Sucursal",
-      key: "sucursal",
-      // render: (usuario: IUsuario) => { // Cuando esté listo el endpoint, descomentar esto
-      //   return <>{usuario.sucursal.nombre}</>;
-      // },
     },
     {
       label: "Estado",

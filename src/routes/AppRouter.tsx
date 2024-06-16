@@ -4,7 +4,6 @@ import Login from "../components/pages/Login/Login.tsx";
 import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
-import Profile from "../components/auth/Profile.tsx";
 import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
 import CallbackPage from "../components/auth/CallbackPage.tsx";
 import { RutaPrivada } from "./RutaPrivada.tsx";
@@ -52,7 +51,9 @@ const AppRouter = () => {
               "repositor",
               "delivery",
             ]}>
-            <Profile />
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Mi cuenta" />
+            </Box>
           </RutaPrivada>
         }
       />
