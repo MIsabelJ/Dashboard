@@ -5,14 +5,17 @@ import { IPedido } from "../../../../types/Pedido/IPedido";
 import { PedidoService } from "../../../../services/PedidoService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Checkbox, TextField } from "@mui/material";
 import { IDetallePedido } from "../../../../types/DetallePedido/IDetallePedido";
+import styled from "styled-components";
+import { roles } from "../../../pages/Pedidos/constantes";
 
 // ---------- INTERFAZ ----------
 interface PedidoModalProps {
   show: boolean;
   handleClose: () => void;
   selectedId?: number;
+  role: string;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -20,10 +23,12 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   show,
   handleClose,
   selectedId,
+  role,
 }) => {
   const [values, setValues] = useState<IPedido>();
   const [valuesPost, setValuesPost] = useState<IPedidoPost>({} as IPedidoPost);
   const [valorSeleccionado, setValorSeleccionado] = useState<string>("");
+  const [reponerStock, setReponerStock] = React.useState(true);
 
   const API_URL = import.meta.env.VITE_API_URL;
   const pedidoService = new PedidoService(API_URL + "/pedido");
@@ -32,8 +37,16 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   const handleSave = async () => {
     if (selectedId) {
       try {
-        console.log(selectedId);
-        console.log(valuesPost);
+        if (
+          valuesPost.estado === "CANCELADO" ||
+          valuesPost.estado === "RECHAZADO"
+        ) {
+          //llamada al endpoint
+          pedidoService.cancelarPedido(selectedId, valuesPost, reponerStock);
+        }
+        if (valuesPost.estado === "FACTURADO") {
+          //
+        }
         await pedidoService.put(selectedId, valuesPost);
       } catch (error) {
         console.error(error);
@@ -56,6 +69,7 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
         const pedido = await pedidoService.getById(selectedId);
         if (pedido) {
           setValues(pedido);
+          setValorSeleccionado(pedido.estado);
           setValuesPost({
             horaEstimadaFinalizacion: pedido.horaEstimadaFinalizacion,
             total: pedido.total,
@@ -92,7 +106,12 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     }
   };
 
-  const handleOnChange = (event, newValue) => {
+  const handleReponerStock = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement;
+    setReponerStock(target.checked);
+  };
+
+  const handleOnChange = (event: React.SyntheticEvent, newValue: any) => {
     if (newValue) {
       setValorSeleccionado(newValue.value);
       setValuesPost((prevValues) => ({
@@ -104,16 +123,29 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     }
   };
 
-  const opciones = [
-    { label: "pendientes", value: "PENDIENTE" },
-    { label: "rechazados", value: "RECHAZADO" },
-    { label: "cancelados", value: "CANCELADO" },
-    { label: "aprobados", value: "APROBADO" },
-    { label: "en proceso", value: "PREPARACION" },
-    { label: "terminados", value: "TERMINADO" },
-    { label: "en delivery", value: "DELIVERY" },
-    { label: "facturados", value: "FACTURADO" },
+  const options = [
+    { label: "Pendiente", value: "PENDIENTE", color: "#FFEB3B" },
+    { label: "Rechazado", value: "RECHAZADO", color: "#FF5722" },
+    { label: "Cancelado", value: "CANCELADO", color: "#F44336" },
+    { label: "Aprobado", value: "APROBADO", color: "#8BC34A" },
+    { label: "En preparación", value: "PREPARACION", color: "#03A9F4" },
+    { label: "Terminado", value: "TERMINADO", color: "#4CAF50" },
+    { label: "En delivery", value: "DELIVERY", color: "#2196F3" },
+    { label: "Facturado", value: "FACTURADO", color: "#9C27B0" },
   ];
+
+  const filteredOptions = options.filter((option) =>
+    roles[role].includes(option.value)
+  );
+
+  const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
+    height: 10,
+    width: 10,
+    backgroundColor: color || "transparent",
+    borderRadius: "50%",
+    display: "inline-block",
+    marginRight: 8,
+  }));
 
   useEffect(() => {
     if (selectedId) {
@@ -128,16 +160,42 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
       </Modal.Header>
       <Modal.Body>
         <Autocomplete
-          freeSolo
           id="autocomplete-opciones"
-          options={opciones}
-          getOptionLabel={(option) =>
-            typeof option === "string" ? option : option.label
-          }
-          getOptionSelected={(option, value) => option.value === value.value}
+          options={filteredOptions}
+          getOptionLabel={(option) => option.label}
           onChange={handleOnChange}
           renderInput={(params) => <TextField {...params} label="Estado" />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <ColorDot color={option.color} />
+              {option.label}
+            </li>
+          )}
+          value={
+            options.find((option) => option.value === valorSeleccionado) || null
+          }
         />
+        {(valorSeleccionado == "CANCELADO" ||
+          valorSeleccionado == "RECHAZADO") && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginTop: "25px",
+              gap: "10px",
+            }}>
+            <Checkbox
+              style={{ padding: 0 }}
+              checked={reponerStock}
+              onChange={handleReponerStock}
+              inputProps={{ "aria-label": "controlled" }}
+              id="reponerStock"
+            />
+            <label style={{ margin: 0 }} htmlFor="reponerStock">
+              Reponer Stock
+            </label>
+          </div>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button variant="secondary" onClick={handleClose}>
