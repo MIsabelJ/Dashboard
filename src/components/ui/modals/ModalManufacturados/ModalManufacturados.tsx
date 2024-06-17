@@ -64,7 +64,7 @@ export const ModalArticuloManufacturado = ({
     IArticuloManufacturadoDetallePost[]
   >([]);
   const [articuloSeleccionado, setArticuloSeleccionado] = useState<
-    { articuloInsumo: IArticuloInsumo; cantidad: string }[]
+    { articuloInsumo: IArticuloInsumo; cantidad: number }[]
   >([]);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
@@ -103,11 +103,15 @@ export const ModalArticuloManufacturado = ({
         imagenes: [...previousImages, ...actualImages],
       };
 
-      let precioInsumos : number = 0;
-      const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(async (detalle)=>{
-        const insumo : IArticuloInsumo | any = await insumoService.getById(detalle.idArticuloInsumo);
-        precioInsumos += insumo.precioCompra * detalle.cantidad;
-      });
+      let precioInsumos: number = 0;
+      const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(
+        async (detalle) => {
+          const insumo: IArticuloInsumo | any = await insumoService.getById(
+            detalle.idArticuloInsumo
+          );
+          precioInsumos += insumo.precioCompra * detalle.cantidad;
+        }
+      );
       await Promise.all(promiseInsumos);
       manufacturado.precioCompra = precioInsumos;
       handleSave(manufacturado);
@@ -132,11 +136,28 @@ export const ModalArticuloManufacturado = ({
     setSearchTerm(event.target.value);
   };
 
-  const handleSaveDetalle = async (
-    detalle: IArticuloManufacturadoDetallePost
+  const handleSaveDetalle = (
+    nuevoDetalle: IArticuloManufacturadoDetallePost
   ) => {
-    setNewDetalles([...newDetalles, detalle]);
-    getInsumosSeleccionados();
+    const detalleExistente = newDetalles.find(
+      (d) => d.idArticuloInsumo === nuevoDetalle.idArticuloInsumo
+    );
+
+    if (detalleExistente) {
+      const updatedDetalles = newDetalles.map((detalle) =>
+        detalle.idArticuloInsumo === detalleExistente.idArticuloInsumo
+          ? {
+              ...detalle,
+              cantidad: detalle.cantidad + nuevoDetalle.cantidad,
+            }
+          : detalle
+      );
+      setNewDetalles(updatedDetalles);
+    } else {
+      const updatedDetalles = [...newDetalles, nuevoDetalle];
+      setNewDetalles(updatedDetalles);
+    }
+
     setShowDetallesModal(false);
   };
 
@@ -147,6 +168,40 @@ export const ModalArticuloManufacturado = ({
     setNewDetalles((prev) => {
       return prev.filter((_, i) => i !== index);
     });
+  };
+
+  const handleEditDetalle = async (
+    index: number,
+    values: { idArticulo: number; cantidad: number }
+  ) => {
+    const detalle: IArticuloManufacturadoDetallePost = {
+      id: formik.values.articuloManufacturadoDetalles[index].id,
+      idArticuloInsumo: values.idArticulo,
+      cantidad: values.cantidad,
+    };
+    // Actualiza el estado de newDetalles
+    const updatedNewDetalles = newDetalles.map((det, i) => {
+      //si no tiene id, lo devuelvo
+      if (!det.id) {
+        return det;
+      }
+      return det.id === detalle.id ? detalle : det;
+    });
+    setNewDetalles(updatedNewDetalles);
+
+    // Actualiza el estado de articuloSeleccionado
+    const updatedArticuloSeleccionado = articuloSeleccionado.map((art, i) =>
+      i === index
+        ? {
+            articuloInsumo: {
+              ...art.articuloInsumo,
+              id: values.idArticulo,
+            },
+            cantidad: values.cantidad,
+          }
+        : art
+    );
+    setArticuloSeleccionado(updatedArticuloSeleccionado);
   };
 
   const handleSave = async (manufacturado: IArticuloManufacturadoPost) => {
@@ -235,14 +290,14 @@ export const ModalArticuloManufacturado = ({
   };
 
   const getInsumosSeleccionados = async () => {
-    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: string }[] = [];
+    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: number }[] = [];
 
     const fetchInsumos = newDetalles.map(async (detalle) => {
       const response = await insumoService.getById(detalle.idArticuloInsumo);
       if (response) {
         insumos.push({
           articuloInsumo: response,
-          cantidad: detalle.cantidad.toString(),
+          cantidad: detalle.cantidad,
         });
       }
     });
@@ -283,7 +338,6 @@ export const ModalArticuloManufacturado = ({
   //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
     if (show) {
-
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
@@ -318,8 +372,7 @@ export const ModalArticuloManufacturado = ({
             <Stepper
               activeStep={activeStep}
               alternativeLabel
-              className="stepper-padding"
-            >
+              className="stepper-padding">
               {steps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
@@ -350,11 +403,13 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 2 && (
                     <Step3
-                      articuloSeleccionado={articuloSeleccionado}
+                      formik={formik}
                       searchTerm={searchTerm}
                       handleSearch={handleSearch}
                       setShowDetallesModal={setShowDetallesModal}
+                      handleSaveDetalle={handleSaveDetalle}
                       handleDeleteDetalle={handleDeleteDetalle}
+                      handleEditDetalle={handleEditDetalle}
                     />
                   )}
                   {activeStep === 3 && (
@@ -370,8 +425,7 @@ export const ModalArticuloManufacturado = ({
                     <Button
                       color="inherit"
                       disabled={activeStep === 0}
-                      onClick={handleBack}
-                    >
+                      onClick={handleBack}>
                       Atrás
                     </Button>
                     <Box className="box-auto-flex" />
@@ -380,8 +434,7 @@ export const ModalArticuloManufacturado = ({
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"
-                      }
-                    >
+                      }>
                       {activeStep === steps.length - 1
                         ? "Guardar"
                         : "Siguiente"}
