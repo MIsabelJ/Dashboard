@@ -9,6 +9,9 @@ import Swal from "sweetalert2";
 import { Modal, Button, Form } from "react-bootstrap";
 import { SucursalService } from "../../../../services/SucursalService";
 import { ISucursal } from "../../../../types/Sucursal/ISucursal";
+import { EmpleadoService } from "../../../../services/EmpleadoService";
+import { IEmpleado } from "../../../../types/Empleado/IEmpleado";
+import { IEmpleadoPost } from "../../../../types/Empleado/IEmpleadoPost";
 
 //---------------- INTERFAZ ----------------
 interface ModalUsuariosProps {
@@ -18,13 +21,26 @@ interface ModalUsuariosProps {
 }
 
 const roles = [
-  "admin",
-  "admin del negocio",
-  "cajero",
-  "cocinero",
-  "repositor",
-  "delivery",
+  "ADMIN",
+  "ADMIN_NEGOCIO",
+  "CAJERO",
+  "COCINERO",
+  "REPOSITOR",
+  "DELIVERY",
 ];
+
+const initialValuesPost: IEmpleadoPost = {
+  nombre: "",
+  apellido: "",
+  tipoEmpleado: "",
+  idSucursal: 0,
+  pedidos: [],
+  usuarioEmpleado: {
+    email: "",
+    password: "",
+    userName: "",
+  }
+};
 
 const ModalUsuario = ({
   show,
@@ -32,13 +48,15 @@ const ModalUsuario = ({
   selectedId,
 }: ModalUsuariosProps) => {
   // -------------------- STATES --------------------
-  const [values, setValues] = useState<IUsuario | IUsuarioPost>();
+  const [values, setValues] = useState<IEmpleadoPost>();
+  const [previousValues, setPreviousValues] = useState<IEmpleado>();
+  const [usuarioEmpleado, setUsuarioEmpleado] = useState<IUsuarioPost>();
   //Guarda los valores de todas las sucursales que existen y que vayan a añadirse con el useEffect
   const [sucursales, setSucursales] = useState<ISucursal[]>([]);
 
   // -------------------- SERVICE --------------------
 
-  const usuarioService = new UsuarioService(API_URL + "/usuario");
+  const empleadoService = new EmpleadoService(API_URL + "/empleado");
   const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
 
@@ -52,16 +70,34 @@ const ModalUsuario = ({
     Swal.fire(title, content, icon);
   };
 
+  //NO SE SI DEBE IR ESTO
   const getAllUsuario = async () => {
-    await usuarioService.getAll().then((usuarioData) => {
+    await empleadoService.getAll().then((usuarioData) => {
       dispatch(setDataTable(usuarioData));
     });
+    
   };
 
+  //MANEJAR EDICION
   const getOneUsuario = async (id: number) => {
     try {
-      const usuario = await usuarioService.getById(id);
-      if (usuario) setValues(usuario);
+      const usuario = await empleadoService.getById(id);
+      if (usuario != null) {
+        const usuarioPost : IEmpleadoPost = {
+          nombre: usuario.nombre,
+          apellido: usuario.apellido,
+          tipoEmpleado: usuario.tipoEmpleado,
+          idSucursal: Number(localStorage.getItem("sucursalId")),
+          pedidos: [],
+          usuarioEmpleado: {
+            email: usuario.usuarioEmpleado.email,
+            password: usuario.usuarioEmpleado.password,
+            userName: usuario.usuarioEmpleado.userName,
+          }
+        }
+        setValues(usuarioPost);
+        setPreviousValues(usuario);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -75,26 +111,37 @@ const ModalUsuario = ({
     >
   ) => {
     setValues({
-      ...(values as IUsuarioPost),
+      ...(values as IEmpleadoPost),
       [e.target.name]: e.target.value,
     });
+    setUsuarioEmpleado((prevUsuarioEmpleado) => ({
+      email: e.target.name === "email" ? e.target.value : prevUsuarioEmpleado?.email || "",
+      userName: e.target.name === "userName" ? e.target.value : prevUsuarioEmpleado?.userName || "",
+      password: e.target.name === "password" ? e.target.value : prevUsuarioEmpleado?.password || "",
+    }));
   };
 
   const handleSave = async () => {
     if (selectedId) {
       try {
-        await usuarioService.put(selectedId, values as IUsuarioPost);
+        await empleadoService.put(selectedId, values as IEmpleadoPost);
       } catch (error) {
         console.error(error);
       }
     } else {
       try {
-        const usuarioPost: IUsuarioPost = {
-          name: values?.name || "",
-          rol: values?.rol || "",
-          idSucursal: (values as IUsuarioPost).idSucursal || 1,
-        };
-        await usuarioService.post(usuarioPost);
+        if (values && usuarioEmpleado){
+          const usuarioPost: IEmpleadoPost = {
+            nombre: values.nombre,
+            apellido: values.apellido,
+            tipoEmpleado: values.tipoEmpleado,
+            idSucursal: Number(localStorage.getItem("sucursalId")) ,
+            usuarioEmpleado: usuarioEmpleado,
+            pedidos: [],
+          };
+          console.log("usuarioPost", usuarioPost);
+          await empleadoService.post(usuarioPost);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -106,39 +153,82 @@ const ModalUsuario = ({
 
   const internalHandleClose = () => {
     setSucursales([]);
+    setUsuarioEmpleado(undefined);
+    setPreviousValues(undefined);
     setValues(initialValues);
     handleClose();
   };
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    const getSucursales = async () => {
-      const response = await sucursalService.getAll();
-      setSucursales(response);
-    };
-    getSucursales();
-    if (selectedId) {
-      getOneUsuario(selectedId);
-    } else {
-      setValues(initialValues);
+    if (show) {
+      const getSucursales = async () => {
+        const response = await sucursalService.getAll();
+        setSucursales(response);
+      };
+      getSucursales();
+      if (selectedId) {
+        getOneUsuario(selectedId);
+      }
     }
-  }, [show]);
+  }, [show, selectedId]);
 
   return (
     <Modal show={show} onHide={internalHandleClose} size="lg">
       <Modal.Header closeButton>
         <Modal.Title>
-          {values?.name !== "" ? "Editar Usuario" : "Agregar Usuario"}
+          {previousValues ? "Editar Usuario" : "Agregar Usuario"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
+          { !previousValues && (
+            <>
+              <Form.Group controlId="formUserUsername">
+                <Form.Label>Usuario</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="userName"
+                  onChange={handleChange}
+                  placeholder="Ingrese el usuario"
+                />
+              </Form.Group>
+              <Form.Group controlId="formUserEmail">
+                <Form.Label>Correo</Form.Label>
+                <Form.Control
+                  type="email"
+                  name="email"
+                  onChange={handleChange}
+                  placeholder="Ingrese el correo"
+                />
+              </Form.Group>
+              <Form.Group controlId="formUserPassword">
+                <Form.Label>Contraseña</Form.Label>
+                <Form.Control
+                  type="password"
+                  name="password"
+                  onChange={handleChange}
+                  placeholder="Ingrese la contraseña"
+                />
+              </Form.Group>
+            </>
+          )}
           <Form.Group controlId="formUserName">
             <Form.Label>Nombre</Form.Label>
             <Form.Control
               type="text"
-              name="name"
-              value={values?.name || ""}
+              name="nombre"
+              value={values?.nombre}
+              onChange={handleChange}
+              placeholder="Ingrese el nombre"
+            />
+            <Form.Label>Apellido</Form.Label>
+          </Form.Group>
+          <Form.Group controlId="formUserLastName">
+            <Form.Control
+              type="text"
+              name="apellido"
+              value={values?.apellido}
               onChange={handleChange}
               placeholder="Ingrese el nombre"
             />
@@ -146,8 +236,8 @@ const ModalUsuario = ({
           <Form.Group controlId="formUserRol" className="mt-3">
             <Form.Label>Rol</Form.Label>
             <Form.Select
-              name="rol"
-              value={values?.rol || ""}
+              name="tipoEmpleado"
+              value={values?.tipoEmpleado}
               onChange={handleChange}>
               {roles.map((rol) => (
                 <option key={rol} value={rol}>
@@ -156,11 +246,11 @@ const ModalUsuario = ({
               ))}
             </Form.Select>
           </Form.Group>
-          <Form.Group controlId="formUserIdSucursal" className="mt-3">
+          {/* <Form.Group controlId="formUserIdSucursal" className="mt-3">
             <Form.Label>Sucursal</Form.Label>
             <Form.Select
               name="idSucursal"
-              value={(values as IUsuarioPost)?.idSucursal || ""}
+              value={values?.idSucursal}
               onChange={handleChange}>
               {sucursales.map((sucursal) => (
                 <option key={sucursal.id} value={sucursal.id}>
@@ -168,7 +258,7 @@ const ModalUsuario = ({
                 </option>
               ))}
             </Form.Select>
-          </Form.Group>
+          </Form.Group> */}
         </Form>
       </Modal.Body>
       <Modal.Footer>

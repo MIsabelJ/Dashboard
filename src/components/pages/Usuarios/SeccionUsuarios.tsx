@@ -8,16 +8,19 @@ import { IUsuario } from "../../../types/Usuario/IUsuario";
 import { MenuItem, Select } from "@mui/material";
 import ModalUsuario from "../../ui/modals/ModalUsuario/ModalUsuario";
 import { SucursalService } from "../../../services/SucursalService";
+import { IEmpleado } from "../../../types/Empleado/IEmpleado";
+import { EmpleadoService } from "../../../services/EmpleadoService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const SeccionUsuarios = () => {
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-  const [users, setUsers] = useState<IUsuario[]>([]);
+  const [users, setUsers] = useState<IEmpleado[]>([]);
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
 
+  const empleadoService = new EmpleadoService(API_URL + "/empleado");
   const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
 
@@ -32,41 +35,21 @@ export const SeccionUsuarios = () => {
 
   const ColumnsUsuario = [
     {
-      label: "Sucursal",
-      key: "sucursal",
-      // render: (usuario: IUsuario) => { // Cuando esté listo el endpoint, descomentar esto
-      //   return <>{usuario.sucursal.nombre}</>;
-      // },
+      label: "Nombre",
+      key: "nombre",
     },
     {
-      label: "Nombre",
-      key: "name",
+      label: "Apellido",
+      key: "apellido",
     },
     {
       label: "Rol",
-      key: "rol",
-      render: (usuario: IUsuario) => (
-        <Select
-          value={usuario.rol}
-          onChange={(e) => {
-            const updatedUsers = users.map((user: IUsuario) =>
-              user.id === usuario.id ? { ...user, rol: e.target.value } : user
-            );
-            setUsers(updatedUsers);
-            dispatch(setDataTable(updatedUsers));
-          }}>
-          {roles.map((rol) => (
-            <MenuItem key={rol} value={rol}>
-              {rol}
-            </MenuItem>
-          ))}
-        </Select>
-      ),
+      key: "tipoEmpleado",
     },
     {
       label: "Estado",
       key: "eliminado",
-      render: (usuario: IUsuario) =>
+      render: (usuario: IEmpleado) =>
         usuario.eliminado ? "Eliminado" : "Activo",
     },
   ];
@@ -83,51 +66,31 @@ export const SeccionUsuarios = () => {
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // await usuarioService.delete(id).then(() => {
-        //   getUsuario();
-        // });
+        await empleadoService.delete(id).then(() => {
+          getUsuario();
+        })
       }
     });
   };
 
   const getUsuario = async () => {
-    // await usuarioService.getAll().then((usuarioData) => {
-    //   dispatch(setDataTable(usuarioData));
-    //   setLoading(false);
-    // });
-    const initialUsers: IUsuario[] = [
-      {
-        id: 1,
-        name: "Juan Pérez",
-        rol: "admin del negocio",
-        sucursal: "Sucursal Centro",
-        eliminado: false,
-      },
-      {
-        id: 2,
-        name: "María López",
-        rol: "cajero",
-        sucursal: "asdf",
-        eliminado: false,
-      },
-      {
-        id: 3,
-        name: "Carlos Gómez",
-        rol: "delivery",
-        sucursal: "asdf",
-        eliminado: false,
-      },
-    ];
-
-    setUsers(initialUsers);
-    dispatch(setDataTable(initialUsers));
-    setLoading(false);
+    await empleadoService.getAll().then((usuarioData) => {
+      dispatch(setDataTable(usuarioData));
+      setUsers(usuarioData);
+      setLoading(false);
+    });
   };
 
   useEffect(() => {
     setLoading(true);
     getUsuario();
   }, []);
+
+  useEffect(() => {
+    if (!openModal) {
+      setSelectedId(undefined);
+    }
+  }, [openModal]);
 
   return (
     <>
@@ -144,7 +107,7 @@ export const SeccionUsuarios = () => {
           <Loader />
         ) : (
           // Mostrar la tabla de personas una vez que los datos se han cargado
-          <GenericTable<IUsuario>
+          <GenericTable<IEmpleado>
             handleDelete={handleDelete}
             columns={ColumnsUsuario}
             setOpenModal={setOpenModal}

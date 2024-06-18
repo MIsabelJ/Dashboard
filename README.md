@@ -22,3 +22,9 @@ npm run dev
 ## Documentación del proyecto
 Para la creación de este dashboard, se utilizaron varios componentes de estilos de distintas librerías (Material UI, Bootstrap, Chart.js, React-Chartjs-2, etc.). Los mismos se detallan en la siguiente hoja de cálculos: [Documentación de Estilos](https://docs.google.com/spreadsheets/d/1ib-oH7f_B3fmbNiUrs6y1pazKmRadLfPAtVhssOEpPc/edit?usp=sharing).
 
+## Credenciales de Auth0
+admin@bs.com  BuenSabor123
+encargado@bs.com  Encargado123
+cajero@bs.com  Cajero123
+repositor@bs.com  Repositor123
+cocinero@bs.com  Cocinero123

@@ -1,12 +1,18 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import "./Profile.css";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { user, isAuthenticated, isLoading, logout } = useAuth0();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <div>Loading ...</div>;
   }
+  const handleLogout = () => {
+    localStorage.clear();
+    logout({ logoutParams: { navigateTo: "/login" } })
+  };
 
   return (
     isAuthenticated && (
@@ -21,9 +27,7 @@ const Profile = () => {
           <p>{user?.email}</p>
           <button
             className="logout-button"
-            onClick={() => {
-              window.location.reload(); // TODO: Agregar lógica para cerrar sesión
-            }}
+            onClick={() => handleLogout()}
           >
             Cerrar sesión
           </button>

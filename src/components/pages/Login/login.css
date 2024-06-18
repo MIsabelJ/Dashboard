@@ -15,6 +15,10 @@
   border-radius: 10px;
   box-sizing: border-box;
   padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .title {

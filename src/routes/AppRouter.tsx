@@ -15,7 +15,7 @@ const AppRouter = () => {
       <Route
         path="/empresa"
         element={
-          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+          <RutaPrivada rolesPermitidos={["admin", "admin_negocio"]}>
             <AuthenticationGuard component={SeccionEmpresa} />
           </RutaPrivada>
         }
@@ -27,7 +27,7 @@ const AppRouter = () => {
           <RutaPrivada
             rolesPermitidos={[
               "admin",
-              "admin del negocio",
+              "admin_negocio",
               "cajero",
               "cocinero",
               "repositor",

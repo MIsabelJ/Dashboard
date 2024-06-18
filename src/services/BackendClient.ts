@@ -39,6 +39,7 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   }
 
   async post(data: TP): Promise<TG> {
+    console.log(this.baseUrl);
     const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}`, {
       method: "POST",
@@ -49,6 +50,7 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
       body: JSON.stringify(data),
     });
     const newData = await response.json();
+    console.log(newData);
     return newData as TG;
   }
 

@@ -1,33 +1,44 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { UsuarioService } from "../services/UsuarioService";
+import { EmpleadoService } from "../services/EmpleadoService";
+import { IEmpleado } from "../types/Empleado/IEmpleado";
 
 interface RutaPrivadaProps {
   children: ReactNode;
   rolesPermitidos: string[];
 }
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const RutaPrivada = ({
   children,
   rolesPermitidos,
 }: RutaPrivadaProps) => {
   const { user, isAuthenticated, getIdTokenClaims } = useAuth0();
-  const [usuarioRoles, setUsuarioRoles] = useState<string[]>([]);
+  const [usuarioRoles, setUsuarioRoles] = useState<String>();
   const [isLoading, setIsLoading] = useState(true);
   const VITE_AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE;
+  const empleadoService = new EmpleadoService(`${API_URL}/empleado`);
 
   useEffect(() => {
     const obtenerRoles = async () => {
-      try {
-        const claims = await getIdTokenClaims();
-        console.log("Claims obtenidos:", claims); // Debug: Imprime los claims
-        if (claims && claims[VITE_AUTH0_AUDIENCE + "/roles"]) {
-          setUsuarioRoles(claims[VITE_AUTH0_AUDIENCE + "/roles"]);
+      const user = localStorage.getItem("user");
+      setIsLoading(true)
+      try{
+        if (user){
+          const empleado: IEmpleado | null = await empleadoService.getById(Number(user))
+          if (empleado ){
+            setUsuarioRoles(empleado.tipoEmpleado)
+            console.log("EMPLEADO: ",empleado)
+          }else{
+            console.log("No se encontro el usuario")
+          }
         }
-      } catch (error) {
-        console.error("Error obteniendo los roles:", error);
-      } finally {
-        setIsLoading(false);
+        setIsLoading(false)
+      }catch{
+        console.log("No existe un usuario en el almacenamiento local")
       }
     };
 
@@ -46,9 +57,12 @@ export const RutaPrivada = ({
     return <Navigate to="/login" />;
   }
 
-  const tieneAcceso = rolesPermitidos.some((rolPermitido) =>
-    usuarioRoles.includes(rolPermitido.toUpperCase())
-  );
+  const tieneAcceso = rolesPermitidos.some((rolPermitido) => {
+    if (usuarioRoles) {
+      return usuarioRoles.includes(rolPermitido.toUpperCase());
+    }
+    return false;
+  });
 
   console.log("Autenticado:", isAuthenticated);
   console.log("Tiene acceso:", tieneAcceso);
