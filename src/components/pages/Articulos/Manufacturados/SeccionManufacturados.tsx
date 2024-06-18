@@ -46,12 +46,12 @@ export const SeccionManufacturados = () => {
 
   // -------------------- COLUMNAS --------------------
   const ColumnsManufacturado = [
-    {
-      label: "Categoría",
-      key: "categoria",
-      render: (manufacturado: IArticuloManufacturado) =>
-        manufacturado.categoria.denominacion,
-    },
+    // {
+    //   label: "Categoría",
+    //   key: "categoria",
+    //   render: (manufacturado: IArticuloManufacturado) =>
+    //     `${manufacturado.categoria.denominacion}`,
+    // },
     { label: "Denominación", key: "denominacion" },
     {
       label: "Precio de Venta",
@@ -113,8 +113,7 @@ export const SeccionManufacturados = () => {
                   alignItems: "center",
                   height: "100px",
                   width: "100px",
-                }}
-              >
+                }}>
                 <img
                   className="d-block"
                   src={imagen.url}
@@ -165,6 +164,7 @@ export const SeccionManufacturados = () => {
 
   const getManufacturado = async () => {
     await manufacturadoService.getAll().then((manufacturadoData) => {
+      console.log(manufacturadoData);
       dispatch(setDataTable(manufacturadoData));
       setLoading(false);
     });

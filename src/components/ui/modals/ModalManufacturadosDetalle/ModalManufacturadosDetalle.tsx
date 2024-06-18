@@ -44,8 +44,10 @@ export const ManufacturadosDetalleModal = ({
   // Utilizado para dar formato a los elementos del dropdown de insumos
   const [opcionesInsumos, setOpcionesInsumos] = useState<
     {
-      esParaElaborar: boolean; label: string; id: number 
-}[]
+      esParaElaborar: boolean;
+      label: string;
+      id: number;
+    }[]
   >([]);
 
   // -------------------- FORMIK --------------------
@@ -109,7 +111,9 @@ export const ManufacturadosDetalleModal = ({
                         <Form.Label>Insumo</Form.Label>
                         <Autocomplete
                           id="combo-box-demo"
-                          options={opcionesInsumos.filter((opcion) => opcion.esParaElaborar === true)}
+                          options={opcionesInsumos.filter(
+                            (opcion) => opcion.esParaElaborar === true
+                          )}
                           getOptionKey={(option) => option.id}
                           sx={{ width: "100%" }}
                           value={
@@ -147,7 +151,7 @@ export const ManufacturadosDetalleModal = ({
                           type="number"
                           placeholder="Ingrese la cantidad"
                           name="cantidad"
-                          value={formik.values.cantidad}
+                          value={formik.values.cantidad || ""}
                           onChange={formik.handleChange}
                         />
                         <Form.Control.Feedback type="invalid">
@@ -190,8 +194,7 @@ export const ManufacturadosDetalleModal = ({
                 <Button
                   onClick={handleSubmit}
                   variant="contained"
-                  color="success"
-                >
+                  color="success">
                   Guardar
                 </Button>
               </Box>
