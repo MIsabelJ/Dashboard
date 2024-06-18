@@ -5,6 +5,7 @@ export const ObtainToken = async (getAccessTokenSilently: any) => {
                 audience: import.meta.env.VITE_AUTH0_AUDIENCE,
             },
         });
+        console.log("Token: ", token);
         return token
     } catch (error) {
         console.error(error);

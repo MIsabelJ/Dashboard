@@ -64,10 +64,10 @@ export const RutaPrivada = ({
     return false;
   });
 
-  console.log("Autenticado:", isAuthenticated);
-  console.log("Tiene acceso:", tieneAcceso);
-  console.log("Usuario roles:", usuarioRoles);
-  console.log("Roles permitidos:", rolesPermitidos);
+  // console.log("Autenticado:", isAuthenticated);
+  // console.log("Tiene acceso:", tieneAcceso);
+  // console.log("Usuario roles:", usuarioRoles);
+  // console.log("Roles permitidos:", rolesPermitidos);
 
   return tieneAcceso ? children : <Navigate to="/unauthorized" />;
 };

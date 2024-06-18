@@ -99,7 +99,7 @@ export const ModalArticuloManufacturado = ({
       }
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
-        articuloManufacturadoDetalles: newDetalles,
+        //articuloManufacturadoDetalles: newDetalles,
         imagenes: [...previousImages, ...actualImages],
       };
 
@@ -114,6 +114,7 @@ export const ModalArticuloManufacturado = ({
       );
       await Promise.all(promiseInsumos);
       manufacturado.precioCompra = precioInsumos;
+      console.log("manufacturado: ", manufacturado);
       handleSave(manufacturado);
     },
   });
