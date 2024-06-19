@@ -17,7 +17,6 @@ import { IArticuloInsumo } from "../../../../../types/ArticuloInsumo/IArticuloIn
 import { InsumoService } from "../../../../../services/InsumoService";
 import { IArticuloManufacturadoPost } from "../../../../../types/ArticuloManufacturado/IArticuloManufacturadoPost";
 import { FormikProps } from "formik";
-import { IArticuloManufacturadoDetallePost } from "../../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -25,24 +24,9 @@ interface Step3Props {
   formik: FormikProps<IArticuloManufacturadoPost>;
   searchTerm: string;
   handleSearch: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  setShowDetallesModal: React.Dispatch<React.SetStateAction<boolean>>;
-  handleDeleteDetalle: (index: number) => void;
-  handleEditDetalle: (
-    index: number,
-    values: { idArticulo: number; cantidad: number }
-  ) => void;
-  handleSaveDetalle: (detalle: IArticuloManufacturadoDetallePost) => void;
 }
 
-const Step3: React.FC<Step3Props> = ({
-  formik,
-  searchTerm,
-  handleSearch,
-  setShowDetallesModal,
-  handleDeleteDetalle,
-  handleEditDetalle,
-  handleSaveDetalle,
-}) => {
+const Step3: React.FC<Step3Props> = ({ formik, searchTerm, handleSearch }) => {
   // -------------------- STATES --------------------
   const [insumos, setInsumos] = useState<IArticuloInsumo[]>([]);
   const [opcionesInsumos, setOpcionesInsumos] = useState<
@@ -245,29 +229,9 @@ const Step3: React.FC<Step3Props> = ({
                               aria-label="done"
                               onClick={() => {
                                 if (creating) {
-                                  handleSaveDetalle({
-                                    idArticuloInsumo:
-                                      formik.values
-                                        .articuloManufacturadoDetalles[index]
-                                        ?.idArticuloInsumo,
-                                    cantidad:
-                                      formik.values
-                                        .articuloManufacturadoDetalles[index]
-                                        ?.cantidad,
-                                  });
                                   setCreating(false);
                                   setEditingIndex(null);
                                 } else {
-                                  handleEditDetalle(index, {
-                                    idArticulo:
-                                      formik.values
-                                        .articuloManufacturadoDetalles[index]
-                                        ?.idArticuloInsumo,
-                                    cantidad:
-                                      formik.values
-                                        .articuloManufacturadoDetalles[index]
-                                        ?.cantidad,
-                                  });
                                   setEditingIndex(null);
                                 }
                               }}>
@@ -278,8 +242,6 @@ const Step3: React.FC<Step3Props> = ({
                               <IconButton
                                 aria-label="delete"
                                 onClick={() => {
-                                  handleDeleteDetalle(index);
-                                  //removing from formik values
                                   formik.setFieldValue(
                                     "articuloManufacturadoDetalles",
                                     formik.values.articuloManufacturadoDetalles.filter(

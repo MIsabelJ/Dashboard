@@ -29,6 +29,7 @@ import Step3 from "./stepper/Step3";
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import "./ModalInsumos.css";
+import { SucursalService } from "../../../../services/SucursalService";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -83,6 +84,7 @@ export const ModalArticuloInsumo = ({
       }
       const insumo: IArticuloInsumoPost = {
         ...values,
+        idSucursal: Number(localStorage.getItem("sucursalId")),
         imagenes: [...previousImages, ...actualImages],
       };
       insumo.imagenes;
@@ -96,7 +98,7 @@ export const ModalArticuloInsumo = ({
   );
   const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
-  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
@@ -168,6 +170,7 @@ export const ModalArticuloInsumo = ({
           esParaElaborar: articuloInsumo.esParaElaborar,
           idUnidadMedida: articuloInsumo.unidadMedida.id,
           idCategoria: articuloInsumo.categoria.id,
+          idSucursal: articuloInsumo.sucursal.id,
         });
       }
     } catch (error) {
@@ -185,14 +188,16 @@ export const ModalArticuloInsumo = ({
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
     if (show) {
-
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
       };
       getUnidadesMedida();
       const getCategorias = async () => {
-        const response = await categoriaService.getAll();
+        const sucursalId = localStorage.getItem("sucursalId");
+        const response = await sucursalService.getCategoriaBySucursalId(
+          Number(sucursalId)
+        );
         setCategorias(response);
       };
       getCategorias();
@@ -222,8 +227,7 @@ export const ModalArticuloInsumo = ({
             <Stepper
               activeStep={activeStep}
               alternativeLabel
-              className="stepper-padding"
-            >
+              className="stepper-padding">
               {steps.map((label) => (
                 <Step key={label}>
                   <StepLabel>{label}</StepLabel>
@@ -261,8 +265,7 @@ export const ModalArticuloInsumo = ({
                     <Button
                       color="inherit"
                       disabled={activeStep === 0}
-                      onClick={handleBack}
-                    >
+                      onClick={handleBack}>
                       Atrás
                     </Button>
                     <Box className="box-auto-flex" />
@@ -271,8 +274,7 @@ export const ModalArticuloInsumo = ({
                       variant="contained"
                       color={
                         activeStep === steps.length - 1 ? "success" : "primary"
-                      }
-                    >
+                      }>
                       {activeStep === steps.length - 1
                         ? "Guardar"
                         : "Siguiente"}

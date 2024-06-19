@@ -26,6 +26,7 @@ interface CategoryItemProps {
   handleSave: (category: ICategoriaPost) => void;
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
   handleDelete: (id: number) => void;
+  setCategorias: React.Dispatch<React.SetStateAction<ICategoria[]>>;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -36,6 +37,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   handleSave,
   addSubCategoria,
   handleDelete,
+  setCategorias,
 }) => {
   // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
@@ -55,7 +57,12 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         <div style={{ padding: "10px", display: "flex", gap: "10px" }}>
           {category.esParaElaborar ? (
             <>
-              <Chip label="Para elaborar" variant="outlined" color="primary" sx={{ alignSelf: "center" }}/>
+              <Chip
+                label="Para elaborar"
+                variant="outlined"
+                color="primary"
+                sx={{ alignSelf: "center" }}
+              />
             </>
           ) : null}
           <ButtonsTable
@@ -86,6 +93,7 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
                   handleSave={handleSave}
                   addSubCategoria={addSubCategoria}
                   handleDelete={handleDelete}
+                  setCategorias={setCategorias}
                 />
               ))}
             </List>
@@ -95,9 +103,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
       <ModalEditCategorias
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleUpdate={handleUpdate}
-        categoria={category}
-        addSubCategoria={addSubCategoria}
+        selectedId={selectedId}
+        setCategorias={setCategorias}
       />
     </div>
   );

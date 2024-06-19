@@ -25,20 +25,21 @@ export const RutaPrivada = ({
   useEffect(() => {
     const obtenerRoles = async () => {
       const user = localStorage.getItem("user");
-      setIsLoading(true)
-      try{
-        if (user){
-          const empleado: IEmpleado | null = await empleadoService.getById(Number(user))
-          if (empleado ){
-            setUsuarioRoles(empleado.tipoEmpleado)
-            console.log("EMPLEADO: ",empleado)
-          }else{
-            console.log("No se encontro el usuario")
+      setIsLoading(true);
+      try {
+        if (user) {
+          const empleado: IEmpleado | null = await empleadoService.getById(
+            Number(user)
+          );
+          if (empleado) {
+            setUsuarioRoles(empleado.tipoEmpleado);
+          } else {
+            console.log("No se encontro el usuario");
           }
         }
-        setIsLoading(false)
-      }catch{
-        console.log("No existe un usuario en el almacenamiento local")
+        setIsLoading(false);
+      } catch {
+        console.log("No existe un usuario en el almacenamiento local");
       }
     };
 
@@ -63,11 +64,6 @@ export const RutaPrivada = ({
     }
     return false;
   });
-
-  console.log("Autenticado:", isAuthenticated);
-  console.log("Tiene acceso:", tieneAcceso);
-  console.log("Usuario roles:", usuarioRoles);
-  console.log("Roles permitidos:", rolesPermitidos);
 
   return tieneAcceso ? children : <Navigate to="/unauthorized" />;
 };
