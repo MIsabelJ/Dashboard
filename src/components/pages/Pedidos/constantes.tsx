@@ -3,6 +3,7 @@ import { IPedido } from "../../../types/Pedido/IPedido";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
 export const roles: Record<string, string[]> = {
   admin: [
     "TODOS",
@@ -57,7 +58,7 @@ export const ColumnsPedido = [
       pedido.detallePedidos
         .map(
           (detalle) =>
-            `\u2022 ${detalle.articulo.denominacion}: ${detalle.cantidad}`
+            `\u2022 ${detalle.articulo ? detalle.articulo.denominacion : detalle.promocion ? detalle.promocion.denominacion : ''}: ${detalle.cantidad}`
         )
         .join("\n"),
   },
