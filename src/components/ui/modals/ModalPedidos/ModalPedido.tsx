@@ -37,17 +37,14 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   const handleSave = async () => {
     if (selectedId) {
       try {
-        if (
-          valuesPost.estado === "CANCELADO" ||
-          valuesPost.estado === "RECHAZADO"
-        ) {
+        if (valuesPost.estado === "CANCELADO") {
           //llamada al endpoint
           return pedidoService.cancelarPedido(selectedId, reponerStock);
-
         }
         if (valuesPost.estado === "FACTURADO") {
           //
         }
+        console.log("guardar", valuesPost);
         await pedidoService.put(selectedId, valuesPost);
       } catch (error) {
         console.error(error);
@@ -127,7 +124,6 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
 
   const options = [
     { label: "Pendiente", value: "PENDIENTE", color: "#FFEB3B" },
-    { label: "Rechazado", value: "RECHAZADO", color: "#FF5722" },
     { label: "Cancelado", value: "CANCELADO", color: "#F44336" },
     { label: "Aprobado", value: "APROBADO", color: "#8BC34A" },
     { label: "En preparación", value: "PREPARACION", color: "#03A9F4" },
@@ -136,8 +132,9 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     { label: "Facturado", value: "FACTURADO", color: "#9C27B0" },
   ];
 
-  const filteredOptions = options.filter((option) =>
-    roles[role].includes(option.value) && option.value !== values?.estado
+  const filteredOptions = options.filter(
+    (option) =>
+      roles[role].includes(option.value) && option.value !== values?.estado
   );
 
   const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
@@ -177,8 +174,7 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
             options.find((option) => option.value === valorSeleccionado) || null
           }
         />
-        {(valorSeleccionado == "CANCELADO" ||
-          valorSeleccionado == "RECHAZADO") && (
+        {valorSeleccionado == "CANCELADO" && (
           <div
             style={{
               display: "flex",

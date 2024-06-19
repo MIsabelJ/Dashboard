@@ -3,7 +3,6 @@ import { IPedido } from "../../../types/Pedido/IPedido";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-
 export const roles: Record<string, string[]> = {
   ADMIN: [
     "TODOS",
@@ -58,7 +57,13 @@ export const ColumnsPedido = [
       pedido.detallePedidos
         .map(
           (detalle) =>
-            `\u2022 ${detalle.articulo ? detalle.articulo.denominacion : detalle.promocion ? detalle.promocion.denominacion : ''}: ${detalle.cantidad}`
+            `\u2022 ${
+              detalle.articulo
+                ? detalle.articulo.denominacion
+                : detalle.promocion
+                ? detalle.promocion.denominacion
+                : ""
+            }: ${detalle.cantidad}`
         )
         .join("\n"),
   },
@@ -117,7 +122,7 @@ export const ColumnsPedido = [
       `${pedido.domicilio?.calle + " " + pedido.domicilio?.numero}`,
   },
   {
-    label: "Estado", //TODO: CAMBIAR POR ACCIONES
+    label: "Estado",
     key: "eliminado",
     render: (pedido: IPedido) => (pedido.eliminado ? "Eliminado" : "Activo"),
   },
@@ -139,12 +144,7 @@ export const ColumnsPedido = [
           );
         }
       } else {
-        return (
-          // <Button variant="outlined" color="inherit">
-          //   No disponible
-          // </Button>
-          <p style={{ color: "#bbb", margin: "0" }}>No disponible</p>
-        );
+        return <p style={{ color: "#bbb", margin: "0" }}>No disponible</p>;
       }
     },
   },

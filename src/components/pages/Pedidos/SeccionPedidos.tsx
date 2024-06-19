@@ -68,18 +68,20 @@ export const SeccionPedidos = () => {
       setPedidos(pedidoData);
       dispatch(setDataTable(pedidoData));
       setLoading(false);
+      console.log(pedidoData);
     });
   };
 
   const getUser = async () => {
-    const empleado= await empleadoService.getById(Number(localStorage.getItem("user")))
-    if (empleado){
+    const empleado = await empleadoService.getById(
+      Number(localStorage.getItem("user"))
+    );
+    if (empleado) {
       setUserRole(empleado.tipoEmpleado);
-    }else{
+    } else {
       console.log("No se encontro el usuario");
     }
-    
-  }
+  };
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
