@@ -5,7 +5,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 
 export const roles: Record<string, string[]> = {
-  admin: [
+  ADMIN: [
     "TODOS",
     "PENDIENTE",
     "RECHAZADO",
@@ -16,7 +16,7 @@ export const roles: Record<string, string[]> = {
     "DELIVERY",
     "FACTURADO",
   ],
-  "admin del negocio": [
+  ADMIN_NEGOCIO: [
     "TODOS",
     "PENDIENTE",
     "RECHAZADO",
@@ -27,7 +27,7 @@ export const roles: Record<string, string[]> = {
     "DELIVERY",
     "FACTURADO",
   ],
-  cajero: [
+  CAJERO: [
     "TODOS",
     "PENDIENTE",
     "RECHAZADO",
@@ -38,9 +38,9 @@ export const roles: Record<string, string[]> = {
     "DELIVERY",
     "FACTURADO",
   ],
-  cocinero: ["APROBADO", "PREPARACION", "TERMINADO"],
+  COCINERO: ["APROBADO", "PREPARACION", "TERMINADO"],
   // repositor: ["PENDIENTE", "preparacion"], //No tiene ningún permiso
-  delivery: ["TERMINADO", "DELIVERY", "FACTURADO"],
+  DELIVERY: ["TERMINADO", "DELIVERY", "FACTURADO"],
 };
 
 // -------------------- COLUMNAS --------------------

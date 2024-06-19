@@ -9,6 +9,8 @@ import { Loader } from "../../ui/Loader/Loader";
 import { Button, ButtonGroup } from "@mui/material";
 import { PedidoModal } from "../../ui/modals/ModalPedidos/ModalPedido";
 import { roles, ColumnsPedido } from "./constantes";
+import { EmpleadoService } from "../../../services/EmpleadoService";
+import { IEmpleado } from "../../../types/Empleado/IEmpleado";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,13 +21,14 @@ export const SeccionPedidos = () => {
 
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
-  const [userRole, setUserRole] = useState("cajero");
+  const [userRole, setUserRole] = useState("ADMIN");
   //Permite filtrar los pedidos por su estado
   const [filtro, setFiltro] = useState("");
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
   // -------------------- SERVICES --------------------
   const pedidoService = new PedidoService(API_URL + "/pedido");
   const dispatch = useAppDispatch();
+  const empleadoService = new EmpleadoService(API_URL + "/empleado");
 
   // -------------------- HANDLERS --------------------
 
@@ -68,10 +71,21 @@ export const SeccionPedidos = () => {
     });
   };
 
+  const getUser = async () => {
+    const empleado= await empleadoService.getById(Number(localStorage.getItem("user")))
+    if (empleado){
+      setUserRole(empleado.tipoEmpleado);
+    }else{
+      console.log("No se encontro el usuario");
+    }
+    
+  }
+
   // -------------------- EFFECTS --------------------
   useEffect(() => {
     setLoading(true);
-    setUserRole("admin"); //TODO: Esto está hardcodeado, hay que ver como obtener el rol
+    getUser();
+    console.log(userRole);
     setFiltro(roles[userRole][0]);
     getPedido();
   }, []);
