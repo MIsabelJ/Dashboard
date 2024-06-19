@@ -235,7 +235,6 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                         id="checkbox-esParaElaborar"
                         disabled={
                           typeof esParaElaborar !== "undefined" &&
-                          typeof isCategoriaPadre !== "undefined" &&
                           isCategoriaPadre === false
                         }
                         checked={
@@ -245,7 +244,10 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                         }
                         onChange={(e) => {
                           if (typeof esParaElaborar === "undefined") {
-                            formik.handleChange(e);
+                            formik.setFieldValue(
+                              "esParaElaborar",
+                              e.target.checked
+                            );
                           }
                         }}
                       />
