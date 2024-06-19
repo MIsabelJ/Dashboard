@@ -42,7 +42,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
           valuesPost.estado === "RECHAZADO"
         ) {
           //llamada al endpoint
-          pedidoService.cancelarPedido(selectedId, valuesPost, reponerStock);
+          return pedidoService.cancelarPedido(selectedId, reponerStock);
+
         }
         if (valuesPost.estado === "FACTURADO") {
           //
@@ -94,7 +95,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
               (detalle: IDetallePedido) => ({
                 cantidad: detalle.cantidad,
                 subTotal: detalle.subTotal,
-                idArticulo: detalle.articulo.id,
+                idArticulo: detalle.articulo?.id,
+                idPromocion: detalle.promocion?.id,
               })
             ),
             idEmpleado: pedido.empleado.id,
@@ -135,7 +137,7 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   ];
 
   const filteredOptions = options.filter((option) =>
-    roles[role].includes(option.value)
+    roles[role].includes(option.value) && option.value !== values?.estado
   );
 
   const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
