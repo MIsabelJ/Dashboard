@@ -16,7 +16,7 @@ import { CategoriaModal } from "./ModalCategorias";
 interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
-  setCategorias: React.Dispatch<React.SetStateAction<ICategoria[]>>;
+  reloadPagina: () => void;
   selectedId?: number;
   isCategoriaPadre: boolean;
 }
@@ -25,7 +25,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
   selectedId,
-  setCategorias,
+  reloadPagina,
   isCategoriaPadre,
 }) => {
   const [opcionesSucursal, setOpcionesSucursal] = useState<
@@ -124,14 +124,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
   };
 
   const getAllCategoria = async () => {
-    const sucursalId = localStorage.getItem("sucursalId");
-    let response;
-    if (sucursalId) {
-      response = await sucursalService.getCategoriaBySucursalId(
-        Number(sucursalId)
-      );
-      setCategorias(response);
-    }
+    reloadPagina();
   };
 
   const getOneCategoria = async (id: number) => {
@@ -197,7 +190,9 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
     <>
       <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Editar Categoría</Modal.Title>
+          <Modal.Title>
+            {isCategoriaPadre ? "Editar Categoría" : "Editar Subcategoría"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <form onSubmit={formik.handleSubmit}>
@@ -227,6 +222,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
                     id="checkbox-esParaElaborar"
                     label="Es para elaborar"
                     name="esParaElaborar"
+                    disabled={!isCategoriaPadre}
                     checked={formik.values.esParaElaborar}
                     onChange={formik.handleChange}
                   />
@@ -271,7 +267,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
                 )}
               />
             </Form.Group>
-            {selectedId && (
+            {selectedId && isCategoriaPadre && (
               <Form.Group>
                 <Grid item display="flex" justifyContent="flex-start">
                   <Button
@@ -297,7 +293,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
       <CategoriaModal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        setCategorias={setCategorias}
+        reloadPagina={reloadPagina}
         sucursales={opcionesSucursal
           .filter(
             (sucursal: { label: string; id: number | null }) =>
@@ -308,6 +304,7 @@ export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
           )}
         esParaElaborar={formik.values.esParaElaborar}
         handleSaveSubcategoria={handleSaveSubcategoria}
+        isCategoriaPadre={false}
       />
     </>
   );

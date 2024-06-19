@@ -10,7 +10,7 @@ export class PedidoService extends BackendClient<
   async cancelarPedido(id: number, pedido: IPedidoPost, reponer: boolean) {
     //MODIFICAR CUANDO EL GABI TENGA EL ENDPOINT
     const token = localStorage.getItem("token");
-    const response = await fetch(`${this.baseUrl}/${id}?reponer=${reponer}`, {
+    const response = await fetch(`${this.baseUrl}/${id}/${reponer}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

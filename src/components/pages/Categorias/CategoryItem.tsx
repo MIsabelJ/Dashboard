@@ -26,7 +26,8 @@ interface CategoryItemProps {
   handleSave: (category: ICategoriaPost) => void;
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
   handleDelete: (id: number) => void;
-  setCategorias: React.Dispatch<React.SetStateAction<ICategoria[]>>;
+  reloadPagina: () => void;
+  isCategoriaPadre: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -37,7 +38,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   handleSave,
   addSubCategoria,
   handleDelete,
-  setCategorias,
+  reloadPagina,
+  isCategoriaPadre,
 }) => {
   // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
@@ -93,7 +95,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
                   handleSave={handleSave}
                   addSubCategoria={addSubCategoria}
                   handleDelete={handleDelete}
-                  setCategorias={setCategorias}
+                  reloadPagina={reloadPagina}
+                  isCategoriaPadre={false}
                 />
               ))}
             </List>
@@ -104,7 +107,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
         show={openModal}
         handleClose={() => setOpenModal(false)}
         selectedId={selectedId}
-        setCategorias={setCategorias}
+        reloadPagina={reloadPagina}
+        isCategoriaPadre={isCategoriaPadre}
       />
     </div>
   );

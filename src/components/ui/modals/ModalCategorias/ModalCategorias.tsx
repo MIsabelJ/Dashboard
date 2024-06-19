@@ -21,7 +21,7 @@ import { ICategoria } from "../../../../types/Categoria/ICategoria";
 interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
-  setCategorias: React.Dispatch<React.SetStateAction<ICategoria[]>>;
+  reloadPagina: () => void;
   selectedId?: number;
   sucursales?: {
     label: string;
@@ -29,16 +29,18 @@ interface CategoriaModalProps {
   }[];
   esParaElaborar?: boolean;
   handleSaveSubcategoria?: (subcategoria: ICategoriaPost) => Promise<void>;
+  isCategoriaPadre: boolean;
 }
 
 export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
   selectedId,
-  setCategorias,
+  reloadPagina,
   sucursales,
   esParaElaborar,
   handleSaveSubcategoria,
+  isCategoriaPadre,
 }) => {
   const [opcionesSucursal, setOpcionesSucursal] = useState<
     { label: string; id: number }[]
@@ -141,14 +143,7 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
   };
 
   const getAllCategoria = async () => {
-    const sucursalId = localStorage.getItem("sucursalId");
-    let response;
-    if (sucursalId) {
-      response = await sucursalService.getCategoriaBySucursalId(
-        Number(sucursalId)
-      );
-      setCategorias(response);
-    }
+    reloadPagina();
   };
 
   const getOneCategoria = async (id: number) => {
@@ -206,7 +201,9 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
     <>
       <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Crear Categoría</Modal.Title>
+          <Modal.Title>
+            {isCategoriaPadre ? "Crear Categoría" : "Crear Subcategoría"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <form onSubmit={formik.handleSubmit}>
@@ -236,7 +233,11 @@ export const CategoriaModal: React.FC<CategoriaModalProps> = ({
                       <Checkbox
                         style={{ userSelect: "none" }}
                         id="checkbox-esParaElaborar"
-                        disabled={typeof esParaElaborar !== "undefined"}
+                        disabled={
+                          typeof esParaElaborar !== "undefined" &&
+                          typeof isCategoriaPadre !== "undefined" &&
+                          isCategoriaPadre === false
+                        }
                         checked={
                           typeof esParaElaborar !== "undefined"
                             ? esParaElaborar

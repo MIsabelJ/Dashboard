@@ -93,7 +93,10 @@ export function SeccionCategorias() {
       const categoriaData = await sucursalService.getCategoriaBySucursalId(
         Number(sucursalId)
       );
-      setCategoria(filterCategorias(formatCategorias(categoriaData)));
+      const formatedCategorias = formatCategorias(categoriaData);
+      const filteredCategorias = filterCategorias(formatedCategorias);
+      console.log(formatedCategorias);
+      setCategoria(filteredCategorias);
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
     } finally {
@@ -288,7 +291,8 @@ export function SeccionCategorias() {
                     handleSave={handleSave}
                     addSubCategoria={addSubCategoria}
                     handleDelete={handleDelete}
-                    setCategorias={setCategoria}
+                    reloadPagina={getCategoria}
+                    isCategoriaPadre={true}
                   />
                 ))
             ) : (
@@ -301,7 +305,8 @@ export function SeccionCategorias() {
       <CategoriaModal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        setCategorias={setCategoria}
+        reloadPagina={getCategoria}
+        isCategoriaPadre={true}
       />
     </div>
   );
