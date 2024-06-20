@@ -28,3 +28,4 @@ Para la creación de este dashboard, se utilizaron varios componentes de estilos
 - cajero@bs.com  Cajero123
 - repositor@bs.com  Repositor123
 - cocinero@bs.com  Cocinero123
+- delivery@bs.com  Delivery123
