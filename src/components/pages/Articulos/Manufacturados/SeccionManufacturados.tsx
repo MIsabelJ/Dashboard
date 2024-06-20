@@ -15,7 +15,12 @@ import { Button } from "@mui/material";
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
 
-const ContentButton = ({ label, content }) => {
+interface ContentButtonProps {
+  label: string;
+  content: React.ReactNode;
+}
+
+const ContentButton: React.FC<ContentButtonProps> = ({ label, content }) => {
   const [showContent, setShowContent] = useState(false);
 
   const handleClick = () => setShowContent(!showContent);
@@ -46,12 +51,12 @@ export const SeccionManufacturados = () => {
 
   // -------------------- COLUMNAS --------------------
   const ColumnsManufacturado = [
-    // {
-    //   label: "Categoría",
-    //   key: "categoria",
-    //   render: (manufacturado: IArticuloManufacturado) =>
-    //     `${manufacturado.categoria.denominacion}`,
-    // },
+    {
+      label: "Categoría",
+      key: "categoria",
+      render: (manufacturado: IArticuloManufacturado) =>
+        `${manufacturado.categoria.denominacion}`,
+    },
     { label: "Denominación", key: "denominacion" },
     {
       label: "Precio de Venta",

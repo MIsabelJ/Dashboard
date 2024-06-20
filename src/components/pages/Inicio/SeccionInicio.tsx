@@ -68,26 +68,22 @@ export const SeccionInicio = () => {
     useState(fechaHastaPedidos);
 
   // -------------------- HANDLERS --------------------
-  const handleSubmitRanking = (e) => {
+  const handleSubmitRanking = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateFechasRanking(fechaDesdeRankingLocal, fechaHastaRankingLocal);
   };
 
-  const handleSubmitGanancias = (e) => {
+  const handleSubmitGanancias = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateFechasGanancias(fechaDesdeGananciasLocal, fechaHastaGananciasLocal);
   };
 
-  const handleSubmitPedidos = (e) => {
+  const handleSubmitPedidos = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     updateFechasPedidos(fechaDesdePedidosLocal, fechaHastaPedidosLocal);
   };
 
-  const handleDiaChange = (e) => {
-    setDia(e.target.value);
-  };
-
-  const handleMesChange = (e) => {
+  const handleMesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMes(parseInt(e.target.value));
   };
 

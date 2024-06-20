@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 const API_URL = import.meta.env.VITE_API_URL;
 
 export type ErrorState = {
@@ -7,7 +9,11 @@ export type ErrorState = {
   mes?: boolean;
 };
 
-export const generarExcelMasVendidos = (fechaDesde, fechaHasta, setError) => {
+export const generarExcelMasVendidos = (
+  fechaDesde: string,
+  fechaHasta: string,
+  setError: Dispatch<SetStateAction<ErrorState>>
+) => {
   const errores = {
     fechaDesde: !fechaDesde,
     fechaHasta: !fechaHasta,
@@ -23,7 +29,10 @@ export const generarExcelMasVendidos = (fechaDesde, fechaHasta, setError) => {
   window.location.href = url;
 };
 
-export const generarExcelIngresosDiarios = (dia, setError) => {
+export const generarExcelIngresosDiarios = (
+  dia: string,
+  setError: Dispatch<SetStateAction<ErrorState>>
+) => {
   const errores = {
     dia: !dia,
   };
@@ -34,12 +43,15 @@ export const generarExcelIngresosDiarios = (dia, setError) => {
     return;
   }
 
-  const fechaFormateada = new Date(dia).toISOString().split('T')[0];
-  const url = `${API_URL}/pedido/downloadExcelIngresosDiarios?dia=${fechaFormateada}`; // DÍA ES UNA FECHA, NO UN NÚMERO
+  const fechaFormateada = new Date(dia).toISOString().split("T")[0];
+  const url = `${API_URL}/pedido/downloadExcelIngresosDiarios?dia=${fechaFormateada}`;
   window.location.href = url;
 };
 
-export const generarExcelIngresosMensuales = (mes, setError) => {
+export const generarExcelIngresosMensuales = (
+  mes: number,
+  setError: Dispatch<SetStateAction<ErrorState>>
+) => {
   const errores = {
     mes: !mes,
   };
@@ -54,7 +66,11 @@ export const generarExcelIngresosMensuales = (mes, setError) => {
   window.location.href = url;
 };
 
-export const generarExcelGanancias = (fechaDesde, fechaHasta, setError) => {
+export const generarExcelGanancias = (
+  fechaDesde: string,
+  fechaHasta: string,
+  setError: Dispatch<SetStateAction<ErrorState>>
+) => {
   const errores = {
     fechaDesde: !fechaDesde,
     fechaHasta: !fechaHasta,
@@ -71,9 +87,9 @@ export const generarExcelGanancias = (fechaDesde, fechaHasta, setError) => {
 };
 
 export const generarExcelPedidosPorCliente = (
-  fechaDesde,
-  fechaHasta,
-  setError
+  fechaDesde: string,
+  fechaHasta: string,
+  setError: Dispatch<SetStateAction<ErrorState>>
 ) => {
   const errores = {
     fechaDesde: !fechaDesde,
