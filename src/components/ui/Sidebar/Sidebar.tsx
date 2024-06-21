@@ -25,7 +25,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 const drawerWidth = 240;
 
 const roles: Record<string, string[]> = {
-  ADMIN : [
+  ADMIN: [
     "Inicio",
     "Artículos",
     "Manufacturados",
@@ -35,7 +35,7 @@ const roles: Record<string, string[]> = {
     "Promocion",
     "Sucursales",
     "Pedidos",
-    "Usuarios"
+    "Usuarios",
   ],
   ADMIN_NEGOCIO: [
     "Inicio",
@@ -45,28 +45,14 @@ const roles: Record<string, string[]> = {
     "Categorías",
     "Unidades de Medida",
     "Promocion",
-    "Sucursales",
     "Pedidos",
-    "Usuarios"
+    "Usuarios",
   ],
-  CAJERO: [
-    "Pedidos",
-  ],
-  COCINERO: [
-    "Artículos",
-    "Manufacturados",
-    "Insumos",
-    "Pedidos",
-  ],
-  REPOSITOR: [
-    "Artículos",
-    "Manufacturados",
-    "Insumos",
-  ],
-  DELIVERY: [
-    "Pedidos",
-  ],
-}
+  CAJERO: ["Pedidos"],
+  COCINERO: ["Artículos", "Manufacturados", "Insumos", "Pedidos"],
+  REPOSITOR: ["Artículos", "Insumos"],
+  DELIVERY: ["Pedidos"],
+};
 
 const Sidebar = ({
   open,
@@ -88,7 +74,7 @@ const Sidebar = ({
     } else {
       console.error("No se pudo obtener el empleado con el id proporcionado");
     }
-  }
+  };
 
   useEffect(() => {
     getEmpleado();
@@ -107,16 +93,8 @@ const Sidebar = ({
       }}
       variant="persistent"
       anchor="left"
-      open={open}>
-      {/* <DrawerHeader>
-        <IconButton onClick={handleDrawerClose} style={{ alignSelf: "center" }}>
-          {theme.direction === "ltr" ? (
-            <ChevronLeftIcon />
-          ) : (
-            <ChevronRightIcon />
-          )}
-        </IconButton>
-      </DrawerHeader> */}
+      open={open}
+    >
       <h5 style={{ padding: "15px", marginBottom: "0" }}>
         {empresa ? empresa.nombre : ""}
       </h5>
@@ -127,18 +105,28 @@ const Sidebar = ({
           alignItems: "center",
           justifyContent: "center",
           marginTop: "0px",
-        }}>
-        <IconButton aria-label="user" color="primary" onClick={() => navigate("/profile")}>
+        }}
+      >
+        <IconButton
+          aria-label="user"
+          color="primary"
+          onClick={() => navigate("/profile")}
+        >
           <AccountCircle fontSize="large" />
         </IconButton>
-        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+        <FormControl
+          sx={{ m: 1, minWidth: 120 }}
+          size="small"
+          disabled={!(empleado && empleado.tipoEmpleado === "ADMIN")}
+        >
           <InputLabel id="demo-select-small-label">Sucursal</InputLabel>
           <Select
             labelId="demo-select-small-label"
             id="demo-select-small"
             value={sucursales ? Number(sucursalSelected) : ""}
             label="Branch"
-            onChange={(event) => handleChangeSucursal(event)}>
+            onChange={(event) => handleChangeSucursal(event)}
+          >
             {sucursales &&
               sucursales?.map((sucursal: ISucursal, index: number) => (
                 <MenuItem key={index} value={sucursal.id}>
@@ -151,88 +139,60 @@ const Sidebar = ({
       <Divider />
       <List>
         {dashboardItems.list.map(({ text, icon, subItems, route }, index) => (
-          <>{empleado && roles[empleado.tipoEmpleado.toString()].includes(text) && (
-            <div key={index}>
-              <ListItem
-                onClick={() => {
-                  if (subItems) {
-                    handleSubMenuClick(text);
-                  } else {
-                    navigate(`/${route}`);
-                  }
-                }}
-                disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={text} />
-                  {subItems &&
-                    (openSubMenu[text] ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </ListItem>
-              {subItems && (
-                <Collapse in={openSubMenu[text]} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {subItems.map((subItem, subIndex) => (
-                      <ListItem
-                        key={`${index}-${subIndex}`}
-                        onClick={() => navigate(`/${subItem.route}`)}
-                        disablePadding
-                        sx={{ pl: 4 }}>
-                        <ListItemButton>
-                          <ListItemIcon>{subItem.icon}</ListItemIcon>
-                          <ListItemText primary={subItem.text} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Collapse>
+          <React.Fragment key={index}>
+            {empleado &&
+              roles[empleado.tipoEmpleado.toString()].includes(text) && (
+                <div>
+                  <ListItem
+                    onClick={() => {
+                      if (subItems) {
+                        handleSubMenuClick(text);
+                      } else {
+                        navigate(`/${route}`);
+                      }
+                    }}
+                    disablePadding
+                  >
+                    <ListItemButton>
+                      <ListItemIcon>{icon}</ListItemIcon>
+                      <ListItemText primary={text} />
+                      {subItems &&
+                        (openSubMenu[text] ? <ExpandLess /> : <ExpandMore />)}
+                    </ListItemButton>
+                  </ListItem>
+                  {subItems && (
+                    <Collapse
+                      in={openSubMenu[text]}
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      <List component="div" disablePadding>
+                        {subItems.map(
+                          (subItem, subIndex) =>
+                            roles[empleado.tipoEmpleado.toString()].includes(
+                              subItem.text
+                            ) && (
+                              <ListItem
+                                key={`${index}-${subIndex}`}
+                                onClick={() => navigate(`/${subItem.route}`)}
+                                disablePadding
+                                sx={{ pl: 4 }}
+                              >
+                                <ListItemButton>
+                                  <ListItemIcon>{subItem.icon}</ListItemIcon>
+                                  <ListItemText primary={subItem.text} />
+                                </ListItemButton>
+                              </ListItem>
+                            )
+                        )}
+                      </List>
+                    </Collapse>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-
-          </>
+          </React.Fragment>
         ))}
       </List>
-      {/* <List>
-        {dashboardItems.list.map(({ text, icon, subItems, route }, index) => (
-            <div key={index}>
-              <ListItem
-                onClick={() => {
-                  if (subItems) {
-                    handleSubMenuClick(text);
-                  } else {
-                    navigate(`/${route}`);
-                  }
-                }}
-                disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>{icon}</ListItemIcon>
-                  <ListItemText primary={text} />
-                  {subItems &&
-                    (openSubMenu[text] ? <ExpandLess /> : <ExpandMore />)}
-                </ListItemButton>
-              </ListItem>
-              {subItems && (
-                <Collapse in={openSubMenu[text]} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {subItems.map((subItem, subIndex) => (
-                      <ListItem
-                        key={`${index}-${subIndex}`}
-                        onClick={() => navigate(`/${subItem.route}`)}
-                        disablePadding
-                        sx={{ pl: 4 }}>
-                        <ListItemButton>
-                          <ListItemIcon>{subItem.icon}</ListItemIcon>
-                          <ListItemText primary={subItem.text} />
-                        </ListItemButton>
-                      </ListItem>
-                    ))}
-                  </List>
-                </Collapse>
-              )}
-            </div>
-        ))}
-      </List> */}
     </Drawer>
   );
 };

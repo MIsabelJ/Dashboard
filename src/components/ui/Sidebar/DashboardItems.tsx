@@ -31,14 +31,14 @@ export const dashboardItems: IDashboard = {
       icon: <ShoppingBagIcon />,
       subItems: [
         {
-          text: "Manufacturados",
-          icon: <ShoppingBagIcon />,
-          route: "articulo-manufacturado",
-        },
-        {
           text: "Insumos",
           icon: <ShoppingBagIcon />,
           route: "articulo-insumo",
+        },
+        {
+          text: "Manufacturados",
+          icon: <ShoppingBagIcon />,
+          route: "articulo-manufacturado",
         },
       ],
     },
@@ -58,14 +58,14 @@ export const dashboardItems: IDashboard = {
       route: "promocion",
     },
     {
-      text: "Sucursales",
-      icon: <StoreIcon />,
-      route: "sucursal",
-    },
-    {
       text: "Pedidos",
       icon: <ReceiptLongIcon />,
       route: "pedido",
+    },
+    {
+      text: "Sucursales",
+      icon: <StoreIcon />,
+      route: "sucursal",
     },
     {
       text: "Usuarios",
