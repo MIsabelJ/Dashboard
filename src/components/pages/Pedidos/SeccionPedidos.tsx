@@ -25,7 +25,7 @@ export const SeccionPedidos = () => {
   const [filtro, setFiltro] = useState("");
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
   // -------------------- SERVICES --------------------
-  const pedidoService = useServiceHeaders(PedidoService, "pedido");
+  const pedidoService = new PedidoService(API_URL + "/pedido");
   const dispatch = useAppDispatch();
   const empleadoService = new EmpleadoService(API_URL + "/empleado");
 

@@ -45,9 +45,8 @@ export const SeccionManufacturados = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const manufacturadoService = useServiceHeaders(
-    ManufacturadoService,
-    "articulo-manufacturado"
+  const manufacturadoService = new ManufacturadoService(
+    API_URL + "/articulo-manufacturado"
   );
 
   // -------------------- COLUMNAS --------------------
@@ -178,11 +177,9 @@ export const SeccionManufacturados = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (manufacturadoService != null) {
-      setLoading(true);
-      getManufacturado();
-    }
-  }, [manufacturadoService]);
+    setLoading(true);
+    getManufacturado();
+  }, []);
 
   // -------------------- RENDER --------------------
 

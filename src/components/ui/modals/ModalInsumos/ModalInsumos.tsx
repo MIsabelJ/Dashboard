@@ -63,14 +63,6 @@ export const ModalArticuloInsumo = ({
   >([]);
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
-  const [formatedCategorias, setFormatedCategorias] = useState<
-    {
-      id: number;
-      denominacion: string;
-      parent: number | null;
-      esParaElaborar: boolean;
-    }[]
-  >([]);
 
   // -------------------- FORMIK --------------------
   const formik = useFormik({
@@ -101,9 +93,8 @@ export const ModalArticuloInsumo = ({
   });
 
   // -------------------- SERVICES --------------------
-  const unidadMedidaService = useServiceHeaders(
-    UnidadMedidaService,
-    "unidad-medida"
+  const unidadMedidaService = new UnidadMedidaService(
+    API_URL + "/unidad-medida"
   );
   const imagenService = new ImagenService(API_URL + "/imagen-articulo");
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
@@ -155,6 +146,7 @@ export const ModalArticuloInsumo = ({
   };
 
   // -------------------- FUNCIONES --------------------
+  const categoriasFiltradas = formatCategorias(categorias);
 
   const getAllInsumo = async () => {
     await insumoService.getAll().then((insumoData) => {
@@ -210,7 +202,7 @@ export const ModalArticuloInsumo = ({
       };
       getCategorias();
     }
-  }, [show, unidadMedidaService, imagenService, insumoService]);
+  }, [show]);
 
   //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {
@@ -257,7 +249,7 @@ export const ModalArticuloInsumo = ({
                     <Step2
                       formik={formik}
                       opcionesUnidadMedida={opcionesUnidadMedida}
-                      categoriasFiltradas={formatedCategorias}
+                      categoriasFiltradas={categoriasFiltradas}
                     />
                   )}
                   {activeStep === 2 && (

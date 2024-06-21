@@ -1,11 +1,12 @@
 import { AbstractBackendClient } from "./AbstractBackendClient";
+
 export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   TG,
   TP,
   TE
 > {
-  constructor(baseUrl: string, token: string) {
-    super(baseUrl, token);
+  constructor(baseUrl: string) {
+    super(baseUrl);
   }
 
   async getAll(): Promise<TG[]> {
@@ -91,4 +92,13 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
     const newData = await response.json();
     return newData as TG;
   }
+
+  // // Método para dada de baja lógica de un elemento por su ID
+  // async logicDelete(id: number): Promise<TP> {
+  //   const element = await this.getById(id);
+  //   if (element) {
+  //     (element as any).eliminado = !element;
+  //     await this.put(id, element);
+  //   }
+  // }
 }

@@ -14,7 +14,6 @@ import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { SelectChangeEvent } from "@mui/material";
 import { DashboardSection } from "./DashboardSection";
 import { IEmpresa } from "../../../types/Empresa/IEmpresa";
-import { useServiceHeaders } from "../../../hooks/useServiceHeader";
 
 export default function PersistentDrawerLeft({
   sectionName,
@@ -35,7 +34,7 @@ export default function PersistentDrawerLeft({
 
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-  const empresaService = useServiceHeaders(EmpresaService, "empresa");
+  const empresaService = new EmpresaService(API_URL + "/empresa");
 
   const handleSubMenuClick = (text: string) => {
     setOpenSubMenu((prevState) => ({
@@ -50,27 +49,25 @@ export default function PersistentDrawerLeft({
   };
 
   React.useEffect(() => {
-    if (empresaService != null) {
-      if (!getFromLocalStorage("empresaId")) navigate("/empresa");
-      if (!getFromLocalStorage("sucursalId")) navigate("/sucursal");
-      const sucursalId = getFromLocalStorage("sucursalId");
-      if (sucursalId) setSucursalSelected(sucursalId);
-      const getSucursales = async () => {
-        setSucursales(
-          await empresaService.getSucursalesByEmpresaId(
-            Number(getFromLocalStorage("empresaId"))
-          )
-        );
-      };
-      getSucursales();
-      const getEmpresaById = async (idEmpresa: number) => {
-        await empresaService.getById(idEmpresa).then((data) => {
-          if (data) setEmpresa(data);
-        });
-      };
-      getEmpresaById(Number(getFromLocalStorage("empresaId")));
+    if (!getFromLocalStorage("empresaId")) navigate("/empresa");
+    if (!getFromLocalStorage("sucursalId")) navigate("/sucursal");
+    const sucursalId = getFromLocalStorage("sucursalId");
+    if (sucursalId) setSucursalSelected(sucursalId);
+    const getSucursales = async () => {
+      setSucursales(
+        await empresaService.getSucursalesByEmpresaId(
+          Number(getFromLocalStorage("empresaId"))
+        )
+      );
+    };
+    getSucursales();
+    const getEmpresaById = async (idEmpresa: number) => {
+      await empresaService.getById(idEmpresa).then((data) => {
+        if (data) setEmpresa(data);
+      })
     }
-  }, [empresaService]);
+    getEmpresaById(Number(getFromLocalStorage("empresaId")));
+  }, []);
 
   React.useEffect(() => {
     if (idSucursalLocalStorage) setSucursalSelected(idSucursalLocalStorage);

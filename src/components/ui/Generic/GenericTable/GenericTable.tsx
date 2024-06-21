@@ -110,7 +110,7 @@ export const GenericTable = <T extends { id: number }>({
         </IconButton>
       </div>
       <Paper sx={{ width: "95%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: "70vh", overflow: "auto" }}>
+        <TableContainer sx={{ maxHeight: "70vh" }}>
           <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -179,7 +179,6 @@ export const GenericTable = <T extends { id: number }>({
           </Table>
         </TableContainer>
         <TablePagination
-          style={{ minHeight: "60px" }}
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
           count={rows.length}

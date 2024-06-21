@@ -1,5 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter, Navigate } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import AppRouter from "./routes/AppRouter";
 import { User, useAuth0 } from "@auth0/auth0-react";
 import { ObtainToken } from "./components/auth/ObtainToken";

@@ -112,15 +112,13 @@ export const ModalArticuloManufacturado = ({
   });
 
   // -------------------- SERVICES --------------------
-  const unidadMedidaService = useServiceHeaders(
-    UnidadMedidaService,
-    "unidad-medida"
+  const unidadMedidaService = new UnidadMedidaService(
+    API_URL + "/unidad-medida"
   );
-  const imagenService = useServiceHeaders(ImagenService, "imagen-articulo");
-  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
-  const manufacturadoService = useServiceHeaders(
-    ManufacturadoService,
-    "articulo-manufacturado"
+  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const manufacturadoService = new ManufacturadoService(
+    API_URL + "/articulo-manufacturado"
   );
   const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
@@ -157,7 +155,6 @@ export const ModalArticuloManufacturado = ({
     formik.resetForm();
     setSelectedFiles([]);
     setPreviousImages([]);
-    setNewDetalles([]);
     setActiveStep(0);
   };
 
@@ -278,13 +275,7 @@ export const ModalArticuloManufacturado = ({
       };
       getCategorias();
     }
-  }, [
-    show,
-    imagenService,
-    insumoService,
-    manufacturadoService,
-    categoriaService,
-  ]);
+  }, [show]);
 
   //Da formato a las unidades de medida para el dropdown de MUI
   useEffect(() => {

@@ -5,7 +5,6 @@ import { IUnidadMedida } from "../../../../types/UnidadMedida/IUnidadMedida";
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ---------- INTERFAZ ----------
 interface UnidadMedidaModalProps {
@@ -22,9 +21,9 @@ export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({
 }) => {
   const [values, setValues] = useState<IUnidadMedida | IUnidadMedidaPost>();
 
-  const unidadMedidaService = useServiceHeaders(
-    UnidadMedidaService,
-    "unidad-medida"
+  const API_URL = import.meta.env.VITE_API_URL;
+  const unidadMedidaService = new UnidadMedidaService(
+    API_URL + "/unidad-medida"
   );
   const dispatch = useAppDispatch();
 
@@ -80,13 +79,13 @@ export const UnidadMedidaModal: React.FC<UnidadMedidaModalProps> = ({
   };
 
   useEffect(() => {
-    if (selectedId && unidadMedidaService != null) {
+    if (selectedId) {
       console.log(selectedId);
       getOne();
     } else {
       setValues({ denominacion: "" }); // Clear form for new entry
     }
-  }, [selectedId, unidadMedidaService]);
+  }, [selectedId]);
 
   return (
     <Modal show={show} onHide={handleClose} size="lg">

@@ -13,11 +13,7 @@ import { ILocalidad } from "../../../../types/Localidad/ILocalidad";
 // ---------- ESTILOS ----------
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Grid, Step, StepLabel, Stepper } from "@mui/material";
-import {
-  removeElementActive,
-  setElementActive,
-} from "../../../../redux/slices/TablaReducer";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
+import { removeElementActive, setElementActive } from "../../../../redux/slices/TablaReducer";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -60,15 +56,12 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   const [idProvincia, setIdProvincia] = useState<number>(0);
   const [localidades, setLocalidades] = useState<ILocalidad[]>([]);
 
-  const idSucursal = localStorage.getItem("sucursalId");
-  const idEmpresa = localStorage.getItem("empresaId");
+  const idSucursal = localStorage.getItem('sucursalId');
+  const idEmpresa = localStorage.getItem('empresaId');
 
   // -------------------- SERVICES --------------------
-  const sucursalService: SucursalService = useServiceHeaders(
-    SucursalService,
-    "sucursal"
-  );
-  const paisService: PaisService = useServiceHeaders(PaisService, "pais");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
+  const paisService = new PaisService(API_URL + "/pais");
 
   const dispatch = useAppDispatch();
 
@@ -126,6 +119,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
       ...prevState,
       idLocalidad: selectedLocalidadId,
     }));
+
   };
 
   const handleNext = () => {
@@ -181,6 +175,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     }
   };
 
+
+
   // -------------------- FUNCIONES --------------------
   const fetchPaises = async () => {
     try {
@@ -218,7 +214,7 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
     } catch (error) {
       console.error("Error al obtener la sucursal:", error);
     }
-  };
+  }
 
   const empresaActual = useAppSelector(
     (state) => state.empresaReducer.empresaActual
@@ -292,46 +288,34 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
+    fetchPaises();
     const fetchData = async () => {
-      if (sucursalService != null && paisService != null) {
-        fetchPaises();
-        if (elementActive && elementActive.element && show) {
-          const sucursal = await getOneSucursal(
-            Number(idSucursal) ? Number(idSucursal) : elementActive.element.id
-          ); // Add the missing argument 'sucursalId'
-          if (sucursal) {
-            setNombre(sucursal.nombre);
-            setHorarioApertura(sucursal.horarioApertura);
-            setHorarioCierre(sucursal.horarioCierre);
-            setEsCasaMatriz(sucursal.esCasaMatriz);
-            setDomicilio({
-              calle: sucursal.domicilio.calle,
-              numero: sucursal.domicilio.numero,
-              cp: sucursal.domicilio.cp,
-              piso: sucursal.domicilio.piso,
-              nroDpto: sucursal.domicilio.nroDpto,
-              idLocalidad: sucursal.domicilio.localidad.id,
-            });
-            setProvincias(
-              await fetchProvinciasByPais(
-                sucursal.domicilio.localidad.provincia.pais.id
-              )
-            );
-            setLocalidades(
-              await fetchLocalidadesByProvincia(
-                sucursal.domicilio.localidad.provincia.id
-              )
-            );
-            setIdPais(sucursal.domicilio.localidad.provincia.pais.id);
-            setIdProvincia(sucursal.domicilio.localidad.provincia.id);
-          }
+      if (elementActive && elementActive.element && show) {
+        const sucursal = await getOneSucursal(Number(idSucursal) ? Number(idSucursal) : elementActive.element.id); // Add the missing argument 'sucursalId'
+        if (sucursal) {
+          setNombre(sucursal.nombre);
+          setHorarioApertura(sucursal.horarioApertura);
+          setHorarioCierre(sucursal.horarioCierre);
+          setEsCasaMatriz(sucursal.esCasaMatriz);
+          setDomicilio({
+            calle: sucursal.domicilio.calle,
+            numero: sucursal.domicilio.numero,
+            cp: sucursal.domicilio.cp,
+            piso: sucursal.domicilio.piso,
+            nroDpto: sucursal.domicilio.nroDpto,
+            idLocalidad: sucursal.domicilio.localidad.id,
+          });
+          setProvincias(await fetchProvinciasByPais(sucursal.domicilio.localidad.provincia.pais.id))
+          setLocalidades(await fetchLocalidadesByProvincia(sucursal.domicilio.localidad.provincia.id))
+          setIdPais(sucursal.domicilio.localidad.provincia.pais.id);
+          setIdProvincia(sucursal.domicilio.localidad.provincia.id);
         }
-        getSucursal();
       }
+      getSucursal();
     };
 
     fetchData();
-  }, [show, sucursalService, paisService]);
+  }, [show]);
 
   // useEffect(() => {
 
@@ -347,20 +331,20 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
   //   getSucursales();
   // }, []);
 
+
   // -------------------- RENDER --------------------
   return (
     <>
       <Modal show={show} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>
-            {elementActive ? "Editar" : "Añadir"} sucursal
-          </Modal.Title>
+          <Modal.Title>{elementActive ? "Editar" : "Añadir"} sucursal</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
           <Stepper
             activeStep={activeStep}
             alternativeLabel
-            sx={{ padding: "20px 0" }}>
+            sx={{ padding: "20px 0" }}
+          >
             {steps.map((label) => (
               <Step key={label}>
                 <StepLabel>{label}</StepLabel>
@@ -399,7 +383,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         {/* HORARIO DE APERTURA */}
                         <Form.Group
                           controlId="formHorarioApertura"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Horario de Apertura</Form.Label>
                           <Form.Control
                             type="time"
@@ -412,7 +397,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         {/* HORARIO DE CIERRE */}
                         <Form.Group
                           controlId="formHorarioCierre"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Horario de Cierre</Form.Label>
                           <Form.Control
                             type="time"
@@ -425,7 +411,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                         {/* ES CASA MATRIZ */}
                         <Form.Group
                           controlId="formEsCasaMatriz"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Check
                             type="checkbox"
                             label="Es Casa Matriz"
@@ -455,7 +442,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                       <Grid item xs={6}>
                         <Form.Group
                           controlId="formDomicilioNumero"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Número</Form.Label>
                           <Form.Control
                             type="number"
@@ -473,7 +461,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                       <Grid item xs={6}>
                         <Form.Group
                           controlId="formDomicilioCp"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Código Postal</Form.Label>
                           <Form.Control
                             type="number"
@@ -493,7 +482,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                       <Grid item xs={6}>
                         <Form.Group
                           controlId="formDomicilioPiso"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Piso</Form.Label>
                           <Form.Control
                             type="number"
@@ -511,7 +501,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                       <Grid item xs={6}>
                         <Form.Group
                           controlId="formDomicilioNroDpto"
-                          className="mb-3">
+                          className="mb-3"
+                        >
                           <Form.Label>Número Depto.</Form.Label>
                           <Form.Control
                             type="number"
@@ -536,7 +527,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                             as="select"
                             value={idPais}
                             onChange={handlePaisChange}
-                            disabled={elementActive ? true : false}>
+                            disabled={elementActive ? true : false}
+                          >
                             <option value={0}>Seleccionar País</option>
                             {paises.map((pais) => (
                               <option key={pais.id} value={pais.id}>
@@ -554,7 +546,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                             as="select"
                             value={idProvincia}
                             onChange={handleProvinciaChange}
-                            disabled={elementActive ? true : false}>
+                            disabled={elementActive ? true : false}
+                          >
                             <option value={0}>Seleccionar Provincia</option>
                             {provincias.map((provincia) => (
                               <option key={provincia.id} value={provincia.id}>
@@ -572,7 +565,8 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
                             as="select"
                             value={domicilio.idLocalidad}
                             onChange={handleLocalidadChange}
-                            disabled={elementActive ? true : false}>
+                            disabled={elementActive ? true : false}
+                          >
                             <option value={0}>Seleccionar Localidad</option>
                             {localidades.map((localidad) => (
                               <option key={localidad.id} value={localidad.id}>
@@ -596,18 +590,21 @@ export const ModalSucursal: React.FC<SucursalModalProps> = ({
               flexDirection: "row",
               pt: 2,
               alignItems: "center",
-            }}>
+            }}
+          >
             <Button
               color="inherit"
               disabled={activeStep === 0}
-              onClick={handleBack}>
+              onClick={handleBack}
+            >
               Atrás
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button
               variant="contained"
               color={activeStep === steps.length - 1 ? "success" : "primary"}
-              onClick={handleButtonClick}>
+              onClick={handleButtonClick}
+            >
               {getButtonText()}
             </Button>
           </Box>

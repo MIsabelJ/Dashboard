@@ -10,10 +10,6 @@ import { Loader } from "../../ui/Loader/Loader";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
   const navigate = useNavigate();
   const empleadoService = new EmpleadoService(`${API_URL}/empleado`);
   const [rolEmpleado, setRolEmpleado] = useState<string>();

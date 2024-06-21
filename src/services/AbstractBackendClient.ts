@@ -1,10 +1,8 @@
 // Clase abstracta que define métodos para operaciones CRUD en un servicio genérico
 export abstract class AbstractBackendClient<TG, TP, TE> {
   protected baseUrl: string;
-  protected token: string;
-  constructor(baseUrl: string, token: string) {
+  constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
-    this.token = token;
   }
 
   abstract getAll(): Promise<TG[]>;

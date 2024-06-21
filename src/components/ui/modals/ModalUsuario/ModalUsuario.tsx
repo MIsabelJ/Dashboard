@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IUsuario } from "../../../../types/Usuario/IUsuario";
 import { UsuarioService } from "../../../../services/UsuarioService";
-import { initialValues } from "./utils/constants";
+import { API_URL, initialValues } from "./utils/constants";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { IUsuarioPost } from "../../../../types/Usuario/IUsuarioPost";

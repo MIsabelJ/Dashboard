@@ -26,10 +26,7 @@ export const SeccionInsumos = () => {
   const [selectedId, setSelectedId] = useState<number>();
 
   // -------------------- SERVICES --------------------
-  const insumoService: InsumoService = useServiceHeaders(
-    InsumoService,
-    "articulo-insumo"
-  );
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
   const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
@@ -160,11 +157,9 @@ export const SeccionInsumos = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (insumoService != null) {
-      setLoading(true);
-      getAllInsumo();
-    }
-  }, [insumoService]);
+    setLoading(true);
+    getAllInsumo();
+  }, []);
 
   // -------------------- RENDER --------------------
   return (

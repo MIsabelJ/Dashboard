@@ -212,10 +212,6 @@ export function SeccionCategorias() {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (categoriaService != null) getCategoria();
-  }, [filtro, categoriaService]);
-
-  useEffect(() => {
     getCategoria();
   }, [filtro]);
 

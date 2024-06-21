@@ -272,12 +272,6 @@ const Step3: React.FC<Step3Props> = ({ formik, searchTerm, handleSearch }) => {
           {/* {formik.errors.articuloManufacturadoDetalles} */}
         </Form.Control.Feedback>
       </Form.Group>
-      <ManufacturadosDetalleModal
-        handleSave={handleSave}
-        openModal={openModal}
-        setOpenModal={setShowDetallesModal}
-        values={prevValues}
-      />
     </>
   );
 };

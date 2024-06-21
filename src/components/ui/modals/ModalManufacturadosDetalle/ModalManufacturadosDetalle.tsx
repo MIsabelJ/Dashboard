@@ -9,7 +9,6 @@ import { InsumoService } from "../../../../services/InsumoService";
 // ---------- ESTILOS ----------
 import { Form, Modal } from "react-bootstrap";
 import { Autocomplete, Box, Button, Grid, TextField } from "@mui/material";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -30,11 +29,6 @@ interface ManufacturadosDetalleModalProps {
   handleSave: (detalle: IArticuloManufacturadoDetallePost) => void;
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
-  values?: {
-    articuloInsumo: IArticuloInsumo;
-    cantidad: string;
-    id: number;
-  };
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -43,7 +37,6 @@ export const ManufacturadosDetalleModal = ({
   handleSave,
   openModal,
   setOpenModal,
-  values,
 }: ManufacturadosDetalleModalProps) => {
   // -------------------- STATES --------------------
   // Guarda los valores de todos los insumos que existen y que vayan a añadirse con el useEffect
@@ -62,13 +55,14 @@ export const ManufacturadosDetalleModal = ({
     initialValues: initialValues,
     validationSchema: validationSchema,
     onSubmit: (values) => {
+      console.log(values);
       handleSave(values);
       handleCloseModal();
     },
   });
 
   // -------------------- SERVICES --------------------
-  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
 
   // -------------------- HANDLES --------------------
   const handleSubmit = () => {
@@ -82,14 +76,12 @@ export const ManufacturadosDetalleModal = ({
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (openModal && insumoService) {
-      const getInsumos = async () => {
-        const response = await insumoService.getAll();
-        setInsumos(response);
-      };
-      getInsumos();
-    }
-  }, [openModal, insumoService]);
+    const getInsumos = async () => {
+      const response = await insumoService.getAll();
+      setInsumos(response);
+    };
+    getInsumos();
+  }, []);
 
   useEffect(() => {
     const opciones = insumos.map((insumo) => ({
@@ -125,15 +117,10 @@ export const ManufacturadosDetalleModal = ({
                           getOptionKey={(option) => option.id}
                           sx={{ width: "100%" }}
                           value={
-                            (values &&
-                              opcionesInsumos.find((option) => {
-                                return option.id === values?.id;
-                              })) ||
                             opcionesInsumos.find(
                               (option) =>
                                 option.id === formik.values.idArticuloInsumo
-                            ) ||
-                            null
+                            ) || null
                           }
                           onChange={(event, value) =>
                             formik.setFieldValue(
@@ -166,7 +153,6 @@ export const ManufacturadosDetalleModal = ({
                           name="cantidad"
                           value={formik.values.cantidad || ""}
                           onChange={formik.handleChange}
-                          isInvalid={!!formik.errors.cantidad}
                         />
                         <Form.Control.Feedback type="invalid">
                           {formik.errors.cantidad}

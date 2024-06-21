@@ -1,13 +1,10 @@
 import { withAuthenticationRequired } from "@auth0/auth0-react";
 
 type Props = {
-  component: React.ComponentType<any>;
-  [key: string]: any;
+  component: React.ComponentType<object>;
 };
 
-// Con lo de Luciano esto queda sin uso
-
-export const PrivateRoute = ({ component, ...rest }: Props) => {
+export const AuthenticationGuard = ({ component }: Props) => {
   const Component = withAuthenticationRequired(component, {
     onRedirecting: () => (
       <div>
@@ -16,5 +13,5 @@ export const PrivateRoute = ({ component, ...rest }: Props) => {
     ),
   });
 
-  return <Component {...rest} />;
+  return <Component />;
 };
