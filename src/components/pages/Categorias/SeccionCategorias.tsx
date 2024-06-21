@@ -14,7 +14,7 @@ import SearchBar from "../../ui/SearchBar/SearchBar.tsx";
 import { Button, ButtonGroup, IconButton, List } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import "./SeccionCategorias.css";
-import { useServiceHeaders } from "../../../hooks/useServiceHeader.tsx";
+import { SucursalService } from "../../../services/SucursalService.ts";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -32,13 +32,14 @@ export function SeccionCategorias() {
   const [filtro, setFiltro] = useState("todas");
 
   // -------------------- SERVICES --------------------
-  const categoriaService = useServiceHeaders(CategoriaService, "categoria");
+  const categoriaService = new CategoriaService(API_URL + "/categoria");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
 
   // -------------------- HANDLERS --------------------
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
-      text: `¿Seguro que quieres editar el estado?`,
+      text: `¿Seguro que quieres cambiar el estado?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
@@ -88,8 +89,14 @@ export function SeccionCategorias() {
 
   const getCategoria = async () => {
     try {
-      const categoriaData = await categoriaService.getAll();
-      setCategoria(formatCategorias(categoriaData));
+      const sucursalId = localStorage.getItem("sucursalId");
+      const categoriaData = await sucursalService.getCategoriaBySucursalId(
+        Number(sucursalId)
+      );
+      const formatedCategorias = formatCategorias(categoriaData);
+      const filteredCategorias = filterCategorias(formatedCategorias);
+      console.log(formatedCategorias);
+      setCategoria(filteredCategorias);
     } catch (error) {
       console.error("Error al obtener las categorías:", error);
     } finally {
@@ -120,35 +127,87 @@ export function SeccionCategorias() {
         });
       }
     });
-
     categoria.forEach((categoria) => {
+      if (
+        !subCategorias.find((subCategoria) => subCategoria.id === categoria.id)
+      ) {
+        categoriasData.push(categoria);
+        if (categoria.subCategorias.length > 0) {
+          categoria.subCategorias.forEach((subCategoria) => {
+            categoriasData.find((categoria) => {
+              if (subCategoria.id === categoria.id) {
+                categoria.subCategorias.push(subCategoria);
+              }
+            });
+          });
+        }
+      }
+    });
+    return categoriasData;
+  };
+  // const formatCategorias = (categoria: ICategoria[]) => {
+  //   const categoriasData: ICategoria[] = [];
+  //   const subCategorias: ICategoria[] = [];
+
+  //   categoria.forEach((categoria) => {
+  //     if (categoria.subCategorias.length > 0) {
+  //       categoria.subCategorias.forEach((subCategoria) => {
+  //         subCategorias.push(subCategoria);
+  //       });
+  //     }
+  //   });
+
+  //   categoria.forEach((categoria) => {
+  //     const categoriaFiltrada =
+  //       filtro === "todas" ||
+  //       (filtro === "paraElaborar" && categoria.esParaElaborar) ||
+  //       (filtro === "paraVender" && !categoria.esParaElaborar);
+
+  //     if (categoriaFiltrada) {
+  //       categoriasData.push(categoria);
+  //     }
+
+  //     if (categoria.subCategorias.length > 0) {
+  //       categoria.subCategorias.forEach((subCategoria) => {
+  //         const subCategoriaFiltrada =
+  //           filtro === "todas" ||
+  //           (filtro === "paraElaborar" && subCategoria.esParaElaborar) ||
+  //           (filtro === "paraVender" && !subCategoria.esParaElaborar);
+
+  //         if (
+  //           subCategoriaFiltrada &&
+  //           !categoriasData.find((cat) => cat.id === subCategoria.id)
+  //         ) {
+  //           categoriasData.push(subCategoria);
+  //         }
+  //       });
+  //     }
+  //   });
+
+  //   return categoriasData;
+  // };
+
+  const filterCategorias = (categorias: ICategoria[]): ICategoria[] => {
+    return categorias.reduce((acc: ICategoria[], categoria) => {
       const categoriaFiltrada =
         filtro === "todas" ||
         (filtro === "paraElaborar" && categoria.esParaElaborar) ||
         (filtro === "paraVender" && !categoria.esParaElaborar);
 
       if (categoriaFiltrada) {
-        categoriasData.push(categoria);
+        const categoriaFormateada = {
+          ...categoria,
+          subCategorias: filterCategorias(categoria.subCategorias),
+        };
+
+        // Solo incluimos la categoría si ella misma o alguna de sus subcategorías pasan el filtro
+        if (categoriaFormateada.subCategorias.length > 0 || categoriaFiltrada) {
+          acc.push(categoriaFormateada);
+        }
       }
 
-      if (categoria.subCategorias.length > 0) {
-        categoria.subCategorias.forEach((subCategoria) => {
-          const subCategoriaFiltrada =
-            filtro === "todas" ||
-            (filtro === "paraElaborar" && subCategoria.esParaElaborar) ||
-            (filtro === "paraVender" && !subCategoria.esParaElaborar);
-
-          if (
-            subCategoriaFiltrada &&
-            !categoriasData.find((cat) => cat.id === subCategoria.id)
-          ) {
-            categoriasData.push(subCategoria);
-          }
-        });
-      }
-    });
-
-    return categoriasData;
+      return acc;
+    }, []);
   };
 
   // -------------------- EFFECTS --------------------
@@ -156,6 +215,13 @@ export function SeccionCategorias() {
     if (categoriaService != null) getCategoria();
   }, [filtro, categoriaService]);
 
+  useEffect(() => {
+    getCategoria();
+  }, [filtro]);
+
+  useEffect(() => {
+    getCategoria();
+  }, []);
   // BARRA DE BÚSQUEDA
   // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
@@ -229,6 +295,8 @@ export function SeccionCategorias() {
                     handleSave={handleSave}
                     addSubCategoria={addSubCategoria}
                     handleDelete={handleDelete}
+                    reloadPagina={getCategoria}
+                    isCategoriaPadre={true}
                   />
                 ))
             ) : (
@@ -241,7 +309,8 @@ export function SeccionCategorias() {
       <CategoriaModal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleSave={handleSave}
+        reloadPagina={getCategoria}
+        isCategoriaPadre={true}
       />
     </div>
   );

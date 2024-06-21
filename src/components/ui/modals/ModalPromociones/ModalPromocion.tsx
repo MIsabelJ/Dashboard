@@ -109,9 +109,7 @@ const ModalPromocion = ({
       }
     } else {
       try {
-        console.log("articulo antes de subir: ", promocion);
-        const response = await promocionService.post(promocion);
-        console.log("Respuesta del server: ", response);
+        await promocionService.post(promocion);
       } catch (error) {
         console.error(error);
       }

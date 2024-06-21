@@ -122,6 +122,7 @@ export const ManufacturadosDetalleModal = ({
                           options={opcionesInsumos.filter(
                             (opcion) => opcion.esParaElaborar === true
                           )}
+                          getOptionKey={(option) => option.id}
                           sx={{ width: "100%" }}
                           value={
                             (values &&
@@ -163,7 +164,7 @@ export const ManufacturadosDetalleModal = ({
                           type="number"
                           placeholder="Ingrese la cantidad"
                           name="cantidad"
-                          value={values?.cantidad}
+                          value={formik.values.cantidad || ""}
                           onChange={formik.handleChange}
                           isInvalid={!!formik.errors.cantidad}
                         />

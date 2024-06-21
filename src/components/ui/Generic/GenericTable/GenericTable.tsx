@@ -53,12 +53,12 @@ export const GenericTable = <T extends { id: number }>({
     setSearchTerm(event.target.value);
   };
 
-  //Cambiar de pagina desde donde estoy parado
+  // Cambiar de pagina desde donde estoy parado
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  //Se usa el + antes del event para convertirlo en un numero ya que vienen del input como string
+  // Se usa el + antes del event para convertirlo en un numero ya que vienen del input como string
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -67,11 +67,11 @@ export const GenericTable = <T extends { id: number }>({
   };
 
   // -------------------- FUNCIONES --------------------
-  //Obtener los datos de la tabla en su estado inicial (sin datos)
+  // Obtener los datos de la tabla en su estado inicial (sin datos)
   const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
 
   // -------------------- EFFECTS --------------------
-  //useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
+  // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
     const filteredRows = dataTable.filter((row) =>
       columns.some((column) => {
@@ -134,6 +134,18 @@ export const GenericTable = <T extends { id: number }>({
                 rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
+                    // Determine if the row should be editable based on a specific cell value
+                    const isRowEditable = columns.every((column) => {
+                      if (column.key == "estado") console.log(row[column.key]);
+                      if (
+                        column.key === "estado" &&
+                        row[column.key].includes("CANCELADO")
+                      ) {
+                        return false;
+                      }
+                      return true;
+                    });
+
                     return (
                       <TableRow
                         key={index}
@@ -155,7 +167,7 @@ export const GenericTable = <T extends { id: number }>({
                               setSelectedId={setSelectedId}
                               handleDelete={handleDelete}
                               setOpenModal={setOpenModal}
-                              editable={editable}
+                              editable={isRowEditable}
                             />
                           </div>
                         </TableCell>

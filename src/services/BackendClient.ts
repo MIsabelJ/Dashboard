@@ -9,10 +9,12 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   }
 
   async getAll(): Promise<TG[]> {
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
     const data = await response.json();
@@ -20,9 +22,12 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   }
 
   async getById(id: number): Promise<TG | null> {
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}/${id}`, {
+      method: "GET",
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
     });
     if (!response.ok) {
@@ -33,26 +38,28 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
   }
 
   async post(data: TP): Promise<TG> {
+    console.log(this.baseUrl);
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
     const newData = await response.json();
+    console.log(newData);
     return newData as TG;
   }
 
   async put(id: number, data: TE): Promise<TG> {
-    console.log(this.baseUrl);
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        // "Access-Control-Allow-Origin": "no-cors",
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -62,10 +69,11 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
 
   // Método para eliminar un elemento por su ID
   async delete(id: number): Promise<void> {
+    const token = localStorage.getItem("token");
     const response = await fetch(`${this.baseUrl}/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     if (!response.ok) {
@@ -77,7 +85,7 @@ export abstract class BackendClient<TG, TP, TE> extends AbstractBackendClient<
       method: "POST",
       body: data,
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
     const newData = await response.json();

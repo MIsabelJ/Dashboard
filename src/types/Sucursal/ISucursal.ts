@@ -9,6 +9,6 @@ export interface ISucursal extends IBaseEntity {
     horarioCierre: string
     esCasaMatriz: boolean
     domicilio: IDomicilio
-    empresa?: IEmpresa
+    empresa: IEmpresa
     categorias?: ICategoria[]
 }

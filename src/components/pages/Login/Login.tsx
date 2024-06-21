@@ -1,59 +1,135 @@
 import { useNavigate } from "react-router-dom";
 import "./login.css";
+import LoginButton from "../../ui/LoginButtons/LoginButton";
+import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { Button } from "react-bootstrap";
+import { EmpleadoService } from "../../../services/EmpleadoService";
+import { IEmpleado } from "../../../types/Empleado/IEmpleado";
+import { Loader } from "../../ui/Loader/Loader";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const { loginWithRedirect, user, isAuthenticated } = useAuth0();
+  const empleadoService = new EmpleadoService(`${API_URL}/empleado`);
+  const [rolEmpleado, setRolEmpleado] = useState<string>();
+  const [loading, setLoading] = useState(true);
+  const [empleado, setEmpleado] = useState<IEmpleado | null>(null);
+  const { isAuthenticated } = useAuth0();
 
-  const handleLogin = () => {
-    loginWithRedirect({
-      appState: {
-        returnTo: "/empresa",
-      },
-    });
-
-    /* TODO: Redirección según rol Auth0 */
+  const getEmpleado = async () => {
+    const idEmpleadoString = localStorage.getItem("user");
+    if (!idEmpleadoString) {
+      console.error("No se pudo obtener el id del empleado del localStorage");
+      return;
+    }
+    const idEmpleado = Number(idEmpleadoString);
+    if (isNaN(idEmpleado)) {
+      console.error(
+        "El id del empleado en el localStorage no es un número válido"
+      );
+      return;
+    }
+    const empleado: IEmpleado | null = await empleadoService.getById(
+      idEmpleado
+    );
+    if (empleado) {
+      setEmpleado(empleado);
+      setRolEmpleado(empleado.tipoEmpleado.toString());
+      console.log("EMPLEADO: ", empleado);
+    } else {
+      console.error("No se pudo obtener el empleado con el id proporcionado");
+    }
   };
+
+  const setStorage = (route: string) => {
+    if (empleado && empleado.sucursal) {
+      const idSucursal = empleado.sucursal.id;
+      const idEmpresa = empleado.sucursal.empresa.id;
+      localStorage.setItem("sucursalId", idSucursal.toString());
+      localStorage.setItem("empresaId", idEmpresa.toString());
+      navigate(route);
+    } else {
+      console.error("Información de sucursal o empresa incompleta");
+    }
+  };
+  const handleLogin = () => {
+    if (!rolEmpleado || !empleado) {
+      console.error("No se ha obtenido la información del empleado");
+      return;
+    }
+
+    switch (rolEmpleado) {
+      case "ADMIN":
+        navigate("/empresa");
+        break;
+      case "ADMIN_NEGOCIO":
+        setStorage("/inicio");
+        break;
+      case "CAJERO":
+        setStorage("/pedido");
+        break;
+      case "COCINERO":
+        setStorage("/articulo-manufacturado");
+        break;
+      case "REPOSITOR":
+        setStorage("/articulo-insumo");
+        break;
+      case "DELIVERY":
+        setStorage("/pedido");
+        break;
+      default:
+        console.error("Rol de empleado desconocido");
+        break;
+    }
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    if (isAuthenticated) {
+      const checkLocalStorage = async () => {
+        while (!localStorage.getItem("user")) {
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Espera 100 ms antes de volver a comprobar
+        }
+        getEmpleado();
+        setLoading(false);
+      };
+      checkLocalStorage();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
 
   return (
     <div className="page-container">
-      <div className="form-container">
-        <p className="title">Bienvenido</p>
-        <form className="form" onSubmit={handleLogin}>
-          <input
-            type="email"
-            className="input"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            className="input"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          {error && <p className="error">{error}</p>}
-          <button type="submit" className="form-btn">
-            Iniciar sesión
-          </button>
-        </form>
-        <p className="sign-up-label">O</p>
-        <div className="buttons-container">
-          <button className="google-login-button" onClick={handleLogin}>
-            <img src="/google.png" className="google-icon" alt="Google icon" />
-            Iniciar sesión con Google
-          </button>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="form-container">
+          {isAuthenticated ? (
+            <p className="title">Bienvenido/a</p>
+          ) : (
+            <p className="title">Iniciar Sesion</p>
+          )}
+          {!isAuthenticated && (
+            <form className="form">
+              <LoginButton />
+            </form>
+          )}
+          {isAuthenticated && (
+            <div>
+              <p>
+                {empleado?.nombre} {empleado?.apellido}.
+              </p>
+              <Button onClick={handleLogin}>Ingresar</Button>
+            </div>
+          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

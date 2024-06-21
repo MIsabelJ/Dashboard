@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { setDataTable } from "../../../redux/slices/TablaReducer";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
+import { useAppDispatch } from "../../../hooks/redux";
 import { IPedido } from "../../../types/Pedido/IPedido";
 import { PedidoService } from "../../../services/PedidoService";
-// import ModalPedido from "../../ui/modals/ModalPedidos/ModalPedido";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
-import { roles, ColumnsPedido } from "./constantes";
 import { Button, ButtonGroup } from "@mui/material";
-import { useServiceHeaders } from "../../../hooks/useServiceHeader";
+import { PedidoModal } from "../../ui/modals/ModalPedidos/ModalPedido";
+import { roles, ColumnsPedido } from "./constantes";
+import { EmpleadoService } from "../../../services/EmpleadoService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,15 +20,14 @@ export const SeccionPedidos = () => {
 
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
-  const [userRole, setUserRole] = useState("cajero");
+  const [userRole, setUserRole] = useState("ADMIN");
   //Permite filtrar los pedidos por su estado
   const [filtro, setFiltro] = useState("");
-
+  const [pedidos, setPedidos] = useState<IPedido[]>([]);
   // -------------------- SERVICES --------------------
   const pedidoService = useServiceHeaders(PedidoService, "pedido");
   const dispatch = useAppDispatch();
-
-  const pedidoActive = useAppSelector((state) => state.tableReducer.dataTable);
+  const empleadoService = new EmpleadoService(API_URL + "/empleado");
 
   // -------------------- HANDLERS --------------------
 
@@ -51,14 +50,13 @@ export const SeccionPedidos = () => {
     });
   };
 
-  const handleFiltro = (filtro: React.SetStateAction<string>) => {
+  const handleFiltro = (filtro: string) => {
     setFiltro(filtro);
-    if (filtro == "todos") {
-      dispatch(setDataTable(pedidoActive));
+    if (filtro != "TODOS") {
+      const filtered = pedidos.filter((pedido) => pedido.estado == filtro);
+      dispatch(setDataTable(filtered));
     } else {
-      dispatch(
-        setDataTable(pedidoActive.filter((pedido) => pedido.estado === filtro))
-      );
+      dispatch(setDataTable(pedidos));
     }
   };
 
@@ -66,26 +64,39 @@ export const SeccionPedidos = () => {
 
   const getPedido = async () => {
     await pedidoService.getAll().then((pedidoData) => {
-      dispatch(
-        setDataTable(pedidoData.filter((pedido) => pedido.estado === filtro))
-      );
+      setPedidos(pedidoData);
+      dispatch(setDataTable(pedidoData));
       setLoading(false);
+      console.log(pedidoData);
     });
+  };
+
+  const getUser = async () => {
+    const empleado = await empleadoService.getById(
+      Number(localStorage.getItem("user"))
+    );
+    if (empleado) {
+      setUserRole(empleado.tipoEmpleado);
+    } else {
+      console.log("No se encontro el usuario");
+    }
   };
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    if (pedidoService != null) {
-      setLoading(true);
-      setUserRole("admin"); //TODO: Esto está hardcodeado, hay que ver como obtener el rol
-      if (filtro == "todos") {
-        setFiltro("");
-      } else {
-        setFiltro(roles[userRole][0]);
-      }
+    setLoading(true);
+    getUser();
+    console.log(userRole);
+    setFiltro(roles[userRole][0]);
+    getPedido();
+  }, []);
+
+  useEffect(() => {
+    if (!openModal) {
+      setFiltro("TODOS");
       getPedido();
     }
-  }, [pedidoService]);
+  }, [openModal]);
 
   return (
     <>
@@ -112,11 +123,16 @@ export const SeccionPedidos = () => {
               handleDelete={handleDelete}
               columns={ColumnsPedido}
               setOpenModal={setOpenModal}
-              editable={false}
             />
           </div>
         </div>
       )}
+      <PedidoModal
+        show={openModal}
+        handleClose={() => setOpenModal(false)}
+        selectedId={selectedId}
+        role={userRole}
+      />
     </>
   );
 };

@@ -1,0 +1,38 @@
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 30px;
+  height: 100vh;
+}
+
+.profile-content {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.profile-picture {
+  width: 150px;
+  height: 150px; 
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px; 
+}
+
+.profile-content h2 {
+  margin-bottom: 10px;
+}
+
+.profile-content p {
+  margin-bottom: 10px;
+}
+
+.logout-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; 
+}

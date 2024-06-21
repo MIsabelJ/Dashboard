@@ -4,8 +4,9 @@ import Login from "../components/pages/Login/Login.tsx";
 import { SeccionEmpresa } from "../components/pages/Empresa/SeccionEmpresa.tsx";
 import SeccionSucursal from "../components/pages/Sucursal/SeccionSucursal.tsx";
 import PersistentDrawerLeft from "../components/ui/Sidebar/PersistentDrawerLeft.tsx";
-// import Profile from "../components/auth/Profile.tsx";
-import PrivateRoute from "./RoutesProp.tsx";
+import { AuthenticationGuard } from "../components/auth/AuthenticationGuard.tsx";
+import CallbackPage from "../components/auth/CallbackPage.tsx";
+import { RutaPrivada } from "./RutaPrivada.tsx";
 
 const AppRouter = () => {
   return (
@@ -13,86 +14,139 @@ const AppRouter = () => {
       <Route index path="/login" element={<Login />} />
       <Route
         path="/empresa"
-        element={<PrivateRoute component={SeccionEmpresa} />}
+        element={
+          <RutaPrivada rolesPermitidos={["admin"]}>
+            <AuthenticationGuard component={SeccionEmpresa} />
+          </RutaPrivada>
+        }
       />
       <Route
         path="/sucursal"
-        element={<PrivateRoute component={SeccionSucursal} />}
+        element={
+          <RutaPrivada rolesPermitidos={["admin"]}>
+            <SeccionSucursal />
+          </RutaPrivada>
+        }
       />
       <Route
         path="/inicio"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Inicio"}
-          />
+          <RutaPrivada rolesPermitidos={["admin", "admin_negocio"]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Inicio" />
+            </Box>
+          </RutaPrivada>
         }
       />
-      {/* <Route path="/profile" element={<Profile />} /> */}
+      <Route
+        path="/profile"
+        element={
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}
+          >
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Mi cuenta" />
+            </Box>
+          </RutaPrivada>
+        }
+      />
       <Route
         path="/articulo-manufacturado"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Artículos manufacturados"}
-          />
+          <RutaPrivada
+            rolesPermitidos={["admin", "admin del negocio", "cocinero"]}
+          >
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Artículos manufacturados" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/articulo-insumo"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Insumos"}
-          />
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cocinero",
+              "repositor",
+            ]}
+          >
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Insumos" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/categoria"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Categorías"}
-          />
+          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Categorías" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/promocion"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Promociones"}
-          />
+          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Promociones" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/usuario"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Usuarios"}
-          />
+          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Usuarios" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/unidad-medida"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Unidades de Medida"}
-          />
+          <RutaPrivada rolesPermitidos={["admin", "admin del negocio"]}>
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Unidades de Medida" />
+            </Box>
+          </RutaPrivada>
         }
       />
       <Route
         path="/pedido"
         element={
-          <PrivateRoute
-            component={PersistentDrawerLeft}
-            sectionName={"Pedidos"}
-          />
+          <RutaPrivada
+            rolesPermitidos={[
+              "admin",
+              "admin del negocio",
+              "cajero",
+              "cocinero",
+              "repositor",
+              "delivery",
+            ]}
+          >
+            <Box sx={{ display: "flex" }}>
+              <PersistentDrawerLeft sectionName="Pedidos" />
+            </Box>
+          </RutaPrivada>
         }
       />
-      {/* <Route path="*" element={<Navigate to="/inicio" replace />} /> */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/callback" element={<CallbackPage />} />
     </Routes>
   );
 };

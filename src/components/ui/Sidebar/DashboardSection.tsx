@@ -6,6 +6,7 @@ import { SeccionPromociones } from "../../pages/Promociones/SeccionPromociones";
 import { SeccionUnidadesMedida } from "../../pages/Unidades de Medida/SeccionUnidadesMedida";
 import { SeccionPedidos } from "../../pages/Pedidos/SeccionPedidos";
 import { SeccionUsuarios } from "../../pages/Usuarios/SeccionUsuarios";
+import Profile from "../../pages/Profile/Profile";
 
 export const DashboardSection = ({ sectionName }: { sectionName: string }) => {
   switch (sectionName) {
@@ -25,6 +26,8 @@ export const DashboardSection = ({ sectionName }: { sectionName: string }) => {
       return <SeccionPedidos />;
     case "Usuarios":
       return <SeccionUsuarios />;
+    case "Mi cuenta":
+      return <Profile />
     default:
       return null;
   }

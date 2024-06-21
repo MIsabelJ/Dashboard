@@ -1,144 +1,218 @@
-import { useEffect, useState } from "react";
-import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import React, { useEffect, useState } from "react";
 import { ICategoriaPost } from "../../../../types/Categoria/ICategoriaPost";
-import { CategoriaModal } from "./ModalCategorias";
-import { Modal, Form } from "react-bootstrap";
-import { Button, Grid } from "@mui/material";
-// import SearchBar from "../../SearchBar/SearchBar";
-import { ISucursal } from "../../../../types/Sucursal/ISucursal";
 import { EmpresaService } from "../../../../services/EmpresaService";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
+import { Modal, Form } from "react-bootstrap";
+import { Autocomplete, Button, Grid, TextField } from "@mui/material";
+import { SucursalService } from "../../../../services/SucursalService";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import "./ModalCategorias.css";
+import AddIcon from "@mui/icons-material/Add";
+import { CategoriaService } from "../../../../services/CategoriaService";
+import Swal from "sweetalert2";
+import { ICategoria } from "../../../../types/Categoria/ICategoria";
+import { CategoriaModal } from "./ModalCategorias";
 
-// ---------- INTERFAZ ----------
-interface ICategoriaModalProps {
+interface CategoriaModalProps {
   show: boolean;
   handleClose: () => void;
-  handleUpdate: (id: number, categoria: ICategoriaPost) => void;
-  categoria: ICategoria;
-  addSubCategoria: (id: number, subCategoria: ICategoriaPost) => void;
+  reloadPagina: () => void;
+  selectedId?: number;
+  isCategoriaPadre: boolean;
 }
 
-// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
-export const ModalEditCategorias = ({
+export const ModalEditCategorias: React.FC<CategoriaModalProps> = ({
   show,
   handleClose,
-  handleUpdate,
-  categoria,
-  addSubCategoria,
-}: ICategoriaModalProps) => {
-  // -------------------- STATES --------------------
-  const [denominacion, setDenominacion] = useState(categoria.denominacion);
-  const [idSucursales, setIdSucursales] = useState<number[]>(
-    categoria.sucursales.map((sucursal) => sucursal.id)
-  );
-  const [existingSucursales, setExistingSucursales] = useState<ISucursal[]>([]);
-  const [idSubcategorias, setIdSubcategorias] = useState(
-    categoria.subCategorias
-  );
-  const [esParaElaborar, setEsParaElaborar] = useState(
-    categoria.esParaElaborar
-  );
+  selectedId,
+  reloadPagina,
+  isCategoriaPadre,
+}) => {
+  const [opcionesSucursal, setOpcionesSucursal] = useState<
+    { label: string; id: number }[]
+  >([]);
   const [openModal, setOpenModal] = useState(false);
-  // Barra de búsqueda para sucursales
-  const [searchTerm, setSearchTerm] = useState("");
 
-  // -------------------- SERVICES --------------------
+  const empresaActive = localStorage.getItem("empresaId");
 
-  const empresaService = useServiceHeaders(EmpresaService, "empresa");
+  const API_URL = import.meta.env.VITE_API_URL as string;
+  const empresaService = new EmpresaService(API_URL + "/empresa");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
+
+  const validationSchema = Yup.object({
+    denominacion: Yup.string().required("Denominación es requerida"),
+    idSucursales: Yup.array()
+      .of(Yup.number())
+      .required("Seleccione sucursales"),
+    esParaElaborar: Yup.boolean(),
+  });
+
+  const initialValues: ICategoriaPost = {
+    denominacion: "",
+    idSucursales: [],
+    idSubCategorias: [],
+    esParaElaborar: false,
+  };
+
+  const formik = useFormik({
+    initialValues: initialValues,
+    validationSchema: validationSchema,
+    onSubmit: (values) => {
+      const categoria: ICategoriaPost = {
+        denominacion: values.denominacion,
+        idSucursales: values.idSucursales,
+        idSubCategorias: values.idSubCategorias,
+        esParaElaborar: values.esParaElaborar,
+      };
+      handleSave(categoria);
+      internalHandleClose();
+      formik.resetForm();
+    },
+  });
+
+  // -------------------- SERVICE --------------------
+  const categoriaService = new CategoriaService(`${API_URL}/categoria`);
+  // const dispatch = useAppDispatch();
+
   // -------------------- HANDLERS --------------------
-  const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
-    await addSubCategoria(categoria.id, subcategoria);
-    setOpenModal(false);
-  };
-
-  // const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setSearchTerm(event.target.value);
-  // };
-
-  const handleToggleAll = () => {
-    if (idSucursales.length === existingSucursales.length) {
-      setIdSucursales([]);
+  const handleSave = async (categoria: ICategoriaPost) => {
+    if (selectedId) {
+      try {
+        console.log("Categoria antes del put: ", categoria);
+        const response = await categoriaService.put(selectedId, categoria);
+        // En este punto no estoy pudiendo hacer un put, no se actualizan las sucursales
+        console.log("respuesta del put: ", response);
+      } catch (error) {
+        console.error(error);
+      }
     } else {
-      setIdSucursales(existingSucursales.map((sucursal) => sucursal.id));
+      try {
+        console.log("Categoria antes del post: ", categoria);
+        const response = await categoriaService.post(categoria);
+        console.log("Respuesta del post: ", response);
+      } catch (error) {
+        console.error(error);
+      }
     }
+    getAllCategoria();
+    swalAlert("Éxito", "Datos subidos correctamente", "success");
+    internalHandleClose();
+    formik.resetForm();
   };
 
-  const handleAddSucursal = (id: number) => {
-    if (!idSucursales.includes(id)) {
-      setIdSucursales([...idSucursales, id]);
-    }
+  const internalHandleClose = () => {
+    handleClose();
+    setOpcionesSucursal([]);
+    formik.resetForm();
   };
 
-  const handleRemoveSucursal = (id: number) => {
-    setIdSucursales(idSucursales.filter((sucursalId) => sucursalId !== id));
+  const handleSucursalChange = (
+    event: any,
+    value: { label: string; id: number }[]
+  ) => {
+    const list = value.map((option) => option.id);
+    formik.setFieldValue("idSucursales", list);
   };
 
   // -------------------- FUNCIONES --------------------
-  const onSave = () => {
-    const categoriaUpdate: ICategoriaPost = {
-      // id: categoria.id,
-      // eliminado: categoria.eliminado,
-      denominacion: denominacion,
-      idSucursales: idSucursales, // Map the array of ISucursal to an array of numbers
-      idSubCategorias: idSubcategorias.map((subcategoria) => subcategoria.id),
-      esParaElaborar: esParaElaborar,
-    };
-    handleUpdate(categoria.id, categoriaUpdate);
-    handleClose();
-    setDenominacion(""); // Reset form
-    setIdSucursales([]);
-    setIdSubcategorias([]);
-    setEsParaElaborar(false);
+  const swalAlert = (
+    title: string,
+    content: string,
+    icon: "error" | "success"
+  ) => {
+    Swal.fire(title, content, icon);
+  };
+
+  const getAllCategoria = async () => {
+    reloadPagina();
+  };
+
+  const getOneCategoria = async (id: number) => {
+    try {
+      const categoria = await categoriaService.getById(id);
+      if (categoria) {
+        const listSucursales =
+          categoria.sucursales?.map((sucursal) => sucursal.id) || [];
+        formik.setValues({
+          denominacion: categoria.denominacion,
+          idSucursales: listSucursales,
+          idSubCategorias: categoria.subCategorias.map(
+            (subcategoria) => subcategoria.id
+          ),
+          esParaElaborar: categoria.esParaElaborar,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleSaveSubcategoria = async (subcategoria: ICategoriaPost) => {
+    if (selectedId) {
+      try {
+        await categoriaService.addSubCategoria(selectedId, subcategoria);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    getAllCategoria();
+    swalAlert("Éxito", "Datos subidos correctamente", "success");
+    setOpenModal(false);
+    internalHandleClose();
   };
 
   // -------------------- EFFECTS --------------------
-  // useEffect(() => {
-  //   setDenominacion(categoria.denominacion);
-  //   // setIdSucursales(categoria.sucursales);
-  //   setIdSubcategorias(categoria.subCategorias);
-  //   setEsParaElaborar(categoria.esParaElaborar);
-  // }, [categoria]);
-
-  // BARRA DE BÚSQUEDA
-  // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
-  // useEffect(() => {
-  //   const filteredRows = dataTable.filter((row) =>
-  //     Object.values(row).some((value: any) =>
-  //       value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-  //     )
-  //   );
-  //   setRows(filteredRows);
-  // }, [dataTable, searchTerm]);
 
   useEffect(() => {
-    if (empresaService != null) {
+    if (show) {
       const getSucursales = async (idEmpresa: number) => {
-        const response = await empresaService.getSucursalesByEmpresaId(
+        const sucursales = await empresaService.getSucursalesByEmpresaId(
           idEmpresa
         );
-        setExistingSucursales(response);
+
+        const opciones = sucursales.map((sucursal) => ({
+          label: sucursal.nombre,
+          id: sucursal.id,
+        }));
+        setOpcionesSucursal(opciones);
       };
-      getSucursales(Number(localStorage.getItem("empresaId")));
+
+      if (show && empresaActive) {
+        getSucursales(Number(empresaActive));
+        if (selectedId) {
+          getOneCategoria(selectedId);
+        }
+      }
     }
-  }, [show, empresaService]);
-  // -------------------- RENDER --------------------
+  }, [show]);
+
   return (
     <>
-      <Modal show={show} onHide={handleClose} size="lg">
+      <Modal show={show} onHide={internalHandleClose} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Editar Categoría</Modal.Title>
+          <Modal.Title>
+            {isCategoriaPadre ? "Editar Categoría" : "Editar Subcategoría"}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ padding: "20px", backgroundColor: "#f8f9fa" }}>
-          <Form>
-            <Grid container spacing={2}>
+          <form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2} justifyContent="space-between">
               <Grid item xs={8}>
                 <Form.Group controlId="formDenominacion" className="mb-3">
                   <Form.Label>Denominación</Form.Label>
                   <Form.Control
                     type="text"
-                    value={denominacion}
-                    onChange={(e) => setDenominacion(e.target.value)}
+                    name="denominacion"
+                    value={formik.values.denominacion}
+                    onChange={formik.handleChange}
+                    isInvalid={
+                      formik.touched.denominacion &&
+                      !!formik.errors.denominacion
+                    }
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formik.errors.denominacion}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Grid>
               <Grid item xs={4}>
@@ -147,93 +221,90 @@ export const ModalEditCategorias = ({
                     type="checkbox"
                     id="checkbox-esParaElaborar"
                     label="Es para elaborar"
-                    checked={esParaElaborar}
-                    disabled
+                    name="esParaElaborar"
+                    disabled={!isCategoriaPadre}
+                    checked={formik.values.esParaElaborar}
+                    onChange={formik.handleChange}
                   />
                 </Form.Group>
               </Grid>
             </Grid>
             <Form.Group controlId="formIdSucursales" className="mb-3">
-              <Form.Label className="mr-2">Sucursales</Form.Label>
-              <Grid container spacing={2} justifyContent="space-between">
-                <Grid item xs={9}>
-                  {/* <SearchBar
-                value={searchTerm}
-                onChange={handleSearch}
-                placeholder="Buscar Sucursal..."
-              /> */}
-                </Grid>
-                <Grid
-                  item
-                  xs={3}
-                  style={{ display: "flex", justifyContent: "flex-start" }}>
-                  <Form.Check
-                    type="checkbox"
-                    id="checkbox-all"
-                    label="Seleccionar todas"
-                    checked={idSucursales.length === existingSucursales.length}
-                    onChange={() => {
-                      handleToggleAll();
-                    }}
-                  />
-                </Grid>
-              </Grid>
-              <div className="sucursales-grid">
-                {existingSucursales
-                  .filter((sucursal) =>
-                    sucursal.nombre
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
+              <Form.Label className="mr-2">
+                Sucursales en las que está disponible
+              </Form.Label>
+              <Autocomplete
+                multiple
+                id="tags-outlined"
+                options={opcionesSucursal}
+                getOptionLabel={(option) => option?.label || ""}
+                filterSelectedOptions
+                value={opcionesSucursal
+                  .filter(
+                    (sucursal: { label: string; id: number | null }) =>
+                      sucursal !== null
                   )
-                  .map((sucursal) => (
-                    <div
-                      key={sucursal.id}
-                      className="mb-3"
-                      style={{ maxHeight: "150px", overflowY: "auto" }}>
-                      <Form.Check
-                        type="checkbox"
-                        id={`checkbox-${sucursal.id}`}
-                        label={sucursal.nombre}
-                        checked={idSucursales.includes(sucursal.id)}
-                        onChange={() => {
-                          if (idSucursales.includes(sucursal.id)) {
-                            handleRemoveSucursal(sucursal.id);
-                          } else {
-                            handleAddSucursal(sucursal.id);
-                          }
-                        }}
-                      />
-                    </div>
-                  ))}
-              </div>
+                  .filter((sucursal: { label: string; id: number }) =>
+                    formik.values.idSucursales.includes(sucursal.id)
+                  )}
+                isOptionEqualToValue={(option, value) =>
+                  option?.id === value?.id
+                }
+                onChange={handleSucursalChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Sucursales"
+                    placeholder="Seleccione sucursales"
+                    error={
+                      formik.touched.idSucursales &&
+                      !!formik.errors.idSucursales
+                    }
+                    helperText={
+                      formik.touched.idSucursales && formik.errors.idSucursales
+                    }
+                  />
+                )}
+              />
             </Form.Group>
-            <Form.Group controlId="formIdSubcategorias" className="mb-3">
-              <div className="d-flex mb-2 justify-content-between">
-                <Form.Label className="mr-2">Subcategorías</Form.Label>
-                <Button
-                  variant="contained"
-                  onClick={() => setOpenModal(true)}
-                  className="ml-2">
-                  Agregar Sub Categoria
-                </Button>
-              </div>
-            </Form.Group>
-          </Form>
+            {selectedId && isCategoriaPadre && (
+              <Form.Group>
+                <Grid item display="flex" justifyContent="flex-start">
+                  <Button
+                    onClick={() => setOpenModal(true)}
+                    variant="contained"
+                    startIcon={<AddIcon />}>
+                    Añadir subcategoría
+                  </Button>
+                </Grid>
+              </Form.Group>
+            )}
+            <Modal.Footer className="d-flex justify-content-between">
+              <Button variant="outlined" onClick={internalHandleClose}>
+                Cancelar
+              </Button>
+              <Button variant="contained" type="submit">
+                Guardar
+              </Button>
+            </Modal.Footer>
+          </form>
         </Modal.Body>
-        <Modal.Footer className="d-flex justify-content-between">
-          <Button variant="outlined" onClick={handleClose}>
-            Cancelar
-          </Button>
-          <Button variant="contained" onClick={onSave}>
-            Guardar
-          </Button>
-        </Modal.Footer>
       </Modal>
       <CategoriaModal
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleSave={handleSaveSubcategoria}
-        sucursales={categoria.sucursales}
+        reloadPagina={reloadPagina}
+        sucursales={opcionesSucursal
+          .filter(
+            (sucursal: { label: string; id: number | null }) =>
+              sucursal !== null
+          )
+          .filter((sucursal: { label: string; id: number }) =>
+            formik.values.idSucursales.includes(sucursal.id)
+          )}
+        esParaElaborar={formik.values.esParaElaborar}
+        handleSaveSubcategoria={handleSaveSubcategoria}
+        isCategoriaPadre={false}
       />
     </>
   );

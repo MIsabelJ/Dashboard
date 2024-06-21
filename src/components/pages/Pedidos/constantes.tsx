@@ -1,63 +1,45 @@
+import { Button, Link } from "@mui/material";
 import { IPedido } from "../../../types/Pedido/IPedido";
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
-/*
-PREPARACION,
-PENDIENTE,
-TERMINADO,
-FACTURADO,
-CANCELADO,
-RECHAZADO,
-DELIVERY,
-APROBADO
-*/
 
-const TriggerMenu = () => {
-  return (
-    <PopupState variant="popover" popupId="demo-popup-menu">
-      {(popupState) => (
-        <React.Fragment>
-          <Button variant="contained" {...bindTrigger(popupState)}>
-            Dashboard
-          </Button>
-          <Menu {...bindMenu(popupState)}>
-            <MenuItem onClick={popupState.close}>Profile</MenuItem>
-            <MenuItem onClick={popupState.close}>My account</MenuItem>
-            <MenuItem onClick={popupState.close}>Logout</MenuItem>
-          </Menu>
-        </React.Fragment>
-      )}
-    </PopupState>
-  );
-};
+const API_URL = import.meta.env.VITE_API_URL;
 
 export const roles: Record<string, string[]> = {
-  admin: [
-    "todos",
-    "pendientes",
-    "en proceso",
-    "terminados",
-    "entregados",
-    "en delivery",
-    "facturados",
+  ADMIN: [
+    "TODOS",
+    "PENDIENTE",
+    "RECHAZADO",
+    "CANCELADO",
+    "APROBADO",
+    "PREPARACION",
+    "TERMINADO",
+    "DELIVERY",
+    "FACTURADO",
   ],
-  //pueden ser objetos que traduzcan a los enums del back
-  "admin del negocio": [
-    "todos",
-    "pendientes",
-    "en proceso",
-    "terminados",
-    "entregados",
-    "en delivery",
-    "facturados",
+  ADMIN_NEGOCIO: [
+    "TODOS",
+    "PENDIENTE",
+    "RECHAZADO",
+    "CANCELADO",
+    "APROBADO",
+    "PREPARACION",
+    "TERMINADO",
+    "DELIVERY",
+    "FACTURADO",
   ],
-  cajero: ["facturados", "todos"],
-  cocinero: ["en proceso", "terminados"],
-  repositor: ["pendientes", "en proceso"],
-  delivery: ["en delivery", "entregados"],
+  CAJERO: [
+    "TODOS",
+    "PENDIENTE",
+    "RECHAZADO",
+    "CANCELADO",
+    "APROBADO",
+    "PREPARACION",
+    "TERMINADO",
+    "DELIVERY",
+    "FACTURADO",
+  ],
+  COCINERO: ["APROBADO", "PREPARACION", "TERMINADO"],
+  // repositor: ["PENDIENTE", "preparacion"], //No tiene ningún permiso
+  DELIVERY: ["TERMINADO", "DELIVERY", "FACTURADO"],
 };
 
 // -------------------- COLUMNAS --------------------
@@ -75,7 +57,13 @@ export const ColumnsPedido = [
       pedido.detallePedidos
         .map(
           (detalle) =>
-            `\u2022 ${detalle.articulo.denominacion}: ${detalle.cantidad}`
+            `\u2022 ${
+              detalle.articulo
+                ? detalle.articulo.denominacion
+                : detalle.promocion
+                ? detalle.promocion.denominacion
+                : ""
+            }: ${detalle.cantidad}`
         )
         .join("\n"),
   },
@@ -83,7 +71,35 @@ export const ColumnsPedido = [
   {
     label: "Status",
     key: "estado",
-    render: (pedido: IPedido) => TriggerMenu(),
+    render: (pedido: IPedido) => {
+      const statusOptions = [
+        { label: "PENDIENTE", color: "#FFEB3B" },
+        { label: "CANCELADO", color: "#F44336" },
+        { label: "RECHAZADO", color: "#FF5722" },
+        { label: "APROBADO", color: "#8BC34A" },
+        { label: "PREPARACION", color: "#03A9F4" },
+        { label: "TERMINADO", color: "#4CAF50" },
+        { label: "DELIVERY", color: "#2196F3" },
+        { label: "FACTURADO", color: "#9C27B0" },
+      ];
+      return (
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span
+            style={{
+              width: "7px",
+              height: "7px",
+              borderRadius: "50%",
+              backgroundColor:
+                statusOptions.find((status) => status.label === pedido.estado)
+                  ?.color || "#000",
+            }}></span>
+          <p style={{ margin: 0 }}>
+            {pedido.estado.charAt(0).toUpperCase() +
+              pedido.estado.slice(1).toLowerCase()}
+          </p>
+        </div>
+      );
+    },
   },
   {
     label: "Entrega",
@@ -109,5 +125,27 @@ export const ColumnsPedido = [
     label: "Estado",
     key: "eliminado",
     render: (pedido: IPedido) => (pedido.eliminado ? "Eliminado" : "Activo"),
+  },
+  {
+    label: "Factura",
+    key: "factura",
+    render: (pedido: IPedido) => {
+      if (pedido.estado === "FACTURADO") {
+        if (pedido.factura) {
+          return (
+            <Link
+              href={`${API_URL}/pedido/downloadFacturaPedido/${pedido.id}`}
+              target="_blank"
+              underline="none">
+              <Button variant="contained" color="success">
+                Descargar
+              </Button>
+            </Link>
+          );
+        }
+      } else {
+        return <p style={{ color: "#bbb", margin: "0" }}>No disponible</p>;
+      }
+    },
   },
 ];

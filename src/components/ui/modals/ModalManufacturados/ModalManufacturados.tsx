@@ -10,16 +10,12 @@ import { IArticuloManufacturadoPost } from "../../../../types/ArticuloManufactur
 import { IArticuloManufacturadoDetallePost } from "../../../../types/ArticuloManufacturadoDetalle/IArticuloManufacturadoDetallePost";
 // SERVICES
 import { UnidadMedidaService } from "../../../../services/UnidadMedidaService";
-import { CategoriaService } from "../../../../services/CategoriaService";
-// MODALS
-import { ManufacturadosDetalleModal } from "../ModalManufacturadosDetalle/ModalManufacturadosDetalle";
 // ---------- ESTILOS ----------
 import { Modal, Form } from "react-bootstrap";
 import { Box, Step, StepLabel, Stepper, Button } from "@mui/material";
 import { IImagen } from "../../../../types/Imagen/IImagen";
 import { InsumoService } from "../../../../services/InsumoService";
 import { IArticuloInsumo } from "../../../../types/ArticuloInsumo/IArticuloInsumo";
-import { IArticuloManufacturado } from "../../../../types/ArticuloManufacturado/IArticuloManufacturado";
 import { ManufacturadoService } from "../../../../services/ManufacturadoService";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { ImagenService } from "../../../../services/ImagenService";
@@ -36,7 +32,7 @@ import Step2 from "./stepper/Step2";
 import Step3 from "./stepper/Step3";
 import Step4 from "./stepper/Step4";
 import "./ModalManufacturados.css";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
+import { SucursalService } from "../../../../services/SucursalService";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -60,24 +56,12 @@ export const ModalArticuloManufacturado = ({
   const [rows, setRows] = useState<any[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previousImages, setPreviousImages] = useState<IImagen[]>([]);
-  const [showDetallesModal, setShowDetallesModal] = useState<boolean>(false);
-  const [newDetalles, setNewDetalles] = useState<
-    IArticuloManufacturadoDetallePost[]
-  >([]);
-  const [articuloSeleccionado, setArticuloSeleccionado] = useState<
-    { articuloInsumo: IArticuloInsumo; cantidad: string }[]
-  >([]);
   //Guarda los valores de todas las unidades de medida que existen y que vayan a añadirse con el useEffect
   const [unidadesMedida, setUnidadesMedida] = useState<IUnidadMedida[]>([]);
   //Utilizado para dar formato a los elementos del dropdown de unidades de medida
   const [opcionesUnidadMedida, setOpcionesUnidadMedida] = useState<
     { label: string; id: number }[]
   >([]);
-
-  const [values, setValues] = useState<
-    IArticuloManufacturado | IArticuloManufacturadoPost
-  >();
-  const [readyToPersist, setReadyToPersist] = useState<boolean>(false);
   //Guarda los valores de todas categorías
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
 
@@ -94,27 +78,35 @@ export const ModalArticuloManufacturado = ({
           Swal.showLoading();
         },
       });
+
+      //elimino repetidos del array de detalles y sumo las cantidades
+      const detallesSinRepetir = removeDuplicadosDetalles(
+        values.articuloManufacturadoDetalles
+      );
+
       let actualImages: IImagen[] = [];
       if (selectedFiles.length > 0) {
         actualImages = await imagenService.upload(selectedFiles);
       }
       const manufacturado: IArticuloManufacturadoPost = {
         ...values,
-        articuloManufacturadoDetalles: newDetalles,
+        idSucursal: Number(localStorage.getItem("sucursalId")),
+        articuloManufacturadoDetalles: detallesSinRepetir,
         imagenes: [...previousImages, ...actualImages],
       };
 
       let precioInsumos: number = 0;
       const promiseInsumos = manufacturado.articuloManufacturadoDetalles.map(
         async (detalle) => {
-          const insumo: IArticuloInsumo | any = await insumoService.getById(
+          const insumo: IArticuloInsumo | null = await insumoService.getById(
             detalle.idArticuloInsumo
           );
-          precioInsumos += insumo.precioCompra * detalle.cantidad;
+          if (insumo) precioInsumos += insumo.precioCompra * detalle.cantidad;
         }
       );
       await Promise.all(promiseInsumos);
       manufacturado.precioCompra = precioInsumos;
+      console.log(manufacturado);
       handleSave(manufacturado);
     },
   });
@@ -130,30 +122,13 @@ export const ModalArticuloManufacturado = ({
     ManufacturadoService,
     "articulo-manufacturado"
   );
-  const categoriaService = useServiceHeaders(CategoriaService, "categoria");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
 
   // -------------------- HANDLERS --------------------
   // Barra de búsqueda para newDetalles manufacturados
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleSaveDetalle = async (
-    detalle: IArticuloManufacturadoDetallePost
-  ) => {
-    setNewDetalles([...newDetalles, detalle]);
-    getInsumosSeleccionados();
-    setShowDetallesModal(false);
-  };
-
-  const handleDeleteDetalle = async (index: number) => {
-    setArticuloSeleccionado((prev) => {
-      return prev.filter((_, i) => i !== index);
-    });
-    setNewDetalles((prev) => {
-      return prev.filter((_, i) => i !== index);
-    });
   };
 
   const handleSave = async (manufacturado: IArticuloManufacturadoPost) => {
@@ -165,7 +140,9 @@ export const ModalArticuloManufacturado = ({
       }
     } else {
       try {
-        await manufacturadoService.post(manufacturado);
+        console.log("antes del save", manufacturado);
+        const response = await manufacturadoService.post(manufacturado);
+        console.log("despues del save", response);
       } catch (error) {
         console.error(error);
       }
@@ -176,7 +153,6 @@ export const ModalArticuloManufacturado = ({
   };
 
   const internalHandleClose = () => {
-    setReadyToPersist(false);
     handleClose();
     formik.resetForm();
     setSelectedFiles([]);
@@ -213,6 +189,7 @@ export const ModalArticuloManufacturado = ({
   const getOneManufacturado = async (id: number) => {
     try {
       const articuloManufacturado = await manufacturadoService.getById(id);
+      console.log(articuloManufacturado);
       if (articuloManufacturado) {
         setPreviousImages(articuloManufacturado.imagenes);
         const detallesPost: IArticuloManufacturadoDetallePost[] =
@@ -223,7 +200,6 @@ export const ModalArticuloManufacturado = ({
               idArticuloInsumo: detalle.articuloInsumo.id,
             };
           });
-        setNewDetalles(detallesPost);
         formik.setValues({
           precioCompra: articuloManufacturado.precioCompra,
           denominacion: articuloManufacturado.denominacion,
@@ -235,6 +211,7 @@ export const ModalArticuloManufacturado = ({
           imagenes: articuloManufacturado.imagenes,
           idUnidadMedida: articuloManufacturado.unidadMedida.id,
           idCategoria: articuloManufacturado.categoria.id,
+          idSucursal: articuloManufacturado.sucursal.id,
         });
       }
     } catch (error) {
@@ -242,21 +219,22 @@ export const ModalArticuloManufacturado = ({
     }
   };
 
-  const getInsumosSeleccionados = async () => {
-    const insumos: { articuloInsumo: IArticuloInsumo; cantidad: string }[] = [];
-
-    const fetchInsumos = newDetalles.map(async (detalle) => {
-      const response = await insumoService.getById(detalle.idArticuloInsumo);
-      if (response) {
-        insumos.push({
-          articuloInsumo: response,
-          cantidad: detalle.cantidad.toString(),
-        });
+  const removeDuplicadosDetalles = (
+    details: Array<{ id?: number; cantidad: number; idArticuloInsumo: number }>
+  ) => {
+    const uniqueDetails = details.reduce((acc, current) => {
+      const existing = acc.find(
+        (item) => item.idArticuloInsumo === current.idArticuloInsumo
+      );
+      if (existing) {
+        existing.cantidad += current.cantidad;
+      } else {
+        acc.push({ ...current });
       }
-    });
+      return acc;
+    }, [] as Array<{ id?: number; cantidad: number; idArticuloInsumo: number }>);
 
-    await Promise.all(fetchInsumos);
-    setArticuloSeleccionado(insumos);
+    return uniqueDetails;
   };
 
   // BARRA DE BÚSQUEDA
@@ -266,14 +244,8 @@ export const ModalArticuloManufacturado = ({
   // -------------------- EFFECTS --------------------
 
   useEffect(() => {
-    getInsumosSeleccionados();
-  }, [newDetalles]);
-
-  useEffect(() => {
     if (selectedId) {
       getOneManufacturado(selectedId);
-    } else {
-      setValues(initialValues);
     }
   }, [selectedId]);
 
@@ -290,19 +262,18 @@ export const ModalArticuloManufacturado = ({
 
   //Trae las unidades de medida y categorías ya creadas
   useEffect(() => {
-    if (
-      unidadMedidaService !== null &&
-      imagenService !== null &&
-      insumoService !== null &&
-      show
-    ) {
+    if (show) {
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
       };
       getUnidadesMedida();
       const getCategorias = async () => {
-        const response = await categoriaService.getAll();
+        const sucursalId = localStorage.getItem("sucursalId");
+        const response = await sucursalService.getCategoriaBySucursalId(
+          Number(sucursalId)
+        );
+        console.log("categorias", response);
         setCategorias(response);
       };
       getCategorias();
@@ -367,13 +338,9 @@ export const ModalArticuloManufacturado = ({
                   )}
                   {activeStep === 2 && (
                     <Step3
-                      articuloSeleccionado={articuloSeleccionado}
+                      formik={formik}
                       searchTerm={searchTerm}
                       handleSearch={handleSearch}
-                      setShowDetallesModal={setShowDetallesModal}
-                      handleDeleteDetalle={handleDeleteDetalle}
-                      handleSave={handleSaveDetalle}
-                      openModal={showDetallesModal}
                     />
                   )}
                   {activeStep === 3 && (
@@ -410,11 +377,6 @@ export const ModalArticuloManufacturado = ({
           </Box>
         </Modal.Body>
       </Modal>
-      <ManufacturadosDetalleModal
-        handleSave={handleSaveDetalle}
-        openModal={showDetallesModal}
-        setOpenModal={setShowDetallesModal}
-      />
     </>
   );
 };

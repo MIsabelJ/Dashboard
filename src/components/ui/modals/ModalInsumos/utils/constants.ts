@@ -14,6 +14,7 @@ export const initialValues: IArticuloInsumoPost = {
   esParaElaborar: true,
   idUnidadMedida: 0,
   idCategoria: 0,
+  idSucursal: 1,
 };
 
 export const validationSchema = Yup.object({

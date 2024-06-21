@@ -29,7 +29,7 @@ import Step3 from "./stepper/Step3";
 import { Modal, Form } from "react-bootstrap";
 import { Box, Button, Step, StepLabel, Stepper } from "@mui/material";
 import "./ModalInsumos.css";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
+import { SucursalService } from "../../../../services/SucursalService";
 
 // ------------------------------ CÓDIGO ------------------------------
 
@@ -92,6 +92,7 @@ export const ModalArticuloInsumo = ({
       }
       const insumo: IArticuloInsumoPost = {
         ...values,
+        idSucursal: Number(localStorage.getItem("sucursalId")),
         imagenes: [...previousImages, ...actualImages],
       };
       insumo.imagenes;
@@ -104,8 +105,9 @@ export const ModalArticuloInsumo = ({
     UnidadMedidaService,
     "unidad-medida"
   );
-  const imagenService = useServiceHeaders(ImagenService, "imagen-articulo");
-  const insumoService = useServiceHeaders(InsumoService, "articulo-insumo");
+  const imagenService = new ImagenService(API_URL + "/imagen-articulo");
+  const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
   // -------------------- HANDLERS --------------------
 
@@ -176,6 +178,7 @@ export const ModalArticuloInsumo = ({
           esParaElaborar: articuloInsumo.esParaElaborar,
           idUnidadMedida: articuloInsumo.unidadMedida.id,
           idCategoria: articuloInsumo.categoria.id,
+          idSucursal: articuloInsumo.sucursal.id,
         });
       }
     } catch (error) {
@@ -192,17 +195,20 @@ export const ModalArticuloInsumo = ({
 
   //Trae las unidades de medida y las categorías de la base de datos
   useEffect(() => {
-    if (
-      unidadMedidaService !== null &&
-      imagenService !== null &&
-      insumoService !== null &&
-      show
-    ) {
+    if (show) {
       const getUnidadesMedida = async () => {
         const response = await unidadMedidaService.getAll();
         setUnidadesMedida(response);
       };
       getUnidadesMedida();
+      const getCategorias = async () => {
+        const sucursalId = localStorage.getItem("sucursalId");
+        const response = await sucursalService.getCategoriaBySucursalId(
+          Number(sucursalId)
+        );
+        setCategorias(response);
+      };
+      getCategorias();
     }
   }, [show, unidadMedidaService, imagenService, insumoService]);
 

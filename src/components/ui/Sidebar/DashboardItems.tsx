@@ -58,14 +58,14 @@ export const dashboardItems: IDashboard = {
       route: "promocion",
     },
     {
-      text: "Sucursales",
-      icon: <StoreIcon />,
-      route: "sucursal",
-    },
-    {
       text: "Pedidos",
       icon: <ReceiptLongIcon />,
       route: "pedido",
+    },
+    {
+      text: "Sucursales",
+      icon: <StoreIcon />,
+      route: "sucursal",
     },
     {
       text: "Usuarios",

@@ -6,6 +6,7 @@ import { ModalEditCategorias } from "../../ui/modals/ModalCategorias/ModalEditCa
 import { ButtonsTable } from "../../ui/ButtonsTable/ButtonsTable";
 // ---------- ESTILOS ----------
 import {
+  Chip,
   Collapse,
   List,
   ListItemButton,
@@ -25,6 +26,8 @@ interface CategoryItemProps {
   handleSave: (category: ICategoriaPost) => void;
   addSubCategoria: (id: number, subcategoria: ICategoriaPost) => void;
   handleDelete: (id: number) => void;
+  reloadPagina: () => void;
+  isCategoriaPadre: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -35,6 +38,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
   handleSave,
   addSubCategoria,
   handleDelete,
+  reloadPagina,
+  isCategoriaPadre,
 }) => {
   // -------------------- STATES --------------------
   const [open, setOpen] = React.useState(false);
@@ -51,8 +56,17 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
           <GridViewOutlinedIcon />
         </ListItemIcon>
         <ListItemText primary={category.denominacion} />
-        <div style={{ padding: "10px" }}>
-          {category.esParaElaborar ? "Para elaborar" : null}
+        <div style={{ padding: "10px", display: "flex", gap: "10px" }}>
+          {category.esParaElaborar ? (
+            <>
+              <Chip
+                label="Para elaborar"
+                variant="outlined"
+                color="primary"
+                sx={{ alignSelf: "center" }}
+              />
+            </>
+          ) : null}
           <ButtonsTable
             setSelectedId={setSelectedId}
             setOpenModal={() => setOpenModal(true)}
@@ -81,6 +95,8 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
                   handleSave={handleSave}
                   addSubCategoria={addSubCategoria}
                   handleDelete={handleDelete}
+                  reloadPagina={reloadPagina}
+                  isCategoriaPadre={false}
                 />
               ))}
             </List>
@@ -90,9 +106,9 @@ export const CategoryItem: React.FC<CategoryItemProps> = ({
       <ModalEditCategorias
         show={openModal}
         handleClose={() => setOpenModal(false)}
-        handleUpdate={handleUpdate}
-        categoria={category}
-        addSubCategoria={addSubCategoria}
+        selectedId={selectedId}
+        reloadPagina={reloadPagina}
+        isCategoriaPadre={isCategoriaPadre}
       />
     </div>
   );

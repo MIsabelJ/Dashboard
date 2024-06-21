@@ -10,7 +10,8 @@ import GenericTable from "../../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import Carousel from "react-bootstrap/Carousel";
-import { useServiceHeaders } from "../../../../hooks/useServiceHeader";
+import { Tooltip } from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -34,30 +35,6 @@ export const SeccionInsumos = () => {
   // -------------------- COLUMNAS --------------------
   // Necesario para establecer las columnas de la tabla genérica
   const ColumnsInsumo = [
-    { label: "Denominación", key: "denominacion" },
-    { label: "Precio de Venta", key: "precioVenta" },
-    { label: "Precio de Compra", key: "precioCompra" },
-    {
-      label: "Imágenes",
-      key: "imagenes",
-      render: (insumo: IArticuloInsumo) => (
-        <Carousel>
-          {insumo.imagenes.map((imagen, index) => (
-            <Carousel.Item key={index}>
-              <img
-                className="d-block w-100"
-                src={imagen.url} // Convert File object to string
-                alt={`Slide ${index}`}
-                style={{ maxWidth: "100px", maxHeight: "100px" }}
-              />
-            </Carousel.Item>
-          ))}
-        </Carousel>
-      ),
-    },
-    { label: "Stock Mínimo", key: "stockMinimo" },
-    { label: "Stock Actual", key: "stockActual" },
-    { label: "Stock Máximo", key: "stockMaximo" },
     {
       label: "Es ingrediente",
       key: "esParaElaborar",
@@ -65,15 +42,82 @@ export const SeccionInsumos = () => {
         insumo.esParaElaborar ? "Sí" : "No",
     },
     {
+      label: "Categoría",
+      key: "categoria",
+      render: (insumo: IArticuloInsumo) => `${insumo.categoria.denominacion}`,
+    },
+    { label: "Denominación", key: "denominacion" },
+    {
       label: "Unidad de Medida",
       key: "unidadMedida",
       render: (insumo: IArticuloInsumo) =>
         `${insumo.unidadMedida.denominacion}`,
     },
     {
-      label: "Categoría",
-      key: "categoria",
-      render: (insumo: IArticuloInsumo) => `${insumo.categoria.denominacion}`,
+      label: "Precio de Venta",
+      key: "precioVenta",
+      render: (insumo: IArticuloInsumo) => `$${insumo.precioVenta}`,
+    },
+    {
+      label: "Precio de Compra",
+      key: "precioCompra",
+      render: (insumo: IArticuloInsumo) => `$${insumo.precioCompra}`,
+    },
+    { label: "Stock Mínimo", key: "stockMinimo" },
+    {
+      label: "Stock Actual",
+      key: "stockActual",
+      render: (insumo: IArticuloInsumo) =>
+        insumo.stockActual < insumo.stockMinimo ? (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "0.3rem",
+            }}
+          >
+            {insumo.stockActual}
+            <Tooltip title="Stock muy bajo, reponer artículo" arrow>
+              <WarningAmberIcon color="error" />
+            </Tooltip>
+          </span>
+        ) : (
+          insumo.stockActual
+        ),
+    },
+    { label: "Stock Máximo", key: "stockMaximo" },
+    {
+      label: "Imágenes",
+      key: "imagenes",
+      render: (insumo: IArticuloInsumo) => (
+        <Carousel interval={null} controls={true}>
+          {insumo.imagenes.map((imagen, index) => (
+            <Carousel.Item key={index}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "100px",
+                  width: "100px",
+                }}
+              >
+                <img
+                  className="d-block"
+                  src={imagen.url}
+                  alt={`Slide ${index}`}
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    objectFit: "contain",
+                  }}
+                />
+              </div>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      ),
     },
     {
       label: "Estado",

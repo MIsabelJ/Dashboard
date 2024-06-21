@@ -27,6 +27,15 @@ export const SeccionPromociones = () => {
     { label: "Denominación", key: "denominacion" },
     { label: "Descripción", key: "descripcionDescuento" },
     {
+      label: "Precio",
+      key: "precioPromocional",
+      render: (promocion: IPromocion) => `$${promocion.precioPromocional}`,
+    },
+    { label: "Fecha de Inicio", key: "fechaDesde" },
+    { label: "Fecha de Fin", key: "fechaHasta" },
+    { label: "Hora de Inicio", key: "horaDesde" },
+    { label: "Hora de Fin", key: "horaHasta" },
+    {
       label: "Imágenes",
       key: "imagenes",
       render: (promocion: IPromocion) => (
@@ -44,11 +53,6 @@ export const SeccionPromociones = () => {
         </Carousel>
       ),
     },
-    { label: "Fecha de Inicio", key: "fechaDesde" },
-    { label: "Fecha de Fin", key: "fechaHasta" },
-    { label: "Hora de Inicio", key: "horaDesde" },
-    { label: "Hora de Fin", key: "horaHasta" },
-    { label: "Precio", key: "precioPromocional" },
     {
       label: "Estado",
       key: "eliminado",

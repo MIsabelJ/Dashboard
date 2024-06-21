@@ -13,6 +13,7 @@ export const initialValues: IArticuloManufacturadoPost = {
   imagenes: [],
   idUnidadMedida: 0,
   idCategoria: 0,
+  idSucursal: 1,
 };
 
 export const validationSchema = Yup.object({
