@@ -38,7 +38,7 @@ const ContentButton: React.FC<ContentButtonProps> = ({ label, content }) => {
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const SeccionManufacturados = () => {
   // -------------------- STATES --------------------
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
 
   //Maneja el elemento seleccionado en la tabla (para poder editarlo)
@@ -177,7 +177,6 @@ export const SeccionManufacturados = () => {
 
   // -------------------- EFFECTS --------------------
   useEffect(() => {
-    setLoading(true);
     getManufacturado();
   }, []);
 
