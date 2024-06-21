@@ -10,6 +10,16 @@ import { IDetallePedido } from "../../../../types/DetallePedido/IDetallePedido";
 import styled from "styled-components";
 import { roles } from "../../../pages/Pedidos/constantes";
 
+// Define ColorDot outside of the component
+const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
+  height: 10,
+  width: 10,
+  backgroundColor: color || "transparent",
+  borderRadius: "50%",
+  display: "inline-block",
+  marginRight: 8,
+}));
+
 // ---------- INTERFAZ ----------
 interface PedidoModalProps {
   show: boolean;
@@ -38,11 +48,11 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     if (selectedId) {
       try {
         if (valuesPost.estado === "CANCELADO") {
-          //llamada al endpoint
-          return pedidoService.cancelarPedido(selectedId, reponerStock);
+          // llamada al endpoint
+          return await pedidoService.cancelarPedido(selectedId, reponerStock);
         }
         if (valuesPost.estado === "FACTURADO") {
-          //
+          // lógica adicional si es necesario
         }
         console.log("guardar", valuesPost);
         await pedidoService.put(selectedId, valuesPost);
@@ -65,6 +75,7 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     try {
       if (selectedId) {
         const pedido = await pedidoService.getById(selectedId);
+        console.log(pedido);
         if (pedido) {
           setValues(pedido);
           setValorSeleccionado(pedido.estado);
@@ -110,7 +121,10 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     setReponerStock(target.checked);
   };
 
-  const handleOnChange = (event: React.SyntheticEvent, newValue: any) => {
+  const handleOnChange = (
+    event: React.SyntheticEvent,
+    newValue: { label: string; value: string; color: string } | null
+  ) => {
     if (newValue) {
       setValorSeleccionado(newValue.value);
       setValuesPost((prevValues) => ({
@@ -137,15 +151,6 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
       roles[role].includes(option.value) && option.value !== values?.estado
   );
 
-  const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
-    height: 10,
-    width: 10,
-    backgroundColor: color || "transparent",
-    borderRadius: "50%",
-    display: "inline-block",
-    marginRight: 8,
-  }));
-
   useEffect(() => {
     if (selectedId) {
       getOne();
@@ -163,15 +168,21 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
           options={filteredOptions}
           getOptionLabel={(option) => option.label}
           onChange={handleOnChange}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
           renderInput={(params) => <TextField {...params} label="Estado" />}
-          renderOption={(props, option) => (
-            <li {...props}>
-              <ColorDot color={option.color} />
-              {option.label}
-            </li>
-          )}
+          renderOption={(props, option) => {
+            const { key, ...rest } = props;
+            return (
+              <li key={key} {...rest}>
+                <ColorDot color={option.color} />
+                {option.label}
+              </li>
+            );
+          }}
           value={
-            options.find((option) => option.value === valorSeleccionado) || null
+            filteredOptions.find(
+              (option) => option.value === valorSeleccionado
+            ) || null
           }
         />
         {valorSeleccionado == "CANCELADO" && (

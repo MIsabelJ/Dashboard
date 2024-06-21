@@ -136,9 +136,9 @@ export const GenericTable = <T extends { id: number }>({
                   .map((row, index) => {
                     // Determine if the row should be editable based on a specific cell value
                     const isRowEditable = columns.every((column) => {
-                      if (column.key == "estado") console.log(row[column.key]);
                       if (
                         column.key === "estado" &&
+                        row[column.key] &&
                         row[column.key].includes("CANCELADO")
                       ) {
                         return false;
