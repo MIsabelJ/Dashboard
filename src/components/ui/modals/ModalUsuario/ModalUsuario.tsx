@@ -37,7 +37,6 @@ const initialValuesPost: IEmpleadoPost = {
   pedidos: [],
   usuarioEmpleado: {
     email: "",
-    password: "",
     userName: "",
   }
 };
@@ -91,7 +90,6 @@ const ModalUsuario = ({
           pedidos: [],
           usuarioEmpleado: {
             email: usuario.usuarioEmpleado.email,
-            password: usuario.usuarioEmpleado.password,
             userName: usuario.usuarioEmpleado.userName,
           }
         }
@@ -117,7 +115,6 @@ const ModalUsuario = ({
     setUsuarioEmpleado((prevUsuarioEmpleado) => ({
       email: e.target.name === "email" ? e.target.value : prevUsuarioEmpleado?.email || "",
       userName: e.target.name === "userName" ? e.target.value : prevUsuarioEmpleado?.userName || "",
-      password: e.target.name === "password" ? e.target.value : prevUsuarioEmpleado?.password || "",
     }));
   };
 
@@ -200,15 +197,6 @@ const ModalUsuario = ({
                   name="email"
                   onChange={handleChange}
                   placeholder="Ingrese el correo"
-                />
-              </Form.Group>
-              <Form.Group controlId="formUserPassword">
-                <Form.Label>Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  onChange={handleChange}
-                  placeholder="Ingrese la contraseña"
                 />
               </Form.Group>
             </>
