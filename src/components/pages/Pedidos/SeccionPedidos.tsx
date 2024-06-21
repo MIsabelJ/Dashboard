@@ -10,7 +10,6 @@ import { Button, ButtonGroup } from "@mui/material";
 import { PedidoModal } from "../../ui/modals/ModalPedidos/ModalPedido";
 import { roles, ColumnsPedido } from "./constantes";
 import { EmpleadoService } from "../../../services/EmpleadoService";
-import { IEmpleado } from "../../../types/Empleado/IEmpleado";
 
 const API_URL = import.meta.env.VITE_API_URL;
 

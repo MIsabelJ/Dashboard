@@ -1,20 +1,19 @@
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import LoginButton from "../../ui/LoginButtons/LoginButton";
-import RegisterButton from "../../ui/LoginButtons/RegisterButton";
-import { Logout } from "@mui/icons-material";
-import LogoutButton from "../../ui/LoginButtons/LogoutButton";
 import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Button } from "react-bootstrap";
 import { EmpleadoService } from "../../../services/EmpleadoService";
 import { IEmpleado } from "../../../types/Empleado/IEmpleado";
+import { Loader } from "../../ui/Loader/Loader";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const Login = () => {
   const navigate = useNavigate();
   const empleadoService = new EmpleadoService(`${API_URL}/empleado`);
-  const [rolEmpleado, setRolEmpleado] = useState<String>();
+  const [rolEmpleado, setRolEmpleado] = useState<string>();
+  const [loading, setLoading] = useState(true);
   const [empleado, setEmpleado] = useState<IEmpleado | null>(null);
   const { isAuthenticated } = useAuth0();
 
@@ -26,10 +25,14 @@ const Login = () => {
     }
     const idEmpleado = Number(idEmpleadoString);
     if (isNaN(idEmpleado)) {
-      console.error("El id del empleado en el localStorage no es un número válido");
+      console.error(
+        "El id del empleado en el localStorage no es un número válido"
+      );
       return;
     }
-    const empleado: IEmpleado | null = await empleadoService.getById(idEmpleado);
+    const empleado: IEmpleado | null = await empleadoService.getById(
+      idEmpleado
+    );
     if (empleado) {
       setEmpleado(empleado);
       setRolEmpleado(empleado.tipoEmpleado.toString());
@@ -49,8 +52,7 @@ const Login = () => {
     } else {
       console.error("Información de sucursal o empresa incompleta");
     }
-
-  }
+  };
   const handleLogin = () => {
     if (!rolEmpleado || !empleado) {
       console.error("No se ha obtenido la información del empleado");
@@ -59,22 +61,22 @@ const Login = () => {
 
     switch (rolEmpleado) {
       case "ADMIN":
-        navigate('/empresa');
+        navigate("/empresa");
         break;
       case "ADMIN_NEGOCIO":
-        setStorage('/inicio');
+        setStorage("/inicio");
         break;
       case "CAJERO":
-        setStorage('/pedido');
+        setStorage("/pedido");
         break;
       case "COCINERO":
-        setStorage('/articulo-manufacturado');
+        setStorage("/articulo-manufacturado");
         break;
       case "REPOSITOR":
-        setStorage('/articulo-manufacturado');
+        setStorage("/articulo-insumo");
         break;
       case "DELIVERY":
-        setStorage('/pedido');
+        setStorage("/pedido");
         break;
       default:
         console.error("Rol de empleado desconocido");
@@ -83,34 +85,47 @@ const Login = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     if (isAuthenticated) {
       const checkLocalStorage = async () => {
         while (!localStorage.getItem("user")) {
-          await new Promise(resolve => setTimeout(resolve, 100)); // Espera 100 ms antes de volver a comprobar
+          await new Promise((resolve) => setTimeout(resolve, 100)); // Espera 100 ms antes de volver a comprobar
         }
         getEmpleado();
+        setLoading(false);
       };
       checkLocalStorage();
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated]);
 
   return (
     <div className="page-container">
-      <div className="form-container" >
-        {isAuthenticated ? <p className="title">Bienvenido/a</p> : <p className="title">Iniciar Sesion</p>}
-        {!isAuthenticated &&
-          <form className="form">
-            <LoginButton />
-          </form>
-        }
-        {isAuthenticated && (
-          <div>
-            <p>{empleado?.nombre} {empleado?.apellido}.</p>
-            <Button onClick={handleLogin}>Ingresar</Button>
-          </div>
-        )
-        }
-      </div>
+      {loading ? (
+        <Loader />
+      ) : (
+        <div className="form-container">
+          {isAuthenticated ? (
+            <p className="title">Bienvenido/a</p>
+          ) : (
+            <p className="title">Iniciar Sesion</p>
+          )}
+          {!isAuthenticated && (
+            <form className="form">
+              <LoginButton />
+            </form>
+          )}
+          {isAuthenticated && (
+            <div>
+              <p>
+                {empleado?.nombre} {empleado?.apellido}.
+              </p>
+              <Button onClick={handleLogin}>Ingresar</Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

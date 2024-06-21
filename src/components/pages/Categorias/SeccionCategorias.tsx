@@ -39,7 +39,7 @@ export function SeccionCategorias() {
   const handleDelete = async (id: number) => {
     Swal.fire({
       title: "¿Estas seguro?",
-      text: `¿Seguro que quieres editar el estado?`,
+      text: `¿Seguro que quieres cambiar el estado?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
