@@ -48,13 +48,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     if (selectedId) {
       try {
         if (valuesPost.estado === "CANCELADO") {
-          // llamada al endpoint
           return await pedidoService.cancelarPedido(selectedId, reponerStock);
         }
-        if (valuesPost.estado === "FACTURADO") {
-          // lógica adicional si es necesario
-        }
-        console.log("guardar", valuesPost);
         await pedidoService.put(selectedId, valuesPost);
       } catch (error) {
         console.error(error);
@@ -75,8 +70,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     try {
       if (selectedId) {
         const pedido = await pedidoService.getById(selectedId);
-        console.log(pedido);
         if (pedido) {
+          console.log(pedido.estado);
           setValues(pedido);
           setValorSeleccionado(pedido.estado);
           setValuesPost({
@@ -103,8 +98,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
               (detalle: IDetallePedido) => ({
                 cantidad: detalle.cantidad,
                 subTotal: detalle.subTotal,
-                idArticulo: detalle.articulo?.id,
-                idPromocion: detalle.promocion?.id,
+                idArticulo: detalle.articulo?.id || 0,
+                idPromocion: detalle.promocion?.id || 0,
               })
             ),
             idEmpleado: pedido.empleado.id,
@@ -152,8 +147,8 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     value: string;
     color: string;
   }[] = options.filter(
-    (option) =>
-      roles[role].includes(option.value) && option.value !== values?.estado
+    (option) => roles[role].includes(option.value)
+    // && option.value !== values?.estado
   );
 
   useEffect(() => {
