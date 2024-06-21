@@ -137,16 +137,21 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
   };
 
   const options = [
-    { label: "Pendiente", value: "PENDIENTE", color: "#FFEB3B" },
-    { label: "Cancelado", value: "CANCELADO", color: "#F44336" },
-    { label: "Aprobado", value: "APROBADO", color: "#8BC34A" },
-    { label: "En preparación", value: "PREPARACION", color: "#03A9F4" },
-    { label: "Terminado", value: "TERMINADO", color: "#4CAF50" },
-    { label: "En delivery", value: "DELIVERY", color: "#2196F3" },
-    { label: "Facturado", value: "FACTURADO", color: "#9C27B0" },
+    { key: 1, label: "Pendiente", value: "PENDIENTE", color: "#FFEB3B" },
+    { key: 2, label: "Cancelado", value: "CANCELADO", color: "#F44336" },
+    { key: 3, label: "Aprobado", value: "APROBADO", color: "#8BC34A" },
+    { key: 4, label: "En preparación", value: "PREPARACION", color: "#03A9F4" },
+    { key: 5, label: "Terminado", value: "TERMINADO", color: "#4CAF50" },
+    { key: 6, label: "En delivery", value: "DELIVERY", color: "#2196F3" },
+    { key: 7, label: "Facturado", value: "FACTURADO", color: "#9C27B0" },
   ];
 
-  const filteredOptions = options.filter(
+  const filteredOptions: {
+    key: number;
+    label: string;
+    value: string;
+    color: string;
+  }[] = options.filter(
     (option) =>
       roles[role].includes(option.value) && option.value !== values?.estado
   );
@@ -171,9 +176,9 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
           isOptionEqualToValue={(option, value) => option.value === value.value}
           renderInput={(params) => <TextField {...params} label="Estado" />}
           renderOption={(props, option) => {
-            const { key, ...rest } = props;
+            const { ...rest } = props;
             return (
-              <li key={key} {...rest}>
+              <li key={option.key} {...rest}>
                 <ColorDot color={option.color} />
                 {option.label}
               </li>
