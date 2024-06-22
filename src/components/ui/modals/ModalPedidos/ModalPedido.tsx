@@ -3,14 +3,11 @@ import { IPedidoPost } from "../../../../types/Pedido/IPedidoPost";
 import { Modal, Button, Form } from "react-bootstrap";
 import { IPedido } from "../../../../types/Pedido/IPedido";
 import { PedidoService } from "../../../../services/PedidoService";
-import { useAppDispatch } from "../../../../hooks/redux";
-import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { Autocomplete, Checkbox, TextField } from "@mui/material";
 import { IDetallePedido } from "../../../../types/DetallePedido/IDetallePedido";
 import styled from "styled-components";
 import { roles } from "../../../pages/Pedidos/constantes";
 
-// Define ColorDot outside of the component
 const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
   height: 10,
   width: 10,
@@ -20,20 +17,20 @@ const ColorDot = styled("span")<{ color?: string }>(({ color }) => ({
   marginRight: 8,
 }));
 
-// ---------- INTERFAZ ----------
 interface PedidoModalProps {
   show: boolean;
   handleClose: () => void;
   selectedId?: number;
   role: string;
+  updatePedidos: () => void; // Nueva prop para actualizar los pedidos
 }
 
-// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const PedidoModal: React.FC<PedidoModalProps> = ({
   show,
   handleClose,
   selectedId,
   role,
+  updatePedidos, // Usar la nueva prop
 }) => {
   const [values, setValues] = useState<IPedido>();
   const [valuesPost, setValuesPost] = useState<IPedidoPost>({} as IPedidoPost);
@@ -42,28 +39,22 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
 
   const API_URL = import.meta.env.VITE_API_URL;
   const pedidoService = new PedidoService(API_URL + "/pedido");
-  const dispatch = useAppDispatch();
 
   const handleSave = async () => {
     if (selectedId) {
       try {
         if (valuesPost.estado === "CANCELADO") {
-          return await pedidoService.cancelarPedido(selectedId, reponerStock);
+          await pedidoService.cancelarPedido(selectedId, reponerStock);
+        } else {
+          await pedidoService.put(selectedId, valuesPost);
         }
-        await pedidoService.put(selectedId, valuesPost);
+        await updatePedidos(); // Actualizar los pedidos después de guardar
+        handleClose();
+        setValues(undefined);
       } catch (error) {
         console.error(error);
       }
     }
-    getAll();
-    handleClose();
-    setValues(undefined);
-  };
-
-  const getAll = async () => {
-    await pedidoService.getAll().then((pedidoData) => {
-      dispatch(setDataTable(pedidoData));
-    });
   };
 
   const getOne = async () => {
@@ -71,7 +62,6 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
       if (selectedId) {
         const pedido = await pedidoService.getById(selectedId);
         if (pedido) {
-          console.log(pedido.estado);
           setValues(pedido);
           setValorSeleccionado(pedido.estado);
           setValuesPost({
@@ -146,10 +136,7 @@ export const PedidoModal: React.FC<PedidoModalProps> = ({
     label: string;
     value: string;
     color: string;
-  }[] = options.filter(
-    (option) => roles[role].includes(option.value)
-    // && option.value !== values?.estado
-  );
+  }[] = options.filter((option) => roles[role].includes(option.value));
 
   useEffect(() => {
     if (selectedId) {

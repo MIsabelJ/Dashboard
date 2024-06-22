@@ -130,19 +130,17 @@ export const ColumnsPedido = [
     label: "Factura",
     key: "factura",
     render: (pedido: IPedido) => {
-      if (pedido.estado === "FACTURADO") {
-        if (pedido.factura) {
-          return (
-            <Link
-              href={`${API_URL}/pedido/downloadFacturaPedido/${pedido.id}`}
-              target="_blank"
-              underline="none">
-              <Button variant="contained" color="success">
-                Descargar
-              </Button>
-            </Link>
-          );
-        }
+      if (pedido.factura) {
+        return (
+          <Link
+            href={`${API_URL}/pedido/downloadFacturaPedido/${pedido.id}`}
+            target="_blank"
+            underline="none">
+            <Button variant="contained" color="success">
+              Descargar
+            </Button>
+          </Link>
+        );
       } else {
         return <p style={{ color: "#bbb", margin: "0" }}>No disponible</p>;
       }

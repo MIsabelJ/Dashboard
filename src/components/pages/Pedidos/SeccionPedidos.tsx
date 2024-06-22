@@ -14,22 +14,15 @@ import { EmpleadoService } from "../../../services/EmpleadoService";
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const SeccionPedidos = () => {
-  // -------------------- STATES --------------------
   const [loading, setLoading] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-
-  //Maneja el elemento seleccionado en la tabla (para poder editarlo)
   const [selectedId, setSelectedId] = useState<number>();
   const [userRole, setUserRole] = useState("ADMIN");
-  //Permite filtrar los pedidos por su estado
   const [filtro, setFiltro] = useState("");
   const [pedidos, setPedidos] = useState<IPedido[]>([]);
-  // -------------------- SERVICES --------------------
   const pedidoService = new PedidoService(API_URL + "/pedido");
   const dispatch = useAppDispatch();
   const empleadoService = new EmpleadoService(API_URL + "/empleado");
-
-  // -------------------- HANDLERS --------------------
 
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -60,15 +53,11 @@ export const SeccionPedidos = () => {
     }
   };
 
-  // -------------------- FUNCIONES --------------------
-
   const getPedido = async () => {
-    await pedidoService.getAll().then((pedidoData) => {
-      setPedidos(pedidoData);
-      dispatch(setDataTable(pedidoData));
-      setLoading(false);
-      console.log(pedidoData);
-    });
+    const pedidoData = await pedidoService.getAll();
+    setPedidos(pedidoData);
+    dispatch(setDataTable(pedidoData));
+    setLoading(false);
   };
 
   const getUser = async () => {
@@ -78,16 +67,13 @@ export const SeccionPedidos = () => {
     if (empleado) {
       setUserRole(empleado.tipoEmpleado);
     } else {
-      console.log("No se encontro el usuario");
+      console.log("No se encontró el usuario");
     }
   };
 
-  // -------------------- EFFECTS --------------------
   useEffect(() => {
     setLoading(true);
     getUser();
-    console.log(userRole);
-    setFiltro(roles[userRole][0]);
     getPedido();
   }, []);
 
@@ -123,6 +109,7 @@ export const SeccionPedidos = () => {
               handleDelete={handleDelete}
               columns={ColumnsPedido}
               setOpenModal={setOpenModal}
+              data={pedidos} // Pasar los datos actualizados a GenericTable
             />
           </div>
         </div>
@@ -132,6 +119,7 @@ export const SeccionPedidos = () => {
         handleClose={() => setOpenModal(false)}
         selectedId={selectedId}
         role={userRole}
+        updatePedidos={getPedido} // Pasar la función para actualizar pedidos
       />
     </>
   );
