@@ -15,12 +15,14 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  Tooltip,
 } from "@mui/material";
 import { dashboardItems } from "./DashboardItems";
 import { AccountCircle } from "@mui/icons-material";
 import { ISucursal } from "../../../types/Sucursal/ISucursal";
 import { EmpleadoService } from "../../../services/EmpleadoService";
 import { IEmpleado } from "../../../types/Empleado/IEmpleado";
+import { useAuth0 } from "@auth0/auth0-react";
 const API_URL = import.meta.env.VITE_API_URL;
 const drawerWidth = 240;
 
@@ -67,6 +69,7 @@ const Sidebar = ({
   const empleadoService = new EmpleadoService(`${API_URL}/empleado`);
   const [empleado, setEmpleado] = React.useState<IEmpleado | null>(null);
   const idEmpleado = localStorage.getItem("user");
+  const { user } = useAuth0();
   const getEmpleado = async () => {
     const response = await empleadoService.getById(Number(idEmpleado));
     if (response) {
@@ -93,8 +96,7 @@ const Sidebar = ({
       }}
       variant="persistent"
       anchor="left"
-      open={open}
-    >
+      open={open}>
       <h5 style={{ padding: "15px", marginBottom: "0" }}>
         {empresa ? empresa.nombre : ""}
       </h5>
@@ -105,28 +107,35 @@ const Sidebar = ({
           alignItems: "center",
           justifyContent: "center",
           marginTop: "0px",
-        }}
-      >
+        }}>
         <IconButton
           aria-label="user"
           color="primary"
-          onClick={() => navigate("/profile")}
-        >
-          <AccountCircle fontSize="large" />
+          onClick={() => navigate("/profile")}>
+          <Tooltip title={user?.name} arrow>
+            <img
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+              src={user?.picture}
+              alt={user?.name}
+            />
+          </Tooltip>
         </IconButton>
         <FormControl
           sx={{ m: 1, minWidth: 120 }}
           size="small"
-          disabled={!(empleado && empleado.tipoEmpleado === "ADMIN")}
-        >
+          disabled={!(empleado && empleado.tipoEmpleado === "ADMIN")}>
           <InputLabel id="demo-select-small-label">Sucursal</InputLabel>
           <Select
             labelId="demo-select-small-label"
             id="demo-select-small"
             value={sucursales ? Number(sucursalSelected) : ""}
             label="Branch"
-            onChange={(event) => handleChangeSucursal(event)}
-          >
+            onChange={(event) => handleChangeSucursal(event)}>
             {sucursales &&
               sucursales?.map((sucursal: ISucursal, index: number) => (
                 <MenuItem key={index} value={sucursal.id}>
@@ -151,8 +160,7 @@ const Sidebar = ({
                         navigate(`/${route}`);
                       }
                     }}
-                    disablePadding
-                  >
+                    disablePadding>
                     <ListItemButton>
                       <ListItemIcon>{icon}</ListItemIcon>
                       <ListItemText primary={text} />
@@ -164,8 +172,7 @@ const Sidebar = ({
                     <Collapse
                       in={openSubMenu[text]}
                       timeout="auto"
-                      unmountOnExit
-                    >
+                      unmountOnExit>
                       <List component="div" disablePadding>
                         {subItems.map(
                           (subItem, subIndex) =>
@@ -176,8 +183,7 @@ const Sidebar = ({
                                 key={`${index}-${subIndex}`}
                                 onClick={() => navigate(`/${subItem.route}`)}
                                 disablePadding
-                                sx={{ pl: 4 }}
-                              >
+                                sx={{ pl: 4 }}>
                                 <ListItemButton>
                                   <ListItemIcon>{subItem.icon}</ListItemIcon>
                                   <ListItemText primary={subItem.text} />
