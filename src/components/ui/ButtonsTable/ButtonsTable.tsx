@@ -11,6 +11,7 @@ interface IButtonsTable<T = IEmpresa> {
   setOpenModal: (state: boolean) => void; // Función para manejar la eliminación de un elemento
   setSelectedId: (id: number) => void;
   editable?: boolean;
+  deletable?: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -20,6 +21,7 @@ export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
   setOpenModal,
   setSelectedId,
   editable,
+  deletable,
 }: IButtonsTable<T>) => {
   const dispatch = useAppDispatch();
 
@@ -50,10 +52,12 @@ export const ButtonsTable = <T extends { id: number; eliminado: boolean }>({
             <EditRounded />
           </IconButton>
         )}
-      <Switch
-        checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
-        onChange={() => handleDelete(el.id)}
-      />
+      {(deletable === undefined || deletable !== false) && (
+        <Switch
+          checked={!el.eliminado} // Utiliza el estado local 'active' para controlar el estado del Switch
+          onChange={() => handleDelete(el.id)}
+        />
+      )}
     </div>
   );
 };

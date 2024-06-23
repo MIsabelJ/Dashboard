@@ -109,7 +109,7 @@ export const SeccionPedidos = () => {
               handleDelete={handleDelete}
               columns={ColumnsPedido}
               setOpenModal={setOpenModal}
-              data={pedidos} // Pasar los datos actualizados a GenericTable
+              deletable={false}
             />
           </div>
         </div>

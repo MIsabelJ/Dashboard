@@ -32,6 +32,7 @@ export interface ITableProps<T> {
   setOpenModal: (state: boolean) => void;
   setSelectedId: (state: number) => void;
   editable?: boolean;
+  deletable?: boolean;
 }
 
 // ------------------------------ COMPONENTE PRINCIPAL ------------------------------
@@ -41,6 +42,7 @@ export const GenericTable = <T extends { id: number }>({
   setOpenModal,
   setSelectedId,
   editable,
+  deletable,
 }: ITableProps<T>) => {
   // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
@@ -100,17 +102,19 @@ export const GenericTable = <T extends { id: number }>({
           placeholder="Buscar..."
         />
         {/* BOTÓN DE AGREGAR */}
-        <IconButton
-          color="primary"
-          aria-label="add"
-          onClick={() => {
-            setOpenModal(true);
-          }}>
-          <AddIcon />
-        </IconButton>
+        {(deletable === undefined || deletable !== false) && ( //No debería ser con esta condición
+          <IconButton
+            color="primary"
+            aria-label="add"
+            onClick={() => {
+              setOpenModal(true);
+            }}>
+            <AddIcon />
+          </IconButton>
+        )}
       </div>
       <Paper sx={{ width: "95%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: "70vh" }}>
+        <TableContainer sx={{ maxHeight: "56vh" }}>
           <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -167,7 +171,12 @@ export const GenericTable = <T extends { id: number }>({
                               setSelectedId={setSelectedId}
                               handleDelete={handleDelete}
                               setOpenModal={setOpenModal}
-                              editable={isRowEditable}
+                              editable={
+                                isRowEditable !== undefined
+                                  ? isRowEditable
+                                  : editable
+                              }
+                              deletable={deletable}
                             />
                           </div>
                         </TableCell>
@@ -180,6 +189,7 @@ export const GenericTable = <T extends { id: number }>({
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
+          style={{ height: "60px" }}
           component="div"
           count={rows.length}
           rowsPerPage={rowsPerPage}
