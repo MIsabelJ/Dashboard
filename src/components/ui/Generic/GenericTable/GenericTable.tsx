@@ -1,9 +1,7 @@
 import { ReactNode, useEffect, useState } from "react";
-// ---------- ARCHIVOS----------
 import { useAppSelector } from "../../../../hooks/redux";
 import { ButtonsTable } from "../../ButtonsTable/ButtonsTable";
 import SearchBar from "../../SearchBar/SearchBar";
-// ---------- ESTILOS ----------
 import "./GenericTable.css";
 import { Table } from "react-bootstrap";
 import {
@@ -15,11 +13,10 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TableSortLabel,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-// ------------------------------ CÓDIGO ------------------------------
-// -------------------- INTERFAZ --------------------
 interface ITableColumn<T> {
   label: string;
   key: string;
@@ -35,7 +32,6 @@ export interface ITableProps<T> {
   deletable?: boolean;
 }
 
-// ------------------------------ COMPONENTE PRINCIPAL ------------------------------
 export const GenericTable = <T extends { id: number }>({
   columns,
   handleDelete,
@@ -44,23 +40,21 @@ export const GenericTable = <T extends { id: number }>({
   editable,
   deletable,
 }: ITableProps<T>) => {
-  // -------------------- STATES --------------------
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [rows, setRows] = useState<any[]>([]);
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("");
 
-  // -------------------- HANDLERS --------------------
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  // Cambiar de pagina desde donde estoy parado
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  // Se usa el + antes del event para convertirlo en un numero ya que vienen del input como string
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -68,17 +62,12 @@ export const GenericTable = <T extends { id: number }>({
     setPage(0);
   };
 
-  // -------------------- FUNCIONES --------------------
-  // Obtener los datos de la tabla en su estado inicial (sin datos)
   const dataTable = useAppSelector((state) => state.tableReducer.dataTable);
 
-  // -------------------- EFFECTS --------------------
-  // useEffect va a estar escuchando el estado 'dataTable' para actualizar los datos de las filas con los datos de la tabla
   useEffect(() => {
     const filteredRows = dataTable.filter((row) =>
       columns.some((column) => {
         const value = column.render ? column.render(row) : row[column.key];
-        // Convertir a texto para búsqueda
         const textValue =
           typeof value === "string"
             ? value
@@ -91,18 +80,41 @@ export const GenericTable = <T extends { id: number }>({
     setRows(filteredRows);
   }, [dataTable, searchTerm, columns]);
 
-  // -------------------- RENDER --------------------
+  const handleRequestSort = (property: string) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
+  };
+
+  const sortedRows = rows.slice().sort((a, b) => {
+    const valueA = a[orderBy];
+    const valueB = b[orderBy];
+
+    if (valueA === null || valueA === undefined) return 1;
+    if (valueB === null || valueB === undefined) return -1;
+
+    if (typeof valueA === "string" && typeof valueB === "string") {
+      return order === "asc"
+        ? valueA.localeCompare(valueB)
+        : valueB.localeCompare(valueA);
+    }
+
+    if (typeof valueA === "number" && typeof valueB === "number") {
+      return order === "asc" ? valueA - valueB : valueB - valueA;
+    }
+
+    return 0;
+  });
+
   return (
     <div className="genericTable-container">
-      <div className="genericTable-header">
-        {/* BARRA DE BÚSQUEDA */}
-        <SearchBar
-          value={searchTerm}
-          onChange={handleSearch}
-          placeholder="Buscar..."
-        />
-        {/* BOTÓN DE AGREGAR */}
-        {(deletable === undefined || deletable !== false) && ( //No debería ser con esta condición
+      {(deletable === undefined || deletable !== false) && (
+        <div className="genericTable-header">
+          <SearchBar
+            value={searchTerm}
+            onChange={handleSearch}
+            placeholder="Buscar..."
+          />
           <IconButton
             color="primary"
             aria-label="add"
@@ -111,22 +123,28 @@ export const GenericTable = <T extends { id: number }>({
             }}>
             <AddIcon />
           </IconButton>
-        )}
-      </div>
+        </div>
+      )}
       <Paper sx={{ width: "95%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: "56vh" }}>
+        <TableContainer
+          sx={deletable ? { maxHeight: "56vh" } : { maxHeight: "64vh" }}>
           <Table aria-label="sticky table">
             <TableHead>
               <TableRow>
                 {columns.map((column, i: number) => (
                   <TableCell key={i} align={"center"}>
-                    {column.label}
+                    <TableSortLabel
+                      active={orderBy === column.key}
+                      direction={orderBy === column.key ? order : "asc"}
+                      onClick={() => handleRequestSort(column.key)}>
+                      {column.label}
+                    </TableSortLabel>
                   </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.length === 0 ? (
+              {sortedRows.length === 0 ? (
                 <TableRow>
                   {columns.map((column, i) => (
                     <TableCell key={i} align="center">
@@ -135,10 +153,9 @@ export const GenericTable = <T extends { id: number }>({
                   ))}
                 </TableRow>
               ) : (
-                rows
+                sortedRows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, index) => {
-                    // Determine if the row should be editable based on a specific cell value
                     const isRowEditable = columns.every((column) => {
                       if (
                         column.key === "estado" &&
@@ -191,7 +208,7 @@ export const GenericTable = <T extends { id: number }>({
           rowsPerPageOptions={[10, 25, 100]}
           style={{ height: "60px" }}
           component="div"
-          count={rows.length}
+          count={sortedRows.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
