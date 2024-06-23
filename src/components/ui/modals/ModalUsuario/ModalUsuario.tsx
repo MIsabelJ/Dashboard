@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IUsuario } from "../../../../types/Usuario/IUsuario";
 import { UsuarioService } from "../../../../services/UsuarioService";
-import { API_URL, initialValues } from "./utils/constants";
+import { API_URL, initialValues, roles } from "./utils/constants";
 import { useAppDispatch } from "../../../../hooks/redux";
 import { setDataTable } from "../../../../redux/slices/TablaReducer";
 import { IUsuarioPost } from "../../../../types/Usuario/IUsuarioPost";
@@ -19,27 +19,6 @@ interface ModalUsuariosProps {
   handleClose: () => void;
   selectedId?: number;
 }
-
-const roles = [
-  "ADMIN",
-  "ADMIN_NEGOCIO",
-  "CAJERO",
-  "COCINERO",
-  "REPOSITOR",
-  "DELIVERY",
-];
-
-const initialValuesPost: IEmpleadoPost = {
-  nombre: "",
-  apellido: "",
-  tipoEmpleado: "",
-  idSucursal: 0,
-  pedidos: [],
-  usuarioEmpleado: {
-    email: "",
-    userName: "",
-  }
-};
 
 const ModalUsuario = ({
   show,
