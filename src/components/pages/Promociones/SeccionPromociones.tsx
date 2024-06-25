@@ -8,6 +8,7 @@ import ModalPromocion from "../../ui/modals/ModalPromociones/ModalPromocion";
 import GenericTable from "../../ui/Generic/GenericTable/GenericTable";
 import { Loader } from "../../ui/Loader/Loader";
 import { Carousel } from "react-bootstrap";
+import { SucursalService } from "../../../services/SucursalService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -21,6 +22,7 @@ export const SeccionPromociones = () => {
 
   // -------------------- SERVICES --------------------
   const promocionService = new PromocionService(API_URL + "/promocion");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
@@ -86,10 +88,12 @@ export const SeccionPromociones = () => {
   // -------------------- FUNCIONES --------------------
 
   const getPromocion = async () => {
-    await promocionService.getAll().then((promocionData) => {
-      dispatch(setDataTable(promocionData));
-      setLoading(false);
-    });
+    await sucursalService
+      .getPromocionesBySucursalId(Number(localStorage.getItem("sucursalId")))
+      .then((promocionData) => {
+        dispatch(setDataTable(promocionData));
+        setLoading(false);
+      });
   };
 
   // -------------------- EFFECTS --------------------

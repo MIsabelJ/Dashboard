@@ -89,9 +89,8 @@ export function SeccionCategorias() {
 
   const getCategoria = async () => {
     try {
-      const sucursalId = localStorage.getItem("sucursalId");
-      const categoriaData = await sucursalService.getCategoriaBySucursalId(
-        Number(sucursalId)
+      const categoriaData = await sucursalService.getCategoriasBySucursalId(
+        Number(localStorage.getItem("sucursalId"))
       );
       const formatedCategorias = formatCategorias(categoriaData);
       const filteredCategorias = filterCategorias(formatedCategorias);

@@ -11,6 +11,7 @@ import { Loader } from "../../../ui/Loader/Loader";
 // ---------- ESTILOS ----------
 import { Carousel } from "react-bootstrap";
 import { Button } from "@mui/material";
+import { SucursalService } from "../../../../services/SucursalService";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -48,6 +49,7 @@ export const SeccionManufacturados = () => {
   const manufacturadoService = new ManufacturadoService(
     API_URL + "/articulo-manufacturado"
   );
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
 
   // -------------------- COLUMNAS --------------------
   const ColumnsManufacturado = [
@@ -168,11 +170,13 @@ export const SeccionManufacturados = () => {
   const dispatch = useAppDispatch();
 
   const getManufacturado = async () => {
-    await manufacturadoService.getAll().then((manufacturadoData) => {
-      console.log(manufacturadoData);
-      dispatch(setDataTable(manufacturadoData));
-      setLoading(false);
-    });
+    await sucursalService
+      .getManufacturadosBySucursalId(Number(localStorage.getItem("sucursalId")))
+      .then((manufacturadoData) => {
+        console.log(manufacturadoData);
+        dispatch(setDataTable(manufacturadoData));
+        setLoading(false);
+      });
   };
 
   // -------------------- EFFECTS --------------------

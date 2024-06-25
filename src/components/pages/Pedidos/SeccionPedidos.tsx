@@ -10,6 +10,7 @@ import { Button, ButtonGroup } from "@mui/material";
 import { PedidoModal } from "../../ui/modals/ModalPedidos/ModalPedido";
 import { roles, ColumnsPedido } from "./constantes";
 import { EmpleadoService } from "../../../services/EmpleadoService";
+import { SucursalService } from "../../../services/SucursalService";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,6 +24,7 @@ export const SeccionPedidos = () => {
   const pedidoService = new PedidoService(API_URL + "/pedido");
   const dispatch = useAppDispatch();
   const empleadoService = new EmpleadoService(API_URL + "/empleado");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
 
   const handleDelete = async (id: number) => {
     Swal.fire({
@@ -54,7 +56,7 @@ export const SeccionPedidos = () => {
   };
 
   const getPedido = async () => {
-    const pedidoData = await pedidoService.getAll();
+    const pedidoData = await sucursalService.getPedidosBySucursalId(Number(localStorage.getItem("sucursalId")))
     setPedidos(pedidoData);
     dispatch(setDataTable(pedidoData));
     setLoading(false);

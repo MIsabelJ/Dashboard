@@ -12,6 +12,7 @@ import { Loader } from "../../../ui/Loader/Loader";
 import Carousel from "react-bootstrap/Carousel";
 import { Tooltip } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import { SucursalService } from "../../../../services/SucursalService";
 
 // ------------------------------ CÓDIGO ------------------------------
 const API_URL = import.meta.env.VITE_API_URL;
@@ -27,6 +28,7 @@ export const SeccionInsumos = () => {
 
   // -------------------- SERVICES --------------------
   const insumoService = new InsumoService(API_URL + "/articulo-insumo");
+  const sucursalService = new SucursalService(API_URL + "/sucursal");
   const dispatch = useAppDispatch();
 
   // -------------------- COLUMNAS --------------------
@@ -72,8 +74,7 @@ export const SeccionInsumos = () => {
               alignItems: "center",
               justifyContent: "space-between",
               gap: "0.3rem",
-            }}
-          >
+            }}>
             {insumo.stockActual}
             <Tooltip title="Stock muy bajo, reponer artículo" arrow>
               <WarningAmberIcon color="error" />
@@ -98,8 +99,7 @@ export const SeccionInsumos = () => {
                   alignItems: "center",
                   height: "100px",
                   width: "100px",
-                }}
-              >
+                }}>
                 <img
                   className="d-block"
                   src={imagen.url}
@@ -149,10 +149,12 @@ export const SeccionInsumos = () => {
   // -------------------- FUNCIONES --------------------
 
   const getAllInsumo = async () => {
-    await insumoService.getAll().then((insumoData) => {
-      dispatch(setDataTable(insumoData));
-      setLoading(false);
-    });
+    await sucursalService
+      .getInsumosBySucursalId(Number(localStorage.getItem("sucursalId")))
+      .then((insumoData) => {
+        dispatch(setDataTable(insumoData));
+        setLoading(false);
+      });
   };
 
   // -------------------- EFFECTS --------------------
