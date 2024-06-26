@@ -195,7 +195,7 @@ export const ModalArticuloInsumo = ({
       getUnidadesMedida();
       const getCategorias = async () => {
         const sucursalId = localStorage.getItem("sucursalId");
-        const response = await sucursalService.getCategoriaBySucursalId(
+        const response = await sucursalService.getCategoriasBySucursalId(
           Number(sucursalId)
         );
         setCategorias(response);
