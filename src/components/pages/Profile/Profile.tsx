@@ -1,17 +1,20 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import "./Profile.css";
-import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth0();
-  const navigate = useNavigate();
-
   if (isLoading) {
     return <div>Loading ...</div>;
   }
+
   const handleLogout = () => {
     localStorage.clear();
-    logout({ logoutParams: { navigateTo: "/login" } })
+    const logoutUrl = import.meta.env.VITE_AUTH0_LOGOUT_URL || window.location.origin;
+    logout({ 
+      logoutParams: { 
+        returnTo: logoutUrl 
+      } 
+    });
   };
 
   return (
@@ -27,7 +30,7 @@ const Profile = () => {
           <p>{user?.email}</p>
           <button
             className="logout-button"
-            onClick={() => handleLogout()}
+            onClick={handleLogout}
           >
             Cerrar sesión
           </button>
