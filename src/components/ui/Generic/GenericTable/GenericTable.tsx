@@ -158,9 +158,9 @@ export const GenericTable = <T extends { id: number }>({
                   .map((row, index) => {
                     const isRowEditable = columns.every((column) => {
                       if (
-                        column.key === "estado" &&
-                        row[column.key] &&
-                        row[column.key].includes("CANCELADO")
+                        (column.key === "estado" &&
+                          (row[column.key]?.includes("CANCELADO") ||
+                            row[column.key]?.includes("RECHAZADO")))
                       ) {
                         return false;
                       }
